@@ -1,0 +1,51 @@
+
+- Upgrade system just for fun
+	- `sudo-apt get update`, `sudo apt-get upgrade`, `sudo pip3 install --upgrade setuptools`, AND `sudo pip install --upgrade setuptools`
+		- the last line was required to prevent install of neotrellis library install from breaking due to pip problems
+	- Warning: This will take FOREVER
+- Enabled I2C and SPI, and installed CircuitPython libraries in Python3
+	- source: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+	- Ran blinkatest.py to confirm
+- Install Neotrellis library in Python3
+	-`sudo pip3 install adafruit-circuitpython-neotrellis`
+- Default audio interface set-up: Create file ~/.asoundrc
+	````
+	pcm.!default {
+	        type hw
+	        card 0
+	        device 0
+	}
+	ctl.!default {
+	        type hw
+	        card 0
+	        device 0
+	}
+	````
+	- where 'card 0' is replaced by the device number when running 'aplay -l'. Then confirm it's working by running 'alsamixer'
+- Installed cffi and JACK-Client using pip3
+- Installed fluidsynth and qsynth using apt-get install
+
+---------
+
+To do:
+
+- [x] get sampler.py working
+- [x] run 'cat /etc/os-release' to find out which raspbian I am using
+- [x] try again after setting pygame init options
+- [x] get midi commands being sent through jack
+- [x] get midi_jack.py accepting button presses on trellis to send midi commands
+
+Improving latency:
+
+- [ ] use interrupt pin on the trellis (must solder male-female jumper to board, and plug in gpio #5 I think)
+- [ ] use raspi-config to boot to command-line without GUI
+- [ ] overclock cpu?
+- [ ] install raspbian lite?
+- [ ] find that jack script that disables unnecessary stuff
+- [ ] everything listed here: https://wiki.linuxaudio.org/wiki/raspberrypi
+
+Eventual goals:
+
+- [ ] get sooperlooper manually working (with audio in and audio out)
+- [ ] decide on osc vs. midi interface to sooperlooper
+	- leaning towards midi--looks better documented, or at least more clear

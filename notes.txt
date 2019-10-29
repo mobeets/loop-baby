@@ -1,0 +1,322 @@
+What: a looper with multiple channels, and midi sync, for a raspberri pi.
+
+--------------
+Parts
+--------------
+
+- raspberry pi 3B
+- audio in/out (via usb adapter)
+- midi in (for clock)
+- power button (for startup and shutdown)
+- pads (for controlling looper)
+- container
+
+--------------
+Software
+--------------
+
+Do the following in order:
+
+- Set up audio interface
+	- plugged in iMic audio interface, which was automatically recognized
+		- this both adds audio input capabilities to the pi, and gives what's potentially a better output as well
+	- Made imic the default sound card in Preferences > Audio Settings
+		- "sudo lsusb -v" to confirm name (hw: system)
+	- Confirmed we can play out of speaker on the pi
+		- Run "speaker-test" and brace yourself
+	- Confirmed we can record audio on the pi
+		- Using Audacity ("sudo apt-get install audacity")
+- Install jackd
+	- jackd came already installed
+		- otherwise could run "sudo apt-get install jackd1"
+- Install sooperlooper
+	- "sudo apt-get install sooperlooper"
+- Install qjackctrl (I think?)
+	- "sudo apt-get install qt5-default"
+	- downloaded qjackctrl online, then tried "./configure," and it broke
+	- but then I tried running qjackctrl and it ran just fine, so either it was already installed or installed enough to work
+- Start Jackd
+	- jackd -R -d alsa -d hw:system -n myjack &
+		- "-d alsa" sets driver to alsa
+		- "-d hw:system" selects the iMic sound card ("aplay -l" gives names of valid devices)
+		- might also add "-n 3" to set buffer periods to 3, or  "-r 44100", to set sample rate to 44.1 KHz
+- Start Sooperlooper
+	- sudo killall -q -9 -w sooperlooper
+		- make sure there are no previous instances running
+	- sudo sooperlooper -S myjack -j sooperlooper -p 9951 &
+		- start sooperlooper connected to jack, and run on port 9951
+	- or if that fails, just start the GUI
+- Connect Sooperlooper to Jack (but failed)
+	- while ! nc -4 -u -z -v localhost 9951; do sleep 1; done
+		- wait until port is opened, otherwise we can't connect things
+	- sudo jack_connect system:capture_1 sooperlooper:common_in_1
+	- sudo jack_connect system:capture_2 sooperlooper:common_in_2
+	- sudo jack_connect sooperlooper:common_out_2 system:playback_2
+	- sudo jack_connect sooperlooper:common_out_1 system:playback_1
+	- or if that fails, just open qjackctrl and connect graphically
+- Record audio in sooperlooper!
+	- Open Sooperlooper (the GUI)
+	- Run "qjackctrl" and make connections with GUI
+	- The end! (I had iphone playing radiohead in, then sampled parts and played it to speakers)
+
+To-do:
+
+- Cannot connect sooperlooper to jackd via command line
+	- Running "sudo sooperlooper..." from cmd line opens a new instance of jackd that doesn't appear to use the ~/.jackdrc
+	- Opening the sooperlooper gui _does_ use ~/.jackdrc but then it breaks an assert
+	- Possible options:
+		- Try running "slgui" with appropriate options and see if that works
+		- Try changing options inside qjackctrl?
+- Get this all starting up automatically on boot
+
+--------------
+Button commands
+--------------
+
+BUTTONS:
+	1 2 3 4
+	5 6 7 8
+	A B C D
+	E F G H
+- A-H: Mode buttons
+	- Audio modes (1-8 are track selections):
+		- E: Play/pause mode
+		- F: Record mode
+		- G: Overdub mode
+		- H: Mute mode
+	- Option modes:
+		- A: Clear mode
+		- B: Light show (plays a light show, which you can end by pressing any button)
+			- probably this should actually be from pressing a certain combo of buttons...
+		- C: Save/Recall mode (1-8 then become file locations)
+		- D: Misc. mode (e.g., quantize on/off, clock source, etc.)
+- 1-8: Track buttons
+	- when in pause mode, these trigger samples
+	- when in record/overdub mode, these select the track you're recording to
+	- when in save mode, these specify file locations to save to (and are lit up when file already exists here)
+	- when in recall mode, these specify file locations to load (and only lit up options are allowed)
+
+Other possible modes:
+- Clear track (could just be the result of pressing record+track and not a separate button)
+
+General behavior:
+- One button for each track.
+- When in play mode, each track plays on loop unless muted.
+- When in pause mode, tracks can be played like samples.
+
+Mode buttons:
+- One button to set record/overdub (light changes to signify which)
+	- when in record mode, long-press or (double-tap?) a track button to clear it. or maybe hold the record/overdub button and the track button simultaneously to clear it
+- One button to set mute mode
+- One button for play/pause
+
+- Use Sooperlooper as one-shot sampler
+	- when in mute mode, hits "oneshot", which plays sample once from the top and then goes back to mute
+	- http://essej.net/sooperlooper/doc_midi_commands.html
+
+--------------
+Midi in (for clock)
+--------------
+Goal: Receive midi clock from a midi jack, and use it to sync the sooperlooper's loop length
+
+Plan:
+- build a midi minijack input
+	- parts/circuits: http://www.notesandvolts.com/2015/02/midi-and-arduino-build-midi-input.html
+	- only replace the 5-pin midi with just a single 3.5mm minijack following the instructions here:
+		- http://cdm.link/2015/08/used-stereo-minijack-cables-midi/
+		- this will make it compatible with beatstep's clock out
+- read the clock messages using serial in on the pi
+	- https://www.instructables.com/id/PiMiDi-A-Raspberry-Pi-Midi-Box-or-How-I-Learned-to/
+
+Options:
+- usb-midi adapter -- but do not buy cheap ones! they can ruin devices...
+- build your own pi-midi adapter
+	- https://www.instructables.com/id/PiMiDi-A-Raspberry-Pi-Midi-Box-or-How-I-Learned-to/
+- midi in with gpio
+	- http://www.samplerbox.org/article/midiinwithrpi
+- 3.5mm female connected to gpio
+	- to come straight in from beatstep pro's clock out
+	- to connect midi, just use those 3.5mm-midi adapters
+	- apparently it's just a square wave clock signal (e.g., one pulse per step, or 24 pulses per quarter note, etc.)
+
+How to use with sooperlooper:
+- "Set 'sync to' to Jack/Host; Go into SL settings and tick the box 'Round tempo to integer values on record'"
+	- http://essej.net/slforum/viewtopic.php?f=12&t=4921
+
+Reference:
+- midi hardware implementation
+	- https://learn.sparkfun.com/tutorials/midi-tutorial/all#hardware--electronic-implementation
+- beatstep pro clock out (Clock Output: Delivers 3.3V)
+	- https://www.arturia.com/faq/beatsteppro/beatstep-pro-general-questions
+- reading midi clock from beatstep (via usb...)
+	- https://github.com/rupa/octoeuclid/blob/master/euclid/beatsteppro.py
+- more detail on clock out in beatstep pro manual
+	- http://downloads.arturia.net/products/beatstep-pro/manual/BeatStepPro_Manual_1_4_0_EN.pdf
+- description of beatstep pro's clock out
+	- "...is not a MIDI clock. It's basically a square wave signal that can be used to sync devices that have an analog clock input"
+	- https://www.reddit.com/r/synthesizers/comments/5okhxw/midi_clock_out_issues_beatstep_pro/
+
+To do: when clock comes from the beatstep, what format is it? midi is apparently serial, so this is likely similar. so maybe as a starting point, I could try to read that data in. If that's possible, it should be possible to simply connect a minijack straight into the gpio, and read it in.
+
+--------------
+Case
+--------------
+
+Current plan for buttons: Get a 4x4 Adafruit button/multi-color-led grid and use their trellis library to connect to a raspberri pi.
+- 4x4 led grid ($13)
+	- https://www.adafruit.com/product/3954
+	- https://learn.adafruit.com/adafruit-neotrellis?view=all
+- 4x4 silicon buttons ($5)
+	- http://www.adafruit.com/product/1611
+- stemma cable? ($1)
+	- http://www.adafruit.com/product/3568
+- bumper feet ($1)
+	- https://www.adafruit.com/product/550
+
+Optional:
+- pi cobbler ($7), for connecting things to pi solderlessly
+	- https://www.adafruit.com/product/914
+
+Resources:
+- https://raspberrypi.stackexchange.com/questions/14035/8x8-matrix-of-buttons
+- https://raspberrypi.stackexchange.com/questions/4749/controlling-many-leds-with-few-gpio-pins
+- maybe look for people making monomes with a raspberry pi
+- The adafruit trellis library would work, but then leds could not be multi-colored (RGB), as far as I can tell
+
+Current plan: 4x4 grid, or two 2x2 grids
+- silicon buttons ($4-5) [adafruit or sparkfun]
+- pcb driver for buttons ($13) [adafruit or sparkfun]
+	- though make sure these are compatible with rgb leds!
+		- adafruit's more expensive one is!
+	- sparkfun's is just a board, where as adafruit's has a library
+	- actually the adafruit one comes with 16 neopixel leds already soldered in!
+- top and bottom bezels for buttons ($12) [sparkfun]
+	- these are maybe not necessary (and apparently not the best quality)
+- rgb leds ($1/led) [adafruit]
+
+Resources:
+- sparkfun button pad hookup guide
+	- https://learn.sparkfun.com/tutorials/button-pad-hookup-guide
+- adafruit trellis
+	- https://learn.adafruit.com/adafruit-trellis-diy-open-source-led-keypad/overview
+- example of midi controller using arduino leonardo
+	- https://learn.adafruit.com/untztrument-trellis-midi-instrument?view=all#overview
+- example 3D printed case for button pads and chip
+	- https://learn.adafruit.com/trellis-3d-printed-enclosure?view=all
+
+--------------
+Notes
+--------------
+
+Requirements:
+- [Jack](http://jackaudio.org/)
+- [SooperLooper](http://essej.net/sooperlooper/index.html)
+
+References:
+- Real-time Rasbian [distro](https://guysoft.wordpress.com/2017/10/09/realtimepi/): might be useful for reducing latency, if that's an issue.
+- SooperLooper getting started [video](https://vimeo.com/7315051)
+- [Someone](https://github.com/colinbrogan) working on similar thing
+- SooperLooper [forum](http://essej.net/slforum/viewforum.php?f=4)
+- Startup/shutdown scripts: https://github.com/vixus0/loopi
+- [Loopcenter](http://loopcenter.sourceforge.net/), a simpler alternative to sooperlooper
+
+Connecting Jack to SooperLooper:
+
+- Open Jack and SooperLooper
+- In Jack:
+	- Click "Start"
+	- Click "Routing"
+		- In Send, click system>capture_1, then in Receive double-click sooperlooper>common_in_1
+		- In Send, click system>capture_2, then in Receive double-click sooperlooper>common_in_2
+		- In Send, click sooperlooper>common_out_1, then in Receive double-click system>playback_1
+		- In Send, click sooperlooper>common_out_2, then in Receive double-click system>playback_2
+	- Click File>"Save Studio Setup..."
+		- Next time, after Clicking "Routing", you can choose File>"Load Studio Setup..."
+
+Next steps:
+- Open up Jack and SuperLooper by executing a single command line
+- Connect midi controller and implement a few simple controls
+	- Might be easier to do this in ubuntu since in osx we need a midi patchbay?
+- Open up Jack, SuperLooper, and midi controls by executing a single command line
+
+## Installing Jack on Rasbian
+
+- Good guide for getting low-latency audio with Jack on Rasbian
+	- https://wiki.linuxaudio.org/wiki/raspberrypi#running_jack
+- https://journeytounknownsoundscapes.blogspot.com/2015/05/a-new-looper-in-town-raspberry-pi-with.html
+
+--------------
+Jack
+--------------
+jackdmp 1.9.11
+Copyright 2001-2005 Paul Davis and others.
+Copyright 2004-2016 Grame.
+jackdmp comes with ABSOLUTELY NO WARRANTY
+This is free software, and you are welcome to redistribute it
+under certain conditions; see the file COPYING for details
+
+Usage: jackdmp [ --no-realtime OR -r ]
+               [ --realtime OR -R [ --realtime-priority OR -P priority ] ]
+      (the two previous arguments are mutually exclusive. The default is --realtime)
+               [ --name OR -n server-name ]
+               [ --timeout OR -t client-timeout-in-msecs ]
+               [ --loopback OR -L loopback-port-number ]
+               [ --port-max OR -p maximum-number-of-ports]
+               [ --slave-backend OR -X slave-backend-name ]
+               [ --internal-client OR -I internal-client-name ]
+               [ --verbose OR -v ]
+               [ --autoconnect OR -a <modechar>]
+                 where <modechar> is one of:
+                   ' ' - Don't restrict self connect requests (default)
+                   'E' - Fail self connect requests to external ports only
+                   'e' - Ignore self connect requests to external ports only
+                   'A' - Fail all self connect requests
+                   'a' - Ignore all self connect requests
+               [ --replace-registry ]
+               [ --silent OR -s ]
+               [ --sync OR -S ]
+               [ --temporary OR -T ]
+               [ --version OR -V ]
+         -d master-backend-name [ ... master-backend args ... ]
+       jackdmp -d master-backend-name --help
+             to display options for each master backend
+
+--------------
+SooperLooper
+--------------
+
+GUI options
+Usage: slgui [-h] [-V] [-l ] [-c ] [-t ] [-H ]
+             [-P ] [-m ] [-s] [-N] [-E ] [-J ] [-S ]
+  -h, --help                    show this help
+  -V, --version                 show version only
+  -l, --loopcount=         number of loopers to create (default is 1)
+  -c, --channels=          channel count for each looper (default is 2)
+  -t, --looptime=          number of seconds of loop memory per channel
+  -H, --connect-host=      connect to sooperlooper engine on given host (default is localhost)
+  -P, --connect-port=      connect to sooperlooper engine on given port (default is 9951)
+  -m, --load-midi-binding= loads midi binding from file
+  -s, --force-spawn             force the execution of a new engine
+  -N, --never-spawn             never start a new engine
+  -E, --exec-name=         use name as binary to execute as sooperlooper
+					     engine (default is sooperlooper)
+  -J, --jack-name=         jack client name, default is sooperlooper
+  -S, --jack-server-name=  specify JACK server name
+Engine options
+
+Usage: sooperlooper [options...]
+Options:
+  -l  , --loopcount= number of loopers to create (default is 1)
+  -c  , --channels=  channel count for each looper (default is 2)
+  -t  , --looptime=  number of seconds of loop memory per channel
+			           (default is 40), at least
+  -L  , --load-session= load initial session from pathname			
+  -D , --discrete-io=[yes]  initial loops should have discrete input and
+			            output ports (default yes)
+  -p  , --osc-port=  udp port number for OSC server (default is 9951)
+  -j  , --jack-name= jack client name, default is sooperlooper_1
+  -S  , --jack-server-name= specify jack server name
+  -m  , --load-midi-binding= loads midi binding from file or preset
+  -q , --quiet                 do not output status to stderr
+  -h , --help                  this usage output
+  -V , --version               show version only
