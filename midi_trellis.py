@@ -74,6 +74,12 @@ def process(frames):
     except queue.Empty:
         pass
 
+"""
+TODO:
+- source: https://github.com/spatialaudio/jackclient-python/issues/47
+Please note, however, that writing each MIDI event with offset 0 might introduce audible jitter, especially with very long JACK block sizes. In such a situation, I would probably try to obtain client.frame_time in each of the functions, adding a fixed delay (to stay causal) and transmitting this time to the process callback together with the MIDI data. The process callback can then use client.last_frame_time to calculate an appropriate offset value for write_midi_event().
+"""
+
 print(client.get_ports())
 print('Sample rate: {}'.format(fs))
 
