@@ -2,9 +2,6 @@
 Note: might also need an interrupt pin...if this gets slow.
 Neotrellis instructions: "If you want to use the interrupt pin, wire that as well to a digital I/O pin. We'll be using GPIO #5 by default"
 
-$ ifconfig -a
-$ ssh pi@raspberrypi.local
-$ scp sampler2.py pi@raspberrypi.local:~/loopbaby/
 $ sudo shutdown -h now
 """
 import sys

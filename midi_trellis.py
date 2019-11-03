@@ -1,7 +1,8 @@
+import sys
 import jack
-import struct
 import time
 import queue
+import struct
 
 from board import SCL, SDA
 import busio
@@ -31,7 +32,10 @@ client = jack.Client('MIDI-Chord-Generator')
 midi_out = client.midi_outports.register('output')
 midi_msgs = queue.Queue()
 
-connect_to = 'qsynth:midi'
+if len(sys.argv) > 1:
+    connect_to = sys.argv[1]
+else:
+    connect_to = 'qsynth:midi'
 fs = None
 offset = 0
 count = 0
@@ -41,7 +45,6 @@ pitch = 80
 def samplerate(samplerate):
     global fs
     fs = samplerate
-
 
 #this will be called when button events are received
 def blink(event):

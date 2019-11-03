@@ -23,7 +23,8 @@
 	````
 	- where 'card 0' is replaced by the device number when running 'aplay -l'. Then confirm it's working by running 'alsamixer'
 - Installed cffi and JACK-Client using pip3
-- Installed fluidsynth and qsynth using apt-get install
+- Installed fluidsynth and qsynth using apt-get
+- Installed a2jmidi using apt-get (for converting alsa-midi, which sooperlooper uses, to jack-midi)
 
 ---------
 
@@ -34,6 +35,12 @@ To do:
 - [x] try again after setting pygame init options
 - [x] get midi commands being sent through jack
 - [x] get midi_jack.py accepting button presses on trellis to send midi commands
+- [ ] I had midi commands being sent to sooperlooper, but sooperlooper wasn't playing any audio. if I could just get everything working at the same time...!
+
+Issues I've run into but didn't solve:
+- [ ] try to get connect_to_jack.py working (all xruns!); just restarted and it worked
+- [ ] sooperlooper not playing any audio
+- [ ] jackd not starting at boot -- did this used to happen automatically?
 
 Improving latency:
 

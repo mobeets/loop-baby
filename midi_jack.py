@@ -5,6 +5,12 @@ import time
 NOTEON = 0x90
 NOTEOFF = 0x80
 
+"""
+1. Run qsynth
+2. Run this code
+
+Current status: It seems to write the midi events, but no audio is playing. Is qsynth playing audio? Is the midi triggering anything? Maybe the notes are too brief? Who knows.
+"""
 client = jack.Client('MIDI-Chord-Generator')
 midi_out = client.midi_outports.register('output')
 connect_to = 'qsynth:midi'
