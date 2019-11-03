@@ -1,7 +1,7 @@
 """
 /usr/bin/jackd -T -ndefault -R -d alsa -d hw:system -n 3 -r 44100 -p 128 &
 a2midid -e &
-sooperlooper -q -U osc.udp://localhost:18978/ -p 9951 -l 1 -c 2 -t 40 -m /usr/share/sooperlooper/presets/midiwizard.slb
+sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
 """
 import sys
 import time
@@ -36,7 +36,7 @@ def make_ports_and_connections(client, midi_out):
     else:
         connect_to = connect_to[0]
     print('Connecting midi to {}'.format(connect_to))
-    # client.connect(midi_out, connect_to)
+    client.connect(midi_out, connect_to)
     return True
 
 if __name__ == '__main__':

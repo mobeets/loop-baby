@@ -1,11 +1,10 @@
 """
 What I did last time:
     $ qjackctl &
-        # this implicitly started the following jackd process
+        # this implicitly started the following jackd process:
         # /usr/bin/jackd -dalsa -dhw:system -r48000 -p1024 -n2
     $ a2jmidid -e &
-    # [started sooperlooper gui]
-    # [ran this script but without making connections; made them manually after this script started]
+    $ sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
     $ python3 looper_trellis.py
 """
 import sys
@@ -53,14 +52,14 @@ def blink(event):
     # turn the LED on when a rising edge is detected
     if event.edge == NeoTrellis.EDGE_RISING:
         trellis.pixels[event.number] = PURPLE
-        print(event.number)
-        if event.number in BUTTON_ACTION:
-            action = BUTTON_ACTION[BUTTON_MAP[event.number]]
-            print(action)
+        button = BUTTON_MAP[event.number]
+        if button in BUTTON_ACTION:
+            action = BUTTON_ACTION[button]
             midi_msg = MIDI_ACTION[action]
             midi_msgs.put(MidiOutWrapper.program_change(midi_msg))
         else:
-            print('No action for {}'.format(event.number))
+            action = None
+        print(event.number, button, action)
 
     # # turn the LED off when a rising edge is detected
     elif event.edge == NeoTrellis.EDGE_FALLING:
