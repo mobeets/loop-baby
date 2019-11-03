@@ -15,6 +15,7 @@
 0 pc 7  hit     multiply        0
 0 pc 8  hit     insert          0
 0 pc 9  hit     mute            0
+0 pc 10  hit     pause            0
 
 # 0 cc 0  set   feedback        0       0.0     1.0             
 # 0 cc 1  set   dry             0       0.0     1.0     gain    

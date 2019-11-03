@@ -1,9 +1,12 @@
 """
-[start jackd]
-$ qjackctl &
-$ a2jmidid -e &
-$ sooperlooper % # or start gui...
-$ python3 looper_trellis.py
+What I did last time:
+    $ qjackctl &
+        # this implicitly started the following jackd process
+        # /usr/bin/jackd -dalsa -dhw:system -r48000 -p1024 -n2
+    $ a2jmidid -e &
+    # [started sooperlooper gui]
+    # [ran this script but without making connections; made them manually after this script started]
+    $ python3 looper_trellis.py
 """
 import sys
 import time
@@ -20,20 +23,44 @@ client = jack.Client('looper-trellis')
 midi_out = client.midi_outports.register('output')
 midi_msgs = queue.Queue()
 
+BUTTON_MAP_INVERSE = {
+    '1': 12, '2': 8, '3': 4, '4': 0,
+    '5': 13, '6': 9, '7': 5, '8': 1,
+    'A': 14, 'B': 10, 'C': 6, 'D': 2,
+    'E': 15, 'F': 11, 'G': 7, 'H': 3
+    }
+BUTTON_MAP = dict((BUTTON_MAP_INVERSE[key],key) for key in BUTTON_MAP_INVERSE)
+
+# specified in midi_bindings.slb
+MIDI_ACTION = {
+    'Undo': 0,
+    'Redo': 1,
+    'Record': 5,
+    'Overdub': 6,
+    'Mute': 9,
+    'Pause': 10}
+
+BUTTON_ACTION = {
+    'A': 'Undo',
+    'B': 'Mute',
+    'E': 'Pause',
+    'F': 'Record',
+    'G': 'Overdub',
+    }
+
 # this will be called when button events are received
 def blink(event):
     # turn the LED on when a rising edge is detected
     if event.edge == NeoTrellis.EDGE_RISING:
         trellis.pixels[event.number] = PURPLE
         print(event.number)
-        if event.number % 2 == 0:
-            # undo: ch1 program change 0
-            print('Undo')
-            midi_msgs.put(MidiOutWrapper.program_change(0))
+        if event.number in BUTTON_ACTION:
+            action = BUTTON_ACTION[BUTTON_MAP[event.number]]
+            print(action)
+            midi_msg = MIDI_ACTION[action]
+            midi_msgs.put(MidiOutWrapper.program_change(midi_msg))
         else:
-            # record: ch1 program change 5
-            print('Record')
-            midi_msgs.put(MidiOutWrapper.program_change(5))
+            print('No action for {}'.format(event.number))
 
     # # turn the LED off when a rising edge is detected
     elif event.edge == NeoTrellis.EDGE_FALLING:

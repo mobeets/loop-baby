@@ -36,7 +36,7 @@ def make_ports_and_connections(client, midi_out):
     else:
         connect_to = connect_to[0]
     print('Connecting midi to {}'.format(connect_to))
-    client.connect(midi_out, connect_to)
+    # client.connect(midi_out, connect_to)
     return True
 
 if __name__ == '__main__':
