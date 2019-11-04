@@ -4,12 +4,33 @@ What: a looper with multiple channels, and midi sync, for a raspberri pi.
 Parts
 --------------
 
-- raspberry pi 3B
-- audio in/out (via usb adapter)
-- midi in (for clock)
-- power button (for startup and shutdown)
-- pads (for controlling looper)
-- container
+- raspberry pi 3B ($35)
+- Syba USB audio in/out ($7)
+	- https://www.amazon.com/gp/product/B001MSS6CS
+- silicon buttons ($5)
+	- https://www.adafruit.com/product/1611
+- NeoTrellis RGB PCB driver ($13)
+	- https://www.adafruit.com/product/3954
+- connecting trellis and pi ($1 if you soldered)
+	- stemma cable ($1)
+		- for connecting trellis and pi
+		- https://www.adafruit.com/product/3568
+	- jumper wires ($7)
+		- for connecting trellis and pi, but could have
+		- https://www.amazon.com/gp/product/B01EV70C78
+- black acrylic for enclosure ($3)
+- screws ($6 if you bought only what you needed)
+	- M2 16mm flathead screws [x4]
+		- bought 10 on ebay for $4
+	- M2 16mm flathead nuts [x4]
+		- bought 25 on ebay for $4
+	- M2 10mm screws [x4]
+		- bought 4 from Home Depot for $2
+- midi-usb cable ($14)
+	- for clock sync [optional]
+	- https://www.amazon.com/gp/product/B07BFV7Z48
+
+Minimum cost: $70 (no midi cable)
 
 --------------
 Software

@@ -4,8 +4,15 @@ What I did last time:
         # this implicitly started the following jackd process:
         # /usr/bin/jackd -dalsa -dhw:system -r48000 -p1024 -n2
     $ a2jmidid -e &
-    $ sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
+    $ sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb &
     $ python3 looper_trellis.py
+
+To do next:
+- Repeat this process and hope it works again
+- If it does, maybe try making a start-up script with all of this in it (with pauses), and try restarting and seeing if all of this can auto-start
+
+ALSO! Need a way to always shut down the loop-baby safely. Like a background process that's polling for a special pad combination? Or I should just add a power switch...
+    # https://www.makeuseof.com/tag/add-power-button-raspberry-pi/
 """
 import sys
 import time
@@ -30,7 +37,7 @@ BUTTON_MAP_INVERSE = {
     }
 BUTTON_MAP = dict((BUTTON_MAP_INVERSE[key],key) for key in BUTTON_MAP_INVERSE)
 
-# specified in midi_bindings.slb
+# as specified in midi_bindings.slb
 MIDI_ACTION = {
     'Undo': 0,
     'Redo': 1,
