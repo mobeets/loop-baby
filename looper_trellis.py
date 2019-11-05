@@ -3,7 +3,7 @@ What I did last time:
     $ /usr/bin/jackd -dalsa -dhw:1 -r48000 -p1024 -n2 &
         # note: the '1' in '-dhw:1' refers to the card number when running 'aplay -l'
     $ a2jmidid -e &
-    $ sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb &
+    $ sooperlooper -q -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb &
     $ python3 looper_trellis.py
 
 To do next:
