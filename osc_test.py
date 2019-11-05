@@ -9,6 +9,9 @@
 Next steps:
 1. Try out other commands and responses
     - try to keep track of recording status
+
+Reference:
+- https://github.com/aquamatt/loopercontrol
 """
 
 import time
