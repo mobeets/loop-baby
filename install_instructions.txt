@@ -37,11 +37,6 @@ To do:
 - [x] get midi_jack.py accepting button presses on trellis to send midi commands
 - [ ] I had midi commands being sent to sooperlooper, but sooperlooper wasn't playing any audio. if I could just get everything working at the same time...!
 
-Issues I've run into but didn't solve:
-- [ ] try to get connect_to_jack.py working (all xruns!); just restarted and it worked
-- [ ] sooperlooper not playing any audio
-- [ ] jackd not starting at boot -- did this used to happen automatically?
-
 Improving latency:
 
 - [ ] use interrupt pin on the trellis (must solder male-female jumper to board, and plug in gpio #5 I think)
@@ -50,9 +45,3 @@ Improving latency:
 - [ ] install raspbian lite?
 - [ ] find that jack script that disables unnecessary stuff
 - [ ] everything listed here: https://wiki.linuxaudio.org/wiki/raspberrypi
-
-Eventual goals:
-
-- [ ] get sooperlooper manually working (with audio in and audio out)
-- [ ] decide on osc vs. midi interface to sooperlooper
-	- leaning towards midi--looks better documented, or at least more clear

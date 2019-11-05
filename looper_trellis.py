@@ -1,18 +1,17 @@
 """
 What I did last time:
-    $ qjackctl &
-        # this implicitly started the following jackd process:
-        # /usr/bin/jackd -dalsa -dhw:system -r48000 -p1024 -n2
+    $ /usr/bin/jackd -dalsa -dhw:1 -r48000 -p1024 -n2 &
+        # note: the '1' in '-dhw:1' refers to the card number when running 'aplay -l'
     $ a2jmidid -e &
     $ sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb &
     $ python3 looper_trellis.py
 
 To do next:
-- Repeat this process and hope it works again
-- If it does, maybe try making a start-up script with all of this in it (with pauses), and try restarting and seeing if all of this can auto-start
-
-ALSO! Need a way to always shut down the loop-baby safely. Like a background process that's polling for a special pad combination? Or I should just add a power switch...
-    # https://www.makeuseof.com/tag/add-power-button-raspberry-pi/
+- [ ] make a script that runs in the background (auto-starts) that can restart the pi with a trellis button press
+- [ ] test an osc interface that sends messages to sooperlooper
+    - since I'm so fucking tired of xrun errors when I send midi commands via jack...
+    - pip3 install osc4py3 (I think)
+    - https://osc4py3.readthedocs.io/en/latest/userdoc.html#sending-osc-messages
 """
 import sys
 import time
