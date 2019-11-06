@@ -72,12 +72,12 @@ class OscSooperLooperInterface(OscBase):
         osc_method("/get", self.flex_handler, argscheme=osm.OSCARG_ADDRESS + osm.OSCARG_DATA)
 
         self.actions = ["record", "overdub", "multiply", "insert", "replace", "reverse", "mute", "undo", "redo", "oneshot", "trigger", "substitute", "undo_all", "redo_all", "mute_on", "mute_off", "solo", "pause", "solo_next", "solo_prev", "record_solo", "record_solo_next", "record_solo_prev", "set_sync_pos", "reset_sync_pos"]
-        self.params = {'unknown': -1, 'off': 0, 'waitstart': 1, 'recording': 2,
+        self.state = {'unknown': -1, 'off': 0, 'waitstart': 1, 'recording': 2,
             'waitstop': 3, 'playing': 4, 'overdubbing': 5, 'multiplying': 6,
             'inserting': 7, 'replacing': 8, 'delay': 9, 'muted': 10,
-            'scratching': 11, 'oneshot': 12, 'substitute': 13, 'paused': 14,
-            'sync_source': None, 'selected_loop_num': None}
-        
+            'scratching': 11, 'oneshot': 12, 'substitute': 13, 'paused': 14}
+        self.params = ['sync_source', 'selected_loop_num', 'state']
+    
     def hit(self, action, loop=-3):
         """
         loop == -3: selected loop
@@ -96,7 +96,7 @@ class OscSooperLooperInterface(OscBase):
     def get(self, param, loop=None):
         """
         """
-        assert param in self.params.keys()
+        # assert param.lower() in self.params
         if loop is None:
             msg = oscbuildparse.OSCMessage("/get",
                 None, [param, self.return_url, "/get"])
@@ -110,7 +110,7 @@ class OscSooperLooperInterface(OscBase):
         """
         sync_source: [-3 = internal, -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)]
         """
-        assert param in self.params.keys()
+        assert param.lower() in self.params
         if param == 'sync_source':
             assert value >= -3 and value <= MAX_LOOP_COUNT
         if param == 'selected_loop_num':
@@ -146,17 +146,8 @@ def main():
         while True:
             # osc.hit('record')
             # osc.ping()
-            # osc.get('recording')
-            # osc.get('playing', -3)
-            # osc.get('playing', -1)
-            osc.get('playing', 0)
-            osc.get('playing')
             osc.hit('pause', 0)
-            # osc.set('playing', 1)
-            # osc.get('playing', 2)
-            # osc.get('paused')
-            # osc.get('paused', 2)
-            # osc.get('sync_source')
+            osc.get('state', 0)
             osc.get('selected_loop_num')
             time.sleep(2)
 
