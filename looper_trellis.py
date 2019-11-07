@@ -16,7 +16,6 @@ To do next:
 import sys
 import time
 import queue
-import struct
 import jack
 
 from connect_to_jack import make_ports_and_connections
