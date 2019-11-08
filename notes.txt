@@ -101,18 +101,17 @@ BUTTONS:
 	E F G H
 - A-H: Mode buttons
 	- Audio modes (1-8 are track selections):
-		- E: Play/pause mode
-		- F: Record mode
-		- G: Overdub mode
-		- H: Mute mode
+		- E: Play/pause
+		- F: Record
+		- G: Overdub
+		- H: Mute
 	- Option modes:
-		- A: Clear mode
-		- B: Light show (plays a light show, which you can end by pressing any button)
-			- probably this should actually be from pressing a certain combo of buttons...
-		- C: Save/Recall mode (1-8 then become file locations)
-		- D: Misc. mode (e.g., quantize on/off, clock source, etc.)
+		- A: One-hit
+		- B: Save/Recall (1-8 then become file locations)
+		- C: Clear
+		- D: Settings (e.g., quantize on/off, clock source, etc.)
 - 1-8: Track buttons
-	- when in pause mode, these trigger samples
+	- when in one-hit mode, these trigger samples
 	- when in record/overdub mode, these select the track you're recording to
 	- when in save mode, these specify file locations to save to (and are lit up when file already exists here)
 	- when in recall mode, these specify file locations to load (and only lit up options are allowed)
