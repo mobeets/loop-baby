@@ -191,19 +191,23 @@ class Looper:
             self.trellis.set_color(button_number, color)
 
             if self.is_playing:
+                # set_sync_pos so that when we un-pause, we ensure all loops are re-synced to the same timing
+                self.interface.hit('set_sync_pos', -1)
                 self.interface.hit('pause_on', -1)
             else:
-                # self.interface.hit('pause_off', -1)
-                # if loops are out of sync, this will play them all from the start
                 self.interface.hit('trigger', -1)
             self.is_playing = not self.is_playing
             return
 
+        if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
+            print('   Cannot {} track when not playing, otherwise loops will get out of sync!'.format(self.mode))
+            return
+        
         # changing to any other type of mode clears all buttons
         self.trellis.un_color('mode_buttons')
         self.trellis.un_color('track_buttons')
         previous_mode = self.mode
-        
+
         if mode == 'save/recall': # toggles
             if previous_mode == 'save':
                 mode = 'recall'
@@ -234,10 +238,6 @@ class Looper:
             print('   ({}) track = {}'.format(self.mode, track))
         color = self.mode_color_map[self.mode]
 
-        # todo: if we are currently recording/overdubbing, we need to STOP recording/overdubbing
-        # unless...the button we're about to press is going to explicitly end that, in which case we don't want to do it pre-emptively!
-        # basically my best guess is that, if we're recording/overdubbing track 1, unless the button we're hitting is track 1 again, we want to stop recording
-
         if self.mode == None:
             self.trellis.set_color(button_number, color)
 
@@ -261,9 +261,6 @@ class Looper:
                 print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'mute':
-            if not self.is_playing:
-                print('   Cannot mute track when not playing, otherwise loops will get out of sync!')
-                return
             if track <= self.nloops:
                 self.current_loop = track
                 self.loops[self.current_loop-1].toggle(self.mode)
