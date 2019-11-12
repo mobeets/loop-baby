@@ -1,4 +1,5 @@
 import random
+import pygame
 
 SCL = None
 SDA = None
@@ -7,6 +8,13 @@ class Bus:
     def I2C(self, *args, **kwargs):
         pass
 busio = Bus()
+
+KEYBOARD_MAP = {
+    '1': 12, '2': 8,  '3': 4, '4': 0,
+    'q': 13, 'w': 9,  'e': 5, 'r': 1,
+    'a': 14, 's': 10, 'd': 6, 'f': 2,
+    'z': 15, 'x': 11, 'c': 7, 'v': 3
+    }
 
 class Event:
     def __init__(self, number, edge):
@@ -27,11 +35,35 @@ class NeoTrellis:
         self.threshold = 0.01
         self.last_was_mode = False
         self.tracks = [0,1,4,5,8,9,12,13]
+        self.keyboard_map = dict((eval('pygame.' + 'K_' + k),v) for k,v in KEYBOARD_MAP.items())
+        self.sync = self.keyboard_sync
+        pygame.display.init()
 
     def activate_key(self, *args, **kwargs):
         pass
 
-    def sync(self):
+    def keyboard_sync(self):
+        """
+        generate button press events upon keyboard presses
+        """
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                raise KeyboardInterrupt
+            if not hasattr(event, 'key'):
+                continue
+            if event.key in self.keyboard_map:
+                self.button = self.keyboard_map[event.key]
+                if event.type == pygame.KEYDOWN:
+                    btn_event = Event(self.button, NeoTrellis.EDGE_RISING)
+                    print('----------------------')
+                    print('FAKE keypress {}'.format(self.button))
+                    self.callbacks[self.button](btn_event)
+                elif event.type == pygame.KEYUP:
+                    btn_event = Event(self.button, NeoTrellis.EDGE_FALLING)
+                    self.callbacks[self.button](btn_event)
+
+    def random_sync(self):
         """
         hit a random button every so often
         """

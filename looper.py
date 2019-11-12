@@ -47,6 +47,7 @@ class Loop:
         self.track = track
         self.interface = interface
         self.is_playing = False
+        self.is_muted = False
         self.is_recording = False
         self.is_overdubbing = False
         self.stopped_overdub_id = None
@@ -58,16 +59,26 @@ class Loop:
                 # already handled this event (preemptively)
                 return
             self.is_recording = not self.is_recording
-            self.interface.hit(mode, self.track-1)
+            self.interface.hit(mode, self.track)
         elif mode == 'overdub':
             if self.stopped_overdub_id == event_id and event_id is not None:
                 # already handled this event (preemptively)
                 return
             self.is_overdubbing = not self.is_overdubbing
-            self.interface.hit(mode, self.track-1)
+            self.interface.hit(mode, self.track)
         elif mode == 'pause':
+            if self.is_playing:
+                self.interface.hit('pause_on', self.track)
+            else:
+                self.interface.hit('pause_off', self.track)
             self.is_playing = not self.is_playing
-            self.interface.hit(mode, self.track-1)
+
+        elif mode == 'mute':
+            if self.is_muted:
+                self.interface.hit('mute_off', self.track)
+            else:
+                self.interface.hit('mute_on', self.track)
+            self.is_muted = not self.is_muted
 
     def stop_record_or_overdub(self, event_id):
         """
@@ -85,11 +96,11 @@ class Loop:
         self.stopped_record_id = None
         if self.is_recording:
             self.is_recording = not self.is_recording
-            self.interface.hit('record', self.track-1)
+            self.interface.hit('record', self.track)
             self.stopped_record_id = event_id
         elif self.is_overdubbing:
             self.is_overdubbing = not self.is_overdubbing
-            self.interface.hit('overdub', self.track-1)
+            self.interface.hit('overdub', self.track)
             self.was_stopped_overdubbing = True
             self.stopped_overdub_id = event_id
 
@@ -105,6 +116,7 @@ class Looper:
             print('Initializing looper...')
             print('Trellis initialized.')
         self.interface = interface
+        self.interface.verbose = self.verbose
 
         self.button_action_map = button_action_map
         self.nloops = nloops
@@ -175,11 +187,16 @@ class Looper:
             print('   Mode change: {} -> {}'.format(self.mode, mode))
 
         if mode == 'play/pause': # applies to all loops
-            self.is_playing = not self.is_playing
             color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
             self.trellis.set_color(button_number, color)
-            for loop in self.loops:
-                loop.toggle('pause')
+
+            if self.is_playing:
+                self.interface.hit('pause_on', -1)
+            else:
+                # self.interface.hit('pause_off', -1)
+                # if loops are out of sync, this will play them all from the start
+                self.interface.hit('trigger', -1)
+            self.is_playing = not self.is_playing
             return
 
         # changing to any other type of mode clears all buttons
@@ -225,16 +242,34 @@ class Looper:
             self.trellis.set_color(button_number, color)
 
         elif self.mode == 'oneshot':
-            # warning: possible that hitting oneshot unpauses the track?
-            self.current_loop = track
-            self.interface.hit(self.mode, self.current_loop-1)
-            self.trellis.set_color(button_number, color)
+            if track <= self.nloops:
+                # warning: hitting oneshot unpauses the track...
+                self.current_loop = track
+                self.interface.hit(self.mode, self.current_loop-1)
+                self.trellis.set_color(button_number, color)
+            else:
+                print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode in ['record', 'overdub']:
-            self.current_loop = track
-            self.loops[self.current_loop-1].toggle(self.mode, event_id)
-            self.trellis.set_color(button_number, color,
-                uncolor='track_buttons')
+            if track <= self.nloops:
+                self.current_loop = track
+                self.loops[self.current_loop-1].toggle(self.mode, event_id)
+                self.trellis.set_color(button_number, color,
+                    uncolor='track_buttons')
+            else:
+                # todo: create loop (and default to one loop)
+                print('   Loop index does not exist for '.format(self.mode))
+
+        elif self.mode == 'mute':
+            if not self.is_playing:
+                print('   Cannot mute track when not playing, otherwise loops will get out of sync!')
+                return
+            if track <= self.nloops:
+                self.current_loop = track
+                self.loops[self.current_loop-1].toggle(self.mode)
+                self.trellis.set_color(button_number, color)
+            else:
+                print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'save':
             print('   Save not implemented yet.')

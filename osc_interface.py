@@ -76,7 +76,8 @@ class OscSooperLooperInterface(OscBase):
         osc_method("/get", self.handle_get,
             argscheme=osm.OSCARG_ADDRESS + osm.OSCARG_DATA)
 
-        self.actions = ["record", "overdub", "multiply", "insert", "replace", "reverse", "mute", "undo", "redo", "oneshot", "trigger", "substitute", "undo_all", "redo_all", "mute_on", "mute_off", "solo", "pause", "solo_next", "solo_prev", "record_solo", "record_solo_next", "record_solo_prev", "set_sync_pos", "reset_sync_pos"]
+        self.actions = ["record", "overdub", "multiply", "insert", "replace", "reverse", "mute", "undo", "redo", "oneshot", "trigger", "substitute", "undo_all", "redo_all", "mute_on", "mute_off", "solo", "pause", "solo_next", "solo_prev", "record_solo", "record_solo_next", "record_solo_prev", "set_sync_pos", "reset_sync_pos", "mute_on", "mute_off",
+            "pause_on", "pause_off"]
         self.state_lookup = {0: 'off', 1: 'waitstart',
             2: 'recording', 3: 'waitstop', 4: 'playing',
             5: 'overdubbing', 6: 'multiplying',
@@ -85,6 +86,7 @@ class OscSooperLooperInterface(OscBase):
             13: 'substitute', 14: 'paused', -1: 'unknown'}
         self.params = ['sync_source', 'selected_loop_num', 'state']
         self.state = 'off'
+        self.verbose = False
 
     def handle_get(self, address, *args):
         if not args or len(args[0]) != 3:
@@ -107,6 +109,8 @@ class OscSooperLooperInterface(OscBase):
         assert action in self.actions
         assert loop >= -3 and loop <= MAX_LOOP_COUNT-1
 
+        if self.verbose:
+            print("Hit action={}, loop={}".format(action, loop))
         msg = oscbuildparse.OSCMessage("/sl/{}/hit".format(loop),
             None, [action])
         self._send_message(msg)
@@ -139,6 +143,8 @@ class OscSooperLooperInterface(OscBase):
             assert loop >= -3 and loop <= MAX_LOOP_COUNT-1
             msg = oscbuildparse.OSCMessage("/sl/{}/set".format(loop),
                 None, [param, value])
+        if self.verbose:
+            print("Set param={}, value={}, loop={}".format(param, value, loop))
         self._send_message(msg)
 
     def add_loop(self):
