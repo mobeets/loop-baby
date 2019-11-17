@@ -1,3 +1,7 @@
+"""
+/usr/bin/jackd -T -ndefault -R -d alsa &
+
+"""
 import sys
 import time
 import argparse
@@ -337,7 +341,7 @@ def main(args):
 
     # connect with either trellis PCB or keyboard
     if args.verbose:
-        print('Initializing interface...'.format(args.interface))
+        print('Initializing {} interface...'.format(args.interface))
     if args.interface == 'trellis':
         interface = Trellis(startup_color=args.startup_color)
     elif args.interface == 'keyboard':

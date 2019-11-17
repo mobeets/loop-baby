@@ -25,6 +25,7 @@
 - Installed cffi and JACK-Client using pip3
 - Installed fluidsynth and qsynth using apt-get
 - Installed a2jmidi using apt-get (for converting alsa-midi, which sooperlooper uses, to jack-midi)
+- pip3 install osc4py3
 
 ---------
 
