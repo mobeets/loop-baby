@@ -29,11 +29,14 @@
 
 ---------
 
+Last time:
+- jack wasn't recognizing audio in
+- sooperlooper had trouble booting until jack was already running
+- looper.py wasn't sending OSC messages (likely because url or port was wrong -- need to try a ping)
+
 To do:
 
-- [ ] test keyboard control on pi
-	- might need: https://www.raspberrypi.org/forums/viewtopic.php?t=214945
-	- but probably better to just move to testing with trellis
+- [ ] test trellis control on pi
 - [ ] add in auto-jack connect
 - [ ] add in trellis control
 - [ ] get everything running on boot

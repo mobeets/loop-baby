@@ -1,15 +1,17 @@
+import sys
 import time
-from osc_interface import OscSooperLooperInterface
+from osc_interface import OscSooperLooper
 
-def main():
+def main(OSC_CLIENT_URL):
     print("WARNING: If on pi, will need to change OSC_CLIENT_URL")
     print("OSC_CLIENT_URL: " + OSC_CLIENT_URL)
 
     odd = 0
     ns = 2
     try:
-        osc = OscSooperLooperInterface()
-
+        osc = OscSooperLooper()
+        osc.ping()
+        
         # osc.set('selected_loop_num', 0)
         while True:
             # osc.hit('record')
@@ -38,4 +40,5 @@ def main():
         osc.terminate()
 
 if __name__ == '__main__':
-    main()
+    OSC_CLIENT_URL = sys.argv[1]
+    main(OSC_CLIENT_URL)
