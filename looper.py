@@ -200,7 +200,7 @@ class Looper:
             return
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
-            print('   Cannot {} track when not playing, otherwise loops will get out of sync!'.format(self.mode))
+            print('   Cannot {} track when paused; otherwise loops will get out of sync!'.format(self.mode))
             return
         
         # changing to any other type of mode clears all buttons

@@ -30,12 +30,15 @@
 
 To do:
 
-- [x] get sampler.py working
-- [x] run 'cat /etc/os-release' to find out which raspbian I am using
-- [x] try again after setting pygame init options
-- [x] get midi commands being sent through jack
-- [x] get midi_jack.py accepting button presses on trellis to send midi commands
-- [ ] I had midi commands being sent to sooperlooper, but sooperlooper wasn't playing any audio. if I could just get everything working at the same time...!
+- [ ] test keyboard control on pi
+- [ ] add in auto-jack connect
+- [ ] add in trellis control
+- [ ] get everything running on boot
+- [ ] add background script to check for restart cmd
+
+Features to add:
+- [ ] add new loop on demand
+- [ ] settings to set sync options
 
 Improving latency:
 
