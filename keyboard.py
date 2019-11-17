@@ -1,13 +1,7 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import random
 import pygame
-
-SCL = None
-SDA = None
-
-class Bus:
-    def I2C(self, *args, **kwargs):
-        pass
-busio = Bus()
 
 KEYBOARD_MAP = {
     '1': 12, '2': 8,  '3': 4, '4': 0,
@@ -21,11 +15,11 @@ class Event:
         self.number = number
         self.edge = edge
 
-class NeoTrellis:
-    EDGE_RISING = 3
-    EDGE_FALLING = 2
+class Keyboard:
+    def __init__(self, pressed_code, released_code):
+        self.pressed_code = pressed_code
+        self.released_code = released_code
 
-    def __init__(self, *args, **kwargs):
         self.callbacks = [None]*16
         self.pixels = [0]*16
         self.button = None
@@ -38,6 +32,9 @@ class NeoTrellis:
         self.keyboard_map = dict((eval('pygame.' + 'K_' + k),v) for k,v in KEYBOARD_MAP.items())
         self.sync = self.keyboard_sync
         pygame.display.init()
+
+    def set_callback(self, fcn):
+        self.callbacks = [fcn for i in range(len(self.callbacks))]
 
     def activate_key(self, *args, **kwargs):
         pass
@@ -55,12 +52,12 @@ class NeoTrellis:
             if event.key in self.keyboard_map:
                 self.button = self.keyboard_map[event.key]
                 if event.type == pygame.KEYDOWN:
-                    btn_event = Event(self.button, NeoTrellis.EDGE_RISING)
+                    btn_event = Event(self.button, self.pressed_code)
                     print('----------------------')
                     print('FAKE keypress {}'.format(self.button))
                     self.callbacks[self.button](btn_event)
                 elif event.type == pygame.KEYUP:
-                    btn_event = Event(self.button, NeoTrellis.EDGE_FALLING)
+                    btn_event = Event(self.button, self.released_code)
                     self.callbacks[self.button](btn_event)
 
     def random_sync(self):
@@ -72,7 +69,7 @@ class NeoTrellis:
             self.time += 1
             if self.time == self.time_delay:
                 # release the button!
-                event = Event(self.button, NeoTrellis.EDGE_FALLING)
+                event = Event(self.button, self.released_code)
                 self.callbacks[self.button](event)
                 self.pressed = False
                 self.button = None
@@ -90,5 +87,17 @@ class NeoTrellis:
             self.last_was_mode = self.button not in self.tracks
             print('----------------------')
             print('FAKE press {}'.format(self.button))
-            event = Event(self.button, NeoTrellis.EDGE_RISING)
+            event = Event(self.button, self.pressed_code)
             self.callbacks[self.button](event)
+
+    def define_color_group(self, group_name, button_numbers):
+        pass
+
+    def set_color_of_group(self, group_name, color):
+        pass
+
+    def set_color(self, index, color, uncolor=None):
+        pass
+
+    def un_color(self, index):
+        pass

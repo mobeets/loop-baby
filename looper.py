@@ -1,7 +1,15 @@
 import sys
 import time
-from trellis import Trellis, BUTTON_PRESSED, BUTTON_RELEASED
-from osc_interface import OscSooperLooperInterface
+import argparse
+try:
+    from trellis import Trellis
+except:
+    pass
+from keyboard import Keyboard
+from osc_interface import OscSooperLooper
+
+BUTTON_PRESSED = 3
+BUTTON_RELEASED = 2
 
 # {button_name: button_index_to_trellis, ...}
 BUTTON_NAME_INVERSE = {
@@ -43,15 +51,16 @@ MODE_COLOR_MAP = {
     }
 
 class Loop:
-    def __init__(self, track, interface):
+    def __init__(self, track, client):
         self.track = track
-        self.interface = interface
+        self.client = client
         self.is_playing = False
         self.is_muted = False
         self.is_recording = False
         self.is_overdubbing = False
         self.stopped_overdub_id = None
         self.stopped_record_id = None
+        self.has_had_something_recorded = False
 
     def toggle(self, mode, event_id=None):
         if mode == 'record':
@@ -59,25 +68,29 @@ class Loop:
                 # already handled this event (preemptively)
                 return
             self.is_recording = not self.is_recording
-            self.interface.hit(mode, self.track)
+            self.client.hit(mode, self.track)
+            self.has_had_something_recorded = True
+
         elif mode == 'overdub':
             if self.stopped_overdub_id == event_id and event_id is not None:
                 # already handled this event (preemptively)
                 return
             self.is_overdubbing = not self.is_overdubbing
-            self.interface.hit(mode, self.track)
+            self.client.hit(mode, self.track)
+            self.has_had_something_recorded = True
+
         elif mode == 'pause':
             if self.is_playing:
-                self.interface.hit('pause_on', self.track)
+                self.client.hit('pause_on', self.track)
             else:
-                self.interface.hit('pause_off', self.track)
+                self.client.hit('pause_off', self.track)
             self.is_playing = not self.is_playing
 
         elif mode == 'mute':
             if self.is_muted:
-                self.interface.hit('mute_off', self.track)
+                self.client.hit('mute_off', self.track)
             else:
-                self.interface.hit('mute_on', self.track)
+                self.client.hit('mute_on', self.track)
             self.is_muted = not self.is_muted
 
     def stop_record_or_overdub(self, event_id):
@@ -96,31 +109,29 @@ class Loop:
         self.stopped_record_id = None
         if self.is_recording:
             self.is_recording = not self.is_recording
-            self.interface.hit('record', self.track)
+            self.client.hit('record', self.track)
             self.stopped_record_id = event_id
         elif self.is_overdubbing:
             self.is_overdubbing = not self.is_overdubbing
-            self.interface.hit('overdub', self.track)
+            self.client.hit('overdub', self.track)
             self.was_stopped_overdubbing = True
             self.stopped_overdub_id = event_id
 
 class Looper:
-    def __init__(self, interface, startup_color='blue', nloops=2,  verbose=False, button_action_map=BUTTON_ACTION_MAP,
+    def __init__(self, client, interface, startup_color='blue',
+        nloops=1,  verbose=False, button_action_map=BUTTON_ACTION_MAP,
         button_name_map=BUTTON_NAME_MAP, button_groups=BUTTON_GROUPS,
         mode_color_map=MODE_COLOR_MAP):
 
         self.verbose = verbose
-        
-        self.trellis = Trellis(self.button_handler, startup_color=startup_color)
-        if self.verbose:
-            print('Initializing looper...')
-            print('Trellis initialized.')
         self.interface = interface
-        self.interface.verbose = self.verbose
+        self.interface.set_callback(self.button_handler)
+        self.client = client
+        self.client.verbose = self.verbose
 
         self.button_action_map = button_action_map
         self.nloops = nloops
-        self.loops = [Loop(i, interface) for i in range(nloops)]
+        self.loops = [Loop(i, client) for i in range(nloops)]
 
         # define button groups
         self.button_name_map = button_name_map
@@ -128,17 +139,22 @@ class Looper:
         self.button_groups = button_groups
         for k,vs in self.button_groups.items():
             vs = [self.button_index_map[n] for n in vs]
-            self.trellis.define_color_group(k, vs)
+            self.interface.define_color_group(k, vs)
         self.mode_color_map = mode_color_map
 
         # state variables:
         self.current_loop = 1
-        self.interface.set('selected_loop_num', self.current_loop-1)
+        self.client.set('selected_loop_num', self.current_loop-1)
         self.is_playing = False
         self.mode = None
         self.modes = [None, 'record', 'overdub', 'mute', 'oneshot',
             'save', 'load', 'clear', 'settings']
         self.event_id = 0
+
+    def add_loop(self):
+        self.client.add_loop()
+        self.loops.append(Loop(self.nloops, self.client))
+        self.nloops = len(self.loops)
 
     def button_handler(self, event):
         self.event_id += 1
@@ -175,7 +191,7 @@ class Looper:
             if type(action) is int:
                 if self.mode in [None, 'oneshot', 'clear']:
                     # button press was a oneshot, so turn off light
-                    self.trellis.un_color(button_number)
+                    self.interface.un_color(button_number)
 
     def process_mode_change(self, mode, button_number, event_id):
         """
@@ -188,24 +204,24 @@ class Looper:
 
         if mode == 'play/pause': # applies to all loops
             color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
-            self.trellis.set_color(button_number, color)
+            self.interface.set_color(button_number, color)
 
             if self.is_playing:
                 # set_sync_pos so that when we un-pause, we ensure all loops are re-synced to the same timing
-                self.interface.hit('set_sync_pos', -1)
-                self.interface.hit('pause_on', -1)
+                self.client.hit('set_sync_pos', -1)
+                self.client.hit('pause_on', -1)
             else:
-                self.interface.hit('trigger', -1)
+                self.client.hit('trigger', -1)
             self.is_playing = not self.is_playing
             return
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
-            print('   Cannot {} track when paused; otherwise loops will get out of sync!'.format(self.mode))
+            print('   Cannot {} track when paused; otherwise loops will get out of sync!'.format(mode))
             return
         
         # changing to any other type of mode clears all buttons
-        self.trellis.un_color('mode_buttons')
-        self.trellis.un_color('track_buttons')
+        self.interface.un_color('mode_buttons')
+        self.interface.un_color('track_buttons')
         previous_mode = self.mode
 
         if mode == 'save/recall': # toggles
@@ -214,7 +230,7 @@ class Looper:
             else:
                 mode = 'save'
         color = self.mode_color_map[mode]
-        self.trellis.set_color(button_number, color)
+        self.interface.set_color(button_number, color)
         self.mode = mode
 
         if mode == 'clear':
@@ -238,23 +254,29 @@ class Looper:
             print('   ({}) track = {}'.format(self.mode, track))
         color = self.mode_color_map[self.mode]
 
+
         if self.mode == None:
-            self.trellis.set_color(button_number, color)
+            self.interface.set_color(button_number, color)
+            if track > self.nloops:
+                print('   Creating new loop: {}'.format(self.nloops+1))
+                self.add_loop()
 
         elif self.mode == 'oneshot':
             if track <= self.nloops:
                 # warning: hitting oneshot unpauses the track...
                 self.current_loop = track
-                self.interface.hit(self.mode, self.current_loop-1)
-                self.trellis.set_color(button_number, color)
+                self.client.hit(self.mode, self.current_loop-1)
+                self.interface.set_color(button_number, color)
             else:
-                print('   Loop index does not exist for '.format(self.mode))
+                print('   Creating new loop: {}'.format(self.nloops+1))
+                self.add_loop()
+                # print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode in ['record', 'overdub']:
             if track <= self.nloops:
                 self.current_loop = track
                 self.loops[self.current_loop-1].toggle(self.mode, event_id)
-                self.trellis.set_color(button_number, color,
+                self.interface.set_color(button_number, color,
                     uncolor='track_buttons')
             else:
                 # todo: create loop (and default to one loop)
@@ -264,27 +286,27 @@ class Looper:
             if track <= self.nloops:
                 self.current_loop = track
                 self.loops[self.current_loop-1].toggle(self.mode)
-                self.trellis.set_color(button_number, color)
+                self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'save':
             print('   Save not implemented yet.')
-            self.trellis.set_color(track, color)
+            self.interface.set_color(track, color)
 
         elif self.mode == 'load':
             # if we press a track that isn't an option, do nothing
             print('   Load track not implemented yet.')
-            self.trellis.un_color(button_number)
+            self.interface.un_color(button_number)
 
         elif self.mode == 'clear':
             # if we press a track that isn't an option, do nothing
             print('   Clear track not implemented yet.')
-            self.trellis.un_color(button_number)
+            self.interface.un_color(button_number)
 
         elif self.mode == 'settings':
             print('   Settings track not implemented yet.')
-            self.trellis.un_color(button_number)
+            self.interface.un_color(button_number)
 
     def start(self):
         """
@@ -296,21 +318,48 @@ class Looper:
             print('Looper on!')
         try:
             while True:
-                self.trellis.sync()
+                self.interface.sync()
                 time.sleep(.02)
         except KeyboardInterrupt:
             # Properly close the system.
             if self.verbose:
                 print()
                 print('Ending looper...')
-            self.interface.terminate()
+            self.client.terminate()
             if self.verbose:
                 print('See ya!')
 
-def main():    
-    interface = OscSooperLooperInterface()
-    looper = Looper(interface, verbose=True)
+def main(args):
+    # connect to SooperLooper via OSC
+    if args.verbose:
+        print('Setting up Sooper Looper OSC client...')
+    client = OscSooperLooper(client_url=args.osc_url)
+
+    # connect with either trellis PCB or keyboard
+    if args.verbose:
+        print('Initializing interface...'.format(args.interface))
+    if args.interface == 'trellis':
+        interface = Trellis(startup_color=args.startup_color)
+    elif args.interface == 'keyboard':
+        interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
+
+    looper = Looper(client=client,
+        interface=interface,
+        verbose=args.verbose)
     looper.start()
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(
+        description="looper")
+    parser.add_argument('-v', '--verbose',
+        dest='verbose', action='store_true',
+        default=True)
+    parser.add_argument('-i', '--interface',
+        choices=['keyboard', 'trellis'], default='trellis')
+    parser.add_argument('-c', '--color', type=str,
+        choices=['purple', 'red', 'gray', 'green',
+        'blue', 'orange'], default='blue')
+    parser.add_argument('-o', '--osc_url', type=str,
+        default='thisbemymachine.verizon.net')
+    args = parser.parse_args()
+    main(args)

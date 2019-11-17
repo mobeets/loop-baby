@@ -67,7 +67,7 @@ class OscBase:
         """
         print('received msg to: {}; msg = {}'.format(address, *args))
 
-class OscSooperLooperInterface(OscBase):
+class OscSooperLooper(OscBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

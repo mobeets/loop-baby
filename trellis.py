@@ -1,11 +1,8 @@
 import time
-try:
-    from board import SCL, SDA
-    import busio
-    from adafruit_neotrellis.neotrellis import NeoTrellis
-except ImportError:
-    from fake_trellis import busio, SCL, SDA, NeoTrellis
-    print('WARNING: Trellis is starting in debug mode')
+from board import SCL, SDA
+import busio
+from adafruit_neotrellis.neotrellis import NeoTrellis
+
 BUTTON_PRESSED = NeoTrellis.EDGE_RISING
 BUTTON_RELEASED = NeoTrellis.EDGE_FALLING
 
@@ -14,7 +11,7 @@ class Trellis:
     relays button presses by adding them to a queue
     buttons can be referred to by name, index, or color group name
     """
-    def __init__(self, button_handler, startup_color='red', debug=True):
+    def __init__(self, startup_color='red', debug=True):
 
         self.debug = debug
         self.nbuttons = 16
@@ -22,9 +19,6 @@ class Trellis:
             'red': (255, 0, 0), 'orange': (255, 160, 0),
             'green': (0, 255, 0), 'yellow': (255, 255, 0), 
             'gray': (100, 100, 100), 'blue': (0, 0, 255)}
-
-        # callback for when buttons are pressed
-        self.button_handler = button_handler
 
         # create the i2c object for the trellis
         self.i2c_bus = busio.I2C(SCL, SDA)
@@ -38,7 +32,17 @@ class Trellis:
         # set handlers for button press
         self.activate(startup_color)
 
+        # to ensure callback set
+        self.button_handler = None
+
+    def set_callback(set, fcn):
+        # callback for when buttons are pressed
+        self.button_handler = fcn
+
     def activate(self, startup_color=None):
+        if self.button_handler is None:
+            print("Error: callback must be set using 'set_callback'")
+
         for i in range(self.nbuttons):
             #activate rising edge events on all keys
             self.trellis.activate_key(i, BUTTON_PRESSED)

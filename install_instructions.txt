@@ -39,6 +39,8 @@ To do:
 Features to add:
 - [ ] add new loop on demand
 - [ ] settings to set sync options
+- [ ] for oneshot/record/overdub, highlight track buttons based on valid options
+	- using self.loops[0].has_had_something_recorded
 
 Improving latency:
 
