@@ -36,7 +36,6 @@ class Trellis:
         # to ensure callback set
         self.button_handler = None
 
-
     def set_callback(self, fcn):
         # callback for when buttons are pressed
         self.button_handler = fcn
@@ -87,3 +86,7 @@ class Trellis:
 
     def sync(self):
         self.trellis.sync()
+
+    def terminate(self):
+        for i in range(self.nbuttons):
+            self.trellis.pixels[i] = OFF

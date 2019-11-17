@@ -101,3 +101,7 @@ class Keyboard:
 
     def un_color(self, index):
         pass
+
+    def terminate(self):
+        pass
+

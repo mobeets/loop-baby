@@ -330,6 +330,7 @@ class Looper:
                 print()
                 print('Ending looper...')
             self.client.terminate()
+            self.interface.terminate()
             if self.verbose:
                 print('See ya!')
 
