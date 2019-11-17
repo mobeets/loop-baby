@@ -37,7 +37,7 @@ class Trellis:
         self.button_handler = None
 
 
-    def set_callback(set, fcn):
+    def set_callback(self, fcn):
         # callback for when buttons are pressed
         self.button_handler = fcn
         # set handlers for button press
