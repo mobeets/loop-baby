@@ -8,7 +8,7 @@ import argparse
 try:
     from trellis import Trellis
 except:
-    pass
+    print('WARNING: Could not import Trellis')
 from keyboard import Keyboard
 from osc_interface import OscSooperLooper
 
@@ -343,7 +343,7 @@ def main(args):
     if args.verbose:
         print('Initializing {} interface...'.format(args.interface))
     if args.interface == 'trellis':
-        interface = Trellis(startup_color=args.startup_color)
+        interface = Trellis(startup_color=args.color)
     elif args.interface == 'keyboard':
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
 

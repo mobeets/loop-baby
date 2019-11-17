@@ -32,6 +32,8 @@
 To do:
 
 - [ ] test keyboard control on pi
+	- might need: https://www.raspberrypi.org/forums/viewtopic.php?t=214945
+	- but probably better to just move to testing with trellis
 - [ ] add in auto-jack connect
 - [ ] add in trellis control
 - [ ] get everything running on boot
