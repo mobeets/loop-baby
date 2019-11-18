@@ -38,8 +38,8 @@ Last time:
 	- e.g., they stay on if you go play->record->play
 
 Color issues:
-- paused should be yellow only on-press, playing should be green constant
-- when hitting record/overdub/mute while paused, the color should change but then go away (just to signal recognition of button hit)
+- when paused and hitting overdub/record/mute, should exit mode
+- hitting record/overdub color is transient; hitting mute color never goes away?
 - sometimes hitting pause triggers lots of mode buttons at once??
 
 To do:

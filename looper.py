@@ -25,7 +25,7 @@ BUTTON_NAME_INVERSE = {
 BUTTON_NAME_MAP = dict((BUTTON_NAME_INVERSE[key],key) for key in BUTTON_NAME_INVERSE)
 
 BUTTON_GROUPS = {
-    'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G'],
+    'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G', 'H'],
     'track_buttons': range(1,8),
     'play_pause': ['E'],
     }
@@ -201,8 +201,10 @@ class Looper:
             else:
                 if not self.is_playing:
                     if action == 'play/pause':
+                        print('Clearing color for play/pause')
                         self.interface.un_color(button_number)
                     elif action in ['record', 'overdub', 'mute']:
+                        print('Clearing color for record/overdub/mute')
                         self.interface.un_color(button_number)
 
     def process_mode_change(self, mode, button_number, event_id):
