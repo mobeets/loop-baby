@@ -237,10 +237,10 @@ class Looper:
                 mode = 'recall'
             else:
                 mode = 'save'
-        color = self.mode_color_map[mode]
-        self.interface.set_color(button_number, color)
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
+            color = self.mode_color_map[mode]
+            self.interface.set_color(button_number, color)
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
         
@@ -249,6 +249,8 @@ class Looper:
         self.interface.un_color('track_buttons')
         previous_mode = self.mode
         self.mode = mode
+        color = self.mode_color_map[mode]
+        self.interface.set_color(button_number, color)
 
         if mode == 'clear':
             print('   Clear mode not implemented yet.')
