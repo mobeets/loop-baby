@@ -241,6 +241,11 @@ class Looper:
             self.interface.set_color(button_number, color)
             return
 
+        if mode == self.mode:
+            if self.verbose:
+                print('   Button pressed but no mode change.')
+            return
+        
         if mode == 'save/recall': # toggles
             if previous_mode == 'save':
                 mode = 'recall'
