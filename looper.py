@@ -54,6 +54,8 @@ MODE_COLOR_MAP = {
     'overdub': 'orange',
     'mute': 'blue',
     'track': 'gray',
+    'mute_on': 'blue',
+    'mute_off': 'gray',
     }
 
 class Loop:
@@ -205,10 +207,12 @@ class Looper:
             else:
                 if not self.is_playing:
                     if action == 'play/pause':
-                        print('Clearing color for play/pause')
+                        if self.verbose:
+                            print('   Clearing color for play/pause')
                         self.interface.un_color(button_number)
                     elif action in ['record', 'overdub', 'mute']:
-                        print('Clearing color for record/overdub/mute')
+                        if self.verbose:
+                            print('   Clearing color for record/overdub/mute')
                         self.interface.un_color(button_number)
 
     def process_mode_change(self, mode, button_number, event_id):
@@ -257,7 +261,17 @@ class Looper:
         color = self.mode_color_map[mode]
         self.interface.set_color(button_number, color)
 
-        if mode == 'clear':
+        if mode == 'mute':
+            color_mute = self.mode_color_map['mute_on']
+            color_unmute = self.mode_color_map['mute_off']
+            for loop in self.loops:
+                button_number = self.button_index_map[loop.track]
+                if loop.is_muted:
+                    self.interface.set_color(button_number, color_mute)
+                else:
+                    self.interface.set_color(button_number, color_unmute)
+
+        elif mode == 'clear':
             print('   Clear mode not implemented yet.')
 
         elif mode == 'settings':
@@ -298,23 +312,22 @@ class Looper:
         elif self.mode in ['record', 'overdub']:
             if track <= self.nloops:
                 self.current_loop = track
-                is_off = self.loops[self.current_loop-1].toggle(self.mode, event_id)
-                if is_off:
-                    self.interface.set_color(button_number, 'off')
-                else:
+                is_on = self.loops[self.current_loop-1].toggle(self.mode, event_id)
+                if is_on:
                     self.interface.set_color(button_number, color,
                         uncolor='track_buttons')
+                else:
+                    self.interface.set_color(button_number, 'off')
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'mute':
             if track <= self.nloops:
                 self.current_loop = track
-                is_off = self.loops[self.current_loop-1].toggle(self.mode)
-                if is_off:
-                    self.interface.set_color(button_number, 'off')
-                else:
-                    self.interface.set_color(button_number, color)
+                is_muted = self.loops[self.current_loop-1].toggle(self.mode)
+                color_mode = 'mute_on' if is_muted else 'mute_off'
+                color = self.mode_color_map[color_mode]
+                self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
