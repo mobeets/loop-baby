@@ -225,6 +225,7 @@ class Looper:
                 if self.mode in ['record', 'overdub', 'mute']:
                     print('   Cannot {} when paused, so exiting {} mode'.format(self.mode, self.mode))
                     self.interface.un_color('mode_buttons')
+                    self.interface.un_color('track_buttons')
                     self.mode = None
             else:
                 self.client.hit('trigger', -1)
@@ -295,16 +296,17 @@ class Looper:
             if track <= self.nloops:
                 self.current_loop = track
                 self.loops[self.current_loop-1].toggle(self.mode, event_id)
+                # todo: need to toggle color on/off based on state
                 self.interface.set_color(button_number, color,
                     uncolor='track_buttons')
             else:
-                # todo: create loop (and default to one loop)
                 print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'mute':
             if track <= self.nloops:
                 self.current_loop = track
                 self.loops[self.current_loop-1].toggle(self.mode)
+                # todo: need to toggle color on/off based on state
                 self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for '.format(self.mode))
