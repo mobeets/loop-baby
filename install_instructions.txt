@@ -40,7 +40,6 @@ Last time:
 Color issues:
 - sometimes hitting pause triggers lots of mode buttons at once??
 	- it's always a random release of buttons. so a hack solution would be to only count a release that has a registered press. so when we press, we make a tag, and when we release, we must find a matching tag, then clear the tag
-- when recording/overdubbing, once you stop recording a track (e.g., with that same exact button!) that should turn the button's color OFF
 
 To do:
 

@@ -265,7 +265,7 @@ class Looper:
             color_mute = self.mode_color_map['mute_on']
             color_unmute = self.mode_color_map['mute_off']
             for loop in self.loops:
-                button_number = self.button_index_map[loop.track]
+                button_number = self.button_index_map[loop.track+1]
                 if loop.is_muted:
                     self.interface.set_color(button_number, color_mute)
                 else:
