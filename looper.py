@@ -76,6 +76,7 @@ class Loop:
             self.is_recording = not self.is_recording
             self.client.hit(mode, self.track)
             self.has_had_something_recorded = True
+            return self.is_recording
 
         elif mode == 'overdub':
             if self.stopped_overdub_id == event_id and event_id is not None:
@@ -84,6 +85,7 @@ class Loop:
             self.is_overdubbing = not self.is_overdubbing
             self.client.hit(mode, self.track)
             self.has_had_something_recorded = True
+            return self.is_overdubbing
 
         elif mode == 'pause':
             if self.is_playing:
@@ -98,6 +100,7 @@ class Loop:
             else:
                 self.client.hit('mute_on', self.track)
             self.is_muted = not self.is_muted
+            return self.is_muted
 
     def stop_record_or_overdub(self, event_id):
         """
@@ -295,19 +298,23 @@ class Looper:
         elif self.mode in ['record', 'overdub']:
             if track <= self.nloops:
                 self.current_loop = track
-                self.loops[self.current_loop-1].toggle(self.mode, event_id)
-                # todo: need to toggle color on/off based on state
-                self.interface.set_color(button_number, color,
-                    uncolor='track_buttons')
+                is_off = self.loops[self.current_loop-1].toggle(self.mode, event_id)
+                if is_off:
+                    self.interface.set_color(button_number, 'off')
+                else:
+                    self.interface.set_color(button_number, color,
+                        uncolor='track_buttons')
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode == 'mute':
             if track <= self.nloops:
                 self.current_loop = track
-                self.loops[self.current_loop-1].toggle(self.mode)
-                # todo: need to toggle color on/off based on state
-                self.interface.set_color(button_number, color)
+                is_off = self.loops[self.current_loop-1].toggle(self.mode)
+                if is_off:
+                    self.interface.set_color(button_number, 'off')
+                else:
+                    self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
