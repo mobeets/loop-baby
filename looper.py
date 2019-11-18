@@ -135,6 +135,7 @@ class Looper:
         self.client.verbose = self.verbose
 
         self.button_action_map = button_action_map
+        self.action_button_map = dict((v,k) for k,v in button_action_map.items())
         self.nloops = nloops
         self.loops = [Loop(i, client) for i in range(nloops)]
 
@@ -200,9 +201,9 @@ class Looper:
             else:
                 if not self.is_playing:
                     if action == 'play/pause':
-                        self.interface.un_color('play_pause')
+                        self.interface.un_color(button_number)
                     elif action in ['record', 'overdub', 'mute']:
-                        self.interface.un_color(self.button_index_map[action])
+                        self.interface.un_color(button_number)
 
     def process_mode_change(self, mode, button_number, event_id):
         """
