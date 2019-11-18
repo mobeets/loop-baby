@@ -37,6 +37,11 @@ Last time:
 - trellis button colors are off
 	- e.g., they stay on if you go play->record->play
 
+Color issues:
+- when you first press play, it turns yellow
+- paused should be blank, playing should be green
+- when you switch modes, play color should stay on
+
 To do:
 
 - [ ] test trellis control on pi

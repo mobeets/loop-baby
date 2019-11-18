@@ -48,7 +48,7 @@ MODE_COLOR_MAP = {
     'clear': 'blue',
     'settings': 'gray',
     'play': 'green',
-    'pause': 'yellow',
+    'pause': 'off',
     'record': 'red',
     'overdub': 'orange',
     'mute': 'blue',
@@ -207,9 +207,6 @@ class Looper:
             print('   Mode change: {} -> {}'.format(self.mode, mode))
 
         if mode == 'play/pause': # applies to all loops
-            color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
-            self.interface.set_color(button_number, color)
-
             if self.is_playing:
                 # set_sync_pos so that when we un-pause, we ensure all loops are re-synced to the same timing
                 self.client.hit('set_sync_pos', -1)
@@ -217,6 +214,8 @@ class Looper:
             else:
                 self.client.hit('trigger', -1)
             self.is_playing = not self.is_playing
+            color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
+            self.interface.set_color(button_number, color)
             return
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
