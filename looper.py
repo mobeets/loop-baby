@@ -198,9 +198,11 @@ class Looper:
                     # button press was a oneshot, so turn off light
                     self.interface.un_color(button_number)
             else:
-                if self.mode == 'play/pause' and not self.is_playing:
-                    print('Uncoloring for pause')
-                    self.interface.un_color('play_pause')
+                if not self.is_playing:
+                    if action == 'play/pause':
+                        self.interface.un_color('play_pause')
+                    elif action in ['record', 'overdub', 'mute']:
+                        self.interface.un_color('play_pause')
 
     def process_mode_change(self, mode, button_number, event_id):
         """
@@ -227,6 +229,14 @@ class Looper:
             self.interface.set_color(button_number, color)
             return
 
+        if mode == 'save/recall': # toggles
+            if previous_mode == 'save':
+                mode = 'recall'
+            else:
+                mode = 'save'
+        color = self.mode_color_map[mode]
+        self.interface.set_color(button_number, color)
+
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
@@ -235,14 +245,6 @@ class Looper:
         self.interface.un_color('mode_buttons')
         self.interface.un_color('track_buttons')
         previous_mode = self.mode
-
-        if mode == 'save/recall': # toggles
-            if previous_mode == 'save':
-                mode = 'recall'
-            else:
-                mode = 'save'
-        color = self.mode_color_map[mode]
-        self.interface.set_color(button_number, color)
         self.mode = mode
 
         if mode == 'clear':
