@@ -202,7 +202,7 @@ class Looper:
                     if action == 'play/pause':
                         self.interface.un_color('play_pause')
                     elif action in ['record', 'overdub', 'mute']:
-                        self.interface.un_color('play_pause')
+                        self.interface.un_color(self.button_index_map[action])
 
     def process_mode_change(self, mode, button_number, event_id):
         """

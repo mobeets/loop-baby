@@ -40,6 +40,7 @@ Last time:
 Color issues:
 - paused should be yellow only on-press, playing should be green constant
 - when hitting record/overdub/mute while paused, the color should change but then go away (just to signal recognition of button hit)
+- sometimes hitting pause triggers lots of mode buttons at once??
 
 To do:
 
