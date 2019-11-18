@@ -38,9 +38,8 @@ Last time:
 	- e.g., they stay on if you go play->record->play
 
 Color issues:
-- when you first press play, it turns yellow
-- paused should be blank, playing should be green
-- when you switch modes, play color should stay on
+- paused should be yellow only on-press, playing should be green constant
+- if playing, then entering record mode, then pausing, the red record light will stay on; also when pausing from record/overdub mode, we should exit record/overdub mode...
 
 To do:
 

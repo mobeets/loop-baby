@@ -27,7 +27,7 @@ BUTTON_NAME_MAP = dict((BUTTON_NAME_INVERSE[key],key) for key in BUTTON_NAME_INV
 BUTTON_GROUPS = {
     'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G'],
     'track_buttons': range(1,8),
-    'play/pause': ['E'],
+    'play_pause': ['E'],
     }
 
 BUTTON_ACTION_MAP = {
@@ -199,7 +199,8 @@ class Looper:
                     self.interface.un_color(button_number)
             else:
                 if self.mode == 'play/pause' and not self.is_playing:
-                    self.interface.un_color('play/pause')
+                    print('Uncoloring for pause')
+                    self.interface.un_color('play_pause')
 
     def process_mode_change(self, mode, button_number, event_id):
         """
@@ -215,6 +216,10 @@ class Looper:
                 # set_sync_pos so that when we un-pause, we ensure all loops are re-synced to the same timing
                 self.client.hit('set_sync_pos', -1)
                 self.client.hit('pause_on', -1)
+                if self.mode in ['record', 'overdub', 'mute']:
+                    print('   Cannot {} when paused, so exiting {} mode'.format(self.mode, self.mode))
+                    self.interface.un_color('mode_buttons')
+                    self.mode = None
             else:
                 self.client.hit('trigger', -1)
             self.is_playing = not self.is_playing
@@ -223,7 +228,7 @@ class Looper:
             return
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
-            print('   Cannot {} track when paused; otherwise loops will get out of sync!'.format(mode))
+            print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
         
         # changing to any other type of mode clears all buttons (except play/pause)
