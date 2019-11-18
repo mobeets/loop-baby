@@ -53,6 +53,7 @@ MODE_COLOR_MAP = {
     'record': 'red',
     'overdub': 'orange',
     'mute': 'blue',
+    'track': 'gray',
     }
 
 class Loop:
@@ -271,8 +272,7 @@ class Looper:
         """
         if self.verbose:
             print('   ({}) track = {}'.format(self.mode, track))
-        color = self.mode_color_map[self.mode]
-
+        color = self.mode_color_map['track']
 
         if self.mode == None:
             self.interface.set_color(button_number, color)
@@ -311,7 +311,7 @@ class Looper:
 
         elif self.mode == 'save':
             print('   Save not implemented yet.')
-            self.interface.set_color(track, color)
+            self.interface.set_color(button_number, color)
 
         elif self.mode == 'load':
             # if we press a track that isn't an option, do nothing

@@ -38,9 +38,9 @@ Last time:
 	- e.g., they stay on if you go play->record->play
 
 Color issues:
-- when paused and hitting overdub/record/mute, should exit mode
-- hitting record/overdub color is transient; hitting mute color never goes away?
 - sometimes hitting pause triggers lots of mode buttons at once??
+	- it's always a random release of buttons. so a hack solution would be to only count a release that has a registered press. so when we press, we make a tag, and when we release, we must find a matching tag, then clear the tag
+- colors of track buttons should always be the same in record/overdub/mute/onehit mode
 
 To do:
 
