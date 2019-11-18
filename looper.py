@@ -1,6 +1,6 @@
 """
 /usr/bin/jackd -T -ndefault -R -d alsa &
-
+sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
 """
 import sys
 import time
@@ -360,7 +360,8 @@ if __name__ == '__main__':
         dest='verbose', action='store_true',
         default=True)
     parser.add_argument('-i', '--interface',
-        choices=['keyboard', 'trellis'], default='trellis')
+        choices=['keyboard', 'trellis'],
+        default='trellis')
     parser.add_argument('-c', '--color', type=str,
         choices=['purple', 'red', 'gray', 'green',
         'blue', 'orange'], default='blue')

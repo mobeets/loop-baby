@@ -1,5 +1,5 @@
 """
-/usr/bin/jackd -T -ndefault -R -d alsa -d hw:system -n 3 -r 44100 -p 128 &
+/usr/bin/jackd -T -ndefault -R -d alsa -n 3 -r 44100 -p 128 &
 a2midid -e &
 sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
 """

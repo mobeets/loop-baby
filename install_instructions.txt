@@ -32,7 +32,10 @@
 Last time:
 - jack wasn't recognizing audio in
 - sooperlooper had trouble booting until jack was already running
-- looper.py wasn't sending OSC messages (likely because url or port was wrong -- need to try a ping)
+- looper.py wasn't sending OSC messages to SooperLooper
+	- likely because url or port was wrong -- need to try a ping
+- trellis button colors are off
+	- e.g., they stay on if you go play->record->play
 
 To do:
 
