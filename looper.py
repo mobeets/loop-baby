@@ -245,7 +245,7 @@ class Looper:
             if self.verbose:
                 print('   Button pressed but no mode change.')
             return
-        
+
         if mode == 'save/recall': # toggles
             if previous_mode == 'save':
                 mode = 'recall'
@@ -408,6 +408,6 @@ if __name__ == '__main__':
         choices=['purple', 'red', 'gray', 'green',
         'blue', 'orange'], default='blue')
     parser.add_argument('-o', '--osc_url', type=str,
-        default='thisbemymachine.verizon.net')
+        default='127.0.0.1') # thisbemymachine.verizon.net
     args = parser.parse_args()
     main(args)

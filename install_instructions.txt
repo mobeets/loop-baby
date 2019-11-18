@@ -29,17 +29,31 @@
 
 ---------
 
+Start-up:
+1. /usr/bin/jackd -T -ndefault -R -d alsa &
+2. qjackctl
+3. sooperlooper via gui
+4. python3 looper.py -v
+
 Last time:
-- jack wasn't recognizing audio in
-- sooperlooper had trouble booting until jack was already running
-- looper.py wasn't sending OSC messages to SooperLooper
-	- likely because url or port was wrong -- need to try a ping
-- trellis button colors are off
-	- e.g., they stay on if you go play->record->play
+- jack wasn't recognizing audio in for a while, but after closing qjackctl and re-opening, eventually it worked
+	- I also manually set Input (hw:Device,0, 'USB Audio') and Output (hw:Device, 'USB PnP Sound Device'), but not sure if that was necessary
+- got loop-baby sending OSC messages: secret was setting "-o 127.0.0.1" which is now the default
+- controlled sooperlooper using the loop-baby!
+
+Logic issues:
+- if a track is muted and then you record/overdub to it, should first unmute it
+- settings to set sync options
 
 Color issues:
 - sometimes hitting pause triggers lots of mode buttons at once??
 	- it's always a random release of buttons. so a hack solution would be to only count a release that has a registered press. so when we press, we make a tag, and when we release, we must find a matching tag, then clear the tag
+- when recording/overdubbing, should show which tracks already have things recorded to (self.loops[0].has_had_something_recorded)
+- can I set brightness of colors? to minimize bleed
+
+Box issues:
+- color appears to bleed less if buttons are lower set in case (you can see this by adding another button top plate)
+- box slides around a lot
 
 To do:
 
@@ -48,12 +62,6 @@ To do:
 - [ ] add in trellis control
 - [ ] get everything running on boot
 - [ ] add background script to check for restart cmd
-
-Features to add:
-- [ ] add new loop on demand
-- [ ] settings to set sync options
-- [ ] for oneshot/record/overdub, highlight track buttons based on valid options
-	- using self.loops[0].has_had_something_recorded
 
 Improving latency:
 
