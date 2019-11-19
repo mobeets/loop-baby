@@ -76,7 +76,12 @@ class OscSooperLooper(OscBase):
         osc_method("/get", self.handle_get,
             argscheme=osm.OSCARG_ADDRESS + osm.OSCARG_DATA)
 
-        self.actions = ["record", "overdub", "multiply", "insert", "replace", "reverse", "mute", "undo", "redo", "oneshot", "trigger", "substitute", "undo_all", "redo_all", "mute_on", "mute_off", "solo", "pause", "solo_next", "solo_prev", "record_solo", "record_solo_next", "record_solo_prev", "set_sync_pos", "reset_sync_pos", "mute_on", "mute_off",
+        self.actions = ["record", "overdub", "multiply", "insert",
+            "replace", "reverse", "mute", "undo", "redo", "oneshot",
+            "trigger", "substitute", "undo_all", "redo_all", "mute_on",
+            "mute_off", "solo", "pause", "solo_next", "solo_prev",
+            "record_solo", "record_solo_next", "record_solo_prev",
+            "set_sync_pos", "reset_sync_pos", "mute_on", "mute_off",
             "pause_on", "pause_off"]
         self.state_lookup = {0: 'off', 1: 'waitstart',
             2: 'recording', 3: 'waitstop', 4: 'playing',

@@ -1,0 +1,6 @@
+pygame==1.9.6
+osc4py3==1.0.8
+
+# the below are required for using the trellis interface
+adafruit-blinka
+adafruit-circuitpython-neotrellis

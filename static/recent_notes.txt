@@ -1,0 +1,7 @@
+
+Last time:
+- jack wasn't recognizing audio in for a while, but after closing qjackctl and re-opening, eventually it worked
+	- I also manually set Input (hw:Device,0, 'USB Audio') and Output (hw:Device, 'USB PnP Sound Device'), but not sure if that was necessary
+- got loop-baby sending OSC messages: secret was setting "-o 127.0.0.1" which is now the default
+- controlled sooperlooper using the loop-baby!
+

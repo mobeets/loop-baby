@@ -1,4 +1,5 @@
 *.pyc
 .DS_Store
-samples/
 __pycache__/
+samples/
+_old/

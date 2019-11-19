@@ -1,189 +1,84 @@
-# Talking A, B, Cs Soundboards: Animal ABCs and "E is for Electronics" ABCs
-
+import sys
 import time
-import board
-import audioio
-import adafruit_fancyled.adafruit_fancyled as fancy
-import adafruit_trellism4
+import glob
+import pygame
+import os.path
 
-# Custom colors for keys
-RED = 0xFF0000
-MAROON = 0xFF0044
-ORANGE = 0xFF6600
-YELLOW = 0xFFFF00
-BROWN = 0x8B4513
-GREEN = 0x008000
-AQUA = 0x33ff33
-TEAL = 0x66ffff
-BLUE = 0x0000FF
-NAVY = 0x24248f
-PURPLE = 0x660066
-PINK = 0xFF66B3
-WHITE = 0xFFFFFF
-EXTRA = 0x888888
+from board import SCL, SDA
+import busio
+from adafruit_neotrellis.neotrellis import NeoTrellis
 
-# Select the folder for the ABC files, only define one,
-#   the other line should have a # to comment it out
-#SAMPLE_FOLDER = "/animals/"
-SAMPLE_FOLDER = "/samples/"
+# init audio
+# source: https://stackoverflow.com/questions/18273722/pygame-sound-delay
+# init(frequency, size, channels, buffer)
+pygame.mixer.pre_init(22050, -16, 2, 512)
+pygame.init()
+pygame.mixer.quit()
+pygame.mixer.init(22050, -16, 2, 512)
+print('Initiated pygame')
 
-# This soundboard can select up to *32* sound clips! each one has a filename
-# which will be inside the SAMPLE_FOLDER above, and a *color* in a tuple ()
-SAMPLES = [("Ellie-1.wav", RED),
-           ("Ellie-2.wav", MAROON),
-           ("Lu-1.wav", ORANGE),
-           ("Lu-2.wav", YELLOW),
-           ("Oblio-1.wav", BROWN),
-           ("Oblio-2.wav", GREEN),
-           ("Oblio-3.wav", AQUA),
-           ("Pye-1.wav", TEAL),
-           ("Pye-2.wav", BLUE),
-           ("Pye-3.wav", NAVY),
-           ("Quark-1.wav", PURPLE),
-           ("Quark-2.wav", PINK),
-           ("Quark-3.wav", RED),
-           ("Queso-1.wav", MAROON),
-           ("Queso-2.wav", ORANGE),
-           ("Rooster-1.wav", YELLOW),
-           ("Rooster-2.wav", BROWN),
-           ("Rooster-3.wav", GREEN),
-           ("Zooey-1.wav", AQUA),
-           ("Zooey-2.wav", TEAL),
-           ("Zooey-3.wav", BLUE),
-           ("Ellie-1.wav", RED),
-           ("Ellie-2.wav", MAROON),
-           ("Lu-1.wav", ORANGE),
-           ("Lu-2.wav", YELLOW),
-           ("Oblio-1.wav", BROWN),
-           ("Oblio-2.wav", GREEN),
-           ("Oblio-3.wav", AQUA),
-           ("Pye-1.wav", TEAL),
-           ("Pye-2.wav", BLUE),
-           ("Pye-3.wav", NAVY),
-           ("Quark-1.wav", PURPLE)]
+# load samples
+sample_dir = 'samples'
+try:
+    sample_name = sys.argv[1]
+except:
+    sample_name = 'wurly'
 
-# For the intro, pick any number of colors to make a fancy gradient!
-INTRO_SWIRL = [RED, GREEN, BLUE]
-# The color for the pressed key
-SELECTED_COLOR = 0x333300
+soundfiles = glob.glob(os.path.join(sample_dir, sample_name, '*.wav'))
+samples = [pygame.mixer.Sound(soundfile) for soundfile in soundfiles]
+print('Loaded {} samples from {}'.format(len(samples), sample_name))
 
-PLAY_SAMPLES_ON_START = False  # Will not play all the sounds on start
+#create the i2c object for the trellis
+i2c_bus = busio.I2C(SCL, SDA)
+print (i2c_bus)
 
-# Our keypad + NeoPixel driver
-trellis = adafruit_trellism4.TrellisM4Express(rotation=0)
+#create the trellis
+trellis = NeoTrellis(i2c_bus) # can set interrupt=True here...
+print(trellis)
 
-# Play the welcome wav (if its there)
-with audioio.AudioOut(board.A1, right_channel=board.A0) as audio:
-    try:
-        f = open(SAMPLE_FOLDER+SAMPLES[27][0], "rb")  # Use 02.wav as welcome
-        wave = audioio.WaveFile(f)
-        audio.play(wave)
-        swirl = 0  # we'll swirl through the colors in the gradient
-        while audio.playing:
-            for i in range(32):
-                palette_index = ((swirl+i) % 32) / 32
-                color = fancy.palette_lookup(INTRO_SWIRL, palette_index)
-                # display it!
-                trellis.pixels[(i%8, i//8)] = color.pack()
-            swirl += 1
-            time.sleep(0.005)
-        f.close()
-        # just hold a moment
-        time.sleep(0.5)
-    except OSError:
-        # no biggie, they could have deleted it
-        pass
+#some color definitions
+OFF = (0, 0, 0)
+RED = (255, 0, 0)
+YELLOW = (255, 150, 0)
+GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
+BLUE = (0, 0, 255)
+PURPLE = (180, 0, 255)
 
-# Parse the first file to figure out what format it's in
-channel_count = None
-bits_per_sample = None
-sample_rate = None
-with open(SAMPLE_FOLDER+SAMPLES[0][0], "rb") as f:
-    wav = audioio.WaveFile(f)
-    print("%d channels, %d bits per sample, %d Hz sample rate " %
-          (wav.channel_count, wav.bits_per_sample, wav.sample_rate))
+#this will be called when button events are received
+def blink(event):
+    #turn the LED on when a rising edge is detected
+    if event.edge == NeoTrellis.EDGE_RISING:
+        trellis.pixels[event.number] = CYAN
+        print(event.number)
+        samples[event.number % len(samples)].play()
 
-    # Audio playback object - we'll go with either mono or stereo depending on
-    # what we see in the first file
-    if wav.channel_count == 1:
-        audio = audioio.AudioOut(board.A1)
-    elif wav.channel_count == 2:
-        audio = audioio.AudioOut(board.A1, right_channel=board.A0)
-    else:
-        raise RuntimeError("Must be mono or stereo waves!")
+    #turn the LED off when a rising edge is detected
+    elif event.edge == NeoTrellis.EDGE_FALLING:
+        trellis.pixels[event.number] = OFF
 
-# Turn on, maybe play all of the buttons
-for i, v in enumerate(SAMPLES):
-    filename = SAMPLE_FOLDER+v[0]
-    try:
-        with open(filename, "rb") as f:
-            wav = audioio.WaveFile(f)
-            print(filename,
-                  "%d channels, %d bits per sample, %d Hz sample rate " %
-                  (wav.channel_count, wav.bits_per_sample, wav.sample_rate))
-            if wav.channel_count != channel_count:
-                pass
-            if wav.bits_per_sample != bits_per_sample:
-                pass
-            if wav.sample_rate != sample_rate:
-                pass
-            trellis.pixels[(i%8, i//8)] = v[1]
-            if PLAY_SAMPLES_ON_START:
-                audio.play(wav)
-                while audio.playing:
-                    pass
-    except OSError:
-        # File not found! skip to next
-        pass
+for i in range(16):
+    #activate rising edge events on all keys
+    trellis.activate_key(i, NeoTrellis.EDGE_RISING)
+    #activate falling edge events on all keys
+    trellis.activate_key(i, NeoTrellis.EDGE_FALLING)
+    #set all keys to trigger the blink callback
+    trellis.callbacks[i] = blink
 
-def stop_playing_sample(playback_details):
-    print("playing: ", playback_details)
-    audio.stop()
-    trellis.pixels[playback_details['neopixel_location']] = playback_details['neopixel_color']
-    playback_details['file'].close()
-    playback_details['voice'] = None
+    #cycle the LEDs on startup
+    trellis.pixels[i] = PURPLE
+    time.sleep(.05)
 
-current_press = set()
-currently_playing = {'voice' : None}
-last_samplenum = None
-while True:
-    pressed = set(trellis.pressed_keys)
-    # if pressed:
-    #    print("Pressed:", pressed)
+for i in range(16):
+    trellis.pixels[i] = OFF
+    time.sleep(.05)
 
-    just_pressed = pressed - current_press
-    just_released = current_press - pressed
-
-    # if just_pressed:
-    #    print("Just pressed", just_pressed)
-    for down in just_pressed:
-        sample_num = down[1]*8 + down[0]
-        print(sample_num)
-        try:
-            filename = SAMPLE_FOLDER+SAMPLES[sample_num][0]
-            f = open(filename, "rb")
-            wav = audioio.WaveFile(f)
-
-            # is something else playing? interrupt it!
-            if currently_playing['voice'] != None:
-                print("Interrupt")
-                stop_playing_sample(currently_playing)
-
-            trellis.pixels[down] = SELECTED_COLOR
-            audio.play(wav)
-            # voice, neopixel tuple, color, and sample, file handle
-            currently_playing = {
-                'voice': 0,
-                'neopixel_location': down,
-                'neopixel_color': SAMPLES[sample_num][1],
-                'sample_num': sample_num,
-                'file': f}
-        except OSError:
-            pass # File not found! skip to next
-
-    # check if any samples are done
-    if not audio.playing and currently_playing['voice'] != None:
-        stop_playing_sample(currently_playing)
-
-    time.sleep(0.01)  # a little delay here helps avoid debounce annoyances
-    current_press = pressed
+try:
+    while True:
+        #call the sync function call any triggered callbacks
+        trellis.sync()
+        #the trellis can only be read every 17 millisecons or so
+        time.sleep(.02)
+except KeyboardInterrupt:
+    # handle quitting with ctrl+c
+    pass
