@@ -10,7 +10,7 @@ try:
 except:
     print('WARNING: Could not import Trellis')
 from keyboard import Keyboard
-from osc_interface import OscSooperLooper
+from osc import OscSooperLooper
 
 BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
