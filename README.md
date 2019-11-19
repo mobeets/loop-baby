@@ -6,7 +6,7 @@ looper using raspberry pi, sooperlooper, and a [neotrellis](https://www.adafruit
 hardware:
 
 - raspberry pi (3B) with USB audio interface
-- [neotrellis pcb](https://www.adafruit.com/product/3954) and [silicone buttons](https://www.adafruit.com/product/1611): for controlling the looper
+- [neotrellis pcb](https://www.adafruit.com/product/3954) and [silicone buttons](https://www.adafruit.com/product/1611) for controlling the looper
 - laser-cut enclosure (`static/design.ai`)
 
 software:
