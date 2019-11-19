@@ -1,4 +1,13 @@
-What: a looper with multiple channels, and midi sync, for a raspberri pi.
+--------------
+Recent notes
+--------------
+
+Last time:
+- jack wasn't recognizing audio in for a while, but after closing qjackctl and re-opening, eventually it worked
+	- I also manually set Input (hw:Device,0, 'USB Audio') and Output (hw:Device, 'USB PnP Sound Device'), but not sure if that was necessary
+- got loop-baby sending OSC messages: secret was setting "-o 127.0.0.1" which is now the default
+- controlled sooperlooper using the loop-baby!
+
 
 --------------
 Parts
@@ -7,7 +16,7 @@ Parts
 - raspberry pi 3B ($35)
 - Syba USB audio in/out ($7)
 	- https://www.amazon.com/gp/product/B001MSS6CS
-- silicon buttons ($5)
+- silicone buttons ($5)
 	- https://www.adafruit.com/product/1611
 - NeoTrellis RGB PCB driver ($13)
 	- https://www.adafruit.com/product/3954
@@ -16,7 +25,7 @@ Parts
 		- for connecting trellis and pi
 		- https://www.adafruit.com/product/3568
 	- jumper wires ($7)
-		- for connecting trellis and pi, but could have
+		- for connecting trellis and pi, but could have soldered
 		- https://www.amazon.com/gp/product/B01EV70C78
 - black acrylic for enclosure ($3)
 - screws ($6 if you bought only what you needed)
@@ -223,6 +232,40 @@ Resources:
 	- https://learn.adafruit.com/untztrument-trellis-midi-instrument?view=all#overview
 - example 3D printed case for button pads and chip
 	- https://learn.adafruit.com/trellis-3d-printed-enclosure?view=all
+
+--------------
+Installs
+--------------
+
+an incomplete list of things I did:
+
+- Upgrade system just for fun
+	- `sudo-apt get update`, `sudo apt-get upgrade`, `sudo pip3 install --upgrade setuptools`, AND `sudo pip install --upgrade setuptools`
+		- the last line was required to prevent install of neotrellis library install from breaking due to pip problems
+	- Warning: This will take FOREVER
+- Enabled I2C and SPI, and installed CircuitPython libraries in Python3
+	- [source](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi)
+	- Run blinkatest.py to confirm
+- Install Neotrellis library in Python3
+	- `sudo pip3 install adafruit-circuitpython-neotrellis`
+- Default audio interface set-up: Create file ~/.asoundrc
+	````
+	pcm.!default {
+	        type hw
+	        card 0
+	        device 0
+	}
+	ctl.!default {
+	        type hw
+	        card 0
+	        device 0
+	}
+	````
+	- where 'card 0' is replaced by the device number when running 'aplay -l'. Then confirm it's working by running 'alsamixer'
+- Installed cffi and JACK-Client using pip3
+- Installed fluidsynth and qsynth using apt-get
+- Installed a2jmidi using apt-get (for converting alsa-midi, which sooperlooper uses, to jack-midi)
+- pip3 install osc4py3
 
 --------------
 Notes
