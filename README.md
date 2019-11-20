@@ -20,7 +20,7 @@ software:
 
 Current start-up process:
 
-1. `/usr/bin/jackd -T -ndefault -R -d alsa &`
+1. `jackd -T -ndefault -R -d alsa &`
 2. `qjackctl &`
-3. start sooperlooper via gui (for now...)
+3. `sooperlooper -p 9951`
 4. `python3 looper.py -v`
