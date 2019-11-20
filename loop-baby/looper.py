@@ -115,15 +115,19 @@ class Loop:
         """
         self.stopped_overdub_id = None
         self.stopped_record_id = None
+        did_something = False
         if self.is_recording:
             self.is_recording = not self.is_recording
             self.client.hit('record', self.track)
             self.stopped_record_id = event_id
+            did_something = True
         elif self.is_overdubbing:
             self.is_overdubbing = not self.is_overdubbing
             self.client.hit('overdub', self.track)
             self.was_stopped_overdubbing = True
             self.stopped_overdub_id = event_id
+            did_something = True
+        return did_something
 
 class Looper:
     def __init__(self, client, interface, startup_color='blue',
@@ -187,7 +191,12 @@ class Looper:
             # any time a button is pressed, we must
             # stop any recording/overdubbing going on
             for loop in self.loops:
-                loop.stop_record_or_overdub(event_id)
+                did_something = loop.stop_record_or_overdub(event_id)
+                if did_something and self.mode in ['record', 'overdub']:
+                    # might need to update button colors
+                    color_exists = self.mode_color_map['track_exists']
+                    button_number = self.button_index_map[loop.track+1]
+                    self.interface.set_color(button_number, color_exists)
 
             # now handle
             if type(action) is int:
@@ -256,11 +265,12 @@ class Looper:
             return
 
         if mode in ['record', 'overdub']:
+            # color buttons if track exists
             color_exists = self.mode_color_map['track_exists']
             for loop in self.loops:
                 if loop.has_had_something_recorded:
                     button_number = self.button_index_map[loop.track+1]
-                    self.interface.set_color(butto_number, color_exists)
+                    self.interface.set_color(button_number, color_exists)
         
         # changing to any other type of mode clears all buttons (except play/pause)
         self.interface.un_color('mode_buttons')
@@ -326,7 +336,11 @@ class Looper:
                     self.interface.set_color(button_number, color,
                         uncolor='track_buttons')
                 else:
-                    self.interface.set_color(button_number, 'off')
+                    pass
+                    # self.interface.set_color(button_number, 'off')
+                    # loop = self.loops[track-1]
+                    # color_exists = self.mode_color_map['track_exists']
+                    # self.interface.set_color(button_number, color_exists)
             else:
                 print('   Loop index does not exist for '.format(self.mode))
 
@@ -372,13 +386,16 @@ class Looper:
                 time.sleep(.02)
         except KeyboardInterrupt:
             # Properly close the system.
-            if self.verbose:
-                print()
-                print('Ending looper...')
-            self.client.terminate()
-            self.interface.terminate()
-            if self.verbose:
-                print('See ya!')
+            self.terminate()
+
+    def terminate(self):
+        if self.verbose:
+            print()
+            print('Ending looper...')
+        self.client.terminate()
+        self.interface.terminate()
+        if self.verbose:
+            print('See ya!')
 
 def main(args):
     # connect to SooperLooper via OSC
@@ -397,7 +414,11 @@ def main(args):
     looper = Looper(client=client,
         interface=interface,
         verbose=args.verbose)
-    looper.start()
+    try:
+        looper.start()
+    except:
+        looper.terminate()
+        raise
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
