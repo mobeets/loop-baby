@@ -1,18 +1,3 @@
-"""
-1. Start sooperlooper
-    - /Applications/SooperLooper.app/Contents/MacOS/slgui -H localhost -P 9951
-    - /Applications/SooperLooper.app/Contents/MacOS/sooperlooper -p 9951 -l 1 -c 2 -t 40 -m /Users/mobeets/.sooperlooper/default_midi.slb -D no
-    - I used the gui above so I could ensure I was sending record messages, but the sooperlooper command worked as well
-2. Run this script
-    - Should send record commands, and receive ping response
-
-To do:
-- when getting 'state', print the value not the int key
-
-Reference:
-- https://github.com/aquamatt/loopercontrol
-"""
-
 import time
 from osc4py3.as_eventloop import *
 from osc4py3 import oscbuildparse

@@ -20,7 +20,5 @@ software:
 
 Current start-up process:
 
-1. `jackd -T -ndefault -R -d alsa &`
-2. `qjackctl &`
-3. `sooperlooper -p 9951`
-4. `python3 looper.py -v`
+1. `./startup.sh`
+2. `python3 looper.py -v`

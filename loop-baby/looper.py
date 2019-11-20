@@ -1,7 +1,3 @@
-"""
-/usr/bin/jackd -T -ndefault -R -d alsa &
-sooperlooper -q -U osc.udp://localhost:11016/ -p 9951 -l 1 -c 2 -t 40 -m ~/loop-baby/midi_bindings.slb
-"""
 import sys
 import time
 import argparse
@@ -56,6 +52,7 @@ MODE_COLOR_MAP = {
     'track': 'gray',
     'mute_on': 'blue',
     'mute_off': 'gray',
+    'track_exists': 'gray',
     }
 
 class Loop:
@@ -257,6 +254,13 @@ class Looper:
             self.interface.set_color(button_number, color)
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
+
+        if mode in ['record', 'overdub']:
+            color_exists = self.mode_color_map['track_exists']
+            for loop in self.loops:
+                if loop.has_had_something_recorded:
+                    button_number = self.button_index_map[loop.track+1]
+                    self.interface.set_color(butto_number, color_exists)
         
         # changing to any other type of mode clears all buttons (except play/pause)
         self.interface.un_color('mode_buttons')
