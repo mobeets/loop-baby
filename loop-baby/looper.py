@@ -51,7 +51,7 @@ MODE_COLOR_MAP = {
     'mute': 'blue',
     'track': 'gray',
     'mute_on': 'blue',
-    'mute_off': 'gray',
+    'mute_off': 'darkgray',
     'track_exists': 'darkgray',
     }
 
@@ -185,7 +185,7 @@ class Looper:
         self.process_button(button_number, action, event_type, self.event_id)
 
     def refresh_track_colors_in_mode(self):
-        if self.mode in ['record', 'overdub']:
+        if self.mode in ['record', 'overdub', 'oneshot']:
             # color buttons if track exists but isn't currently being recorded to
             color_exists = self.mode_color_map['track_exists']
             self.interface.un_color('track_buttons')
@@ -285,6 +285,8 @@ class Looper:
             color_mute = self.mode_color_map['mute_on']
             color_unmute = self.mode_color_map['mute_off']
             for loop in self.loops:
+                if not loop.has_had_something_recorded:
+                    continue
                 button_number = self.button_index_map[loop.track+1]
                 if loop.is_muted:
                     self.interface.set_color(button_number, color_mute)
