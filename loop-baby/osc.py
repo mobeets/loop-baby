@@ -155,6 +155,7 @@ class OscSooperLooper(OscBase):
         print('Loading empty session from file: {}'.format(self.empty_session))
         msg = oscbuildparse.OSCMessage("/load_session", None,
             [self.empty_session, self.return_url, "/ping"])
+        self._send_message(msg)
 
     def save_session(self, outfile):
         """
@@ -163,6 +164,7 @@ class OscSooperLooper(OscBase):
         """
         msg = oscbuildparse.OSCMessage("/save_session", None,
             [outfile, self.return_url, "/ping"])
+        self._send_message(msg)
 
     def add_loop(self):
         """
