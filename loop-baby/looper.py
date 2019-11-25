@@ -240,7 +240,7 @@ class Looper:
                     self.interface.un_color(button_number)
             else:
                 if not self.is_playing:
-                    if action == 'play/pause':
+                    if self.mode is not None and action == 'play/pause':
                         if self.verbose:
                             print('   Clearing color for play/pause')
                         self.interface.un_color(button_number)
