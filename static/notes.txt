@@ -2,7 +2,8 @@
 Recent notes
 --------------
 
-
+./startup.sh worked great!
+though I will note, once I closed looper.py after running it (and it working!), there was no longer any audio. not sure why
 
 --------------
 Parts
