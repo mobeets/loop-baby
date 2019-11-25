@@ -23,7 +23,7 @@ BUTTON_NAME_MAP = dict((BUTTON_NAME_INVERSE[key],key) for key in BUTTON_NAME_INV
 BUTTON_GROUPS = {
     'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G', 'H'],
     'track_buttons': range(1,8),
-    'play_pause': ['E'],
+    'play/pause': ['E'],
     }
 
 BUTTON_ACTION_MAP = {
