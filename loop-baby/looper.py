@@ -134,7 +134,7 @@ class Loop:
         self.stopped_record_id = None
         did_something = False
         if self.is_recording:
-            self.toggle_overdub()
+            self.toggle_record()
             self.stopped_record_id = event_id
             did_something = True
         elif self.is_overdubbing:
