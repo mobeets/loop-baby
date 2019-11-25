@@ -52,6 +52,7 @@ MODE_COLOR_MAP = {
     'track': 'gray',
     'mute_on': 'blue',
     'mute_off': 'darkgray',
+    'track_recorded': 'gray',
     'track_exists': 'darkgray',
     }
 
@@ -203,15 +204,18 @@ class Looper:
         if self.mode in ['record', 'overdub', 'oneshot']:
             # color buttons if track exists but isn't currently being recorded to
             color_exists = self.mode_color_map['track_exists']
+            color_recorded = self.mode_color_map['track_recorded']
             self.interface.un_color('track_buttons')
             for loop in self.loops:
+                cur_color = None
+                button_number = self.button_index_map[loop.track+1]
                 if loop.is_recording or loop.is_overdubbing:
-                    clr = self.mode_color_map[self.mode]
-                    button_number = self.button_index_map[loop.track+1]
-                    self.interface.set_color(button_number, clr)
+                    cur_color = self.mode_color_map[self.mode]
                 elif loop.has_had_something_recorded:
-                    button_number = self.button_index_map[loop.track+1]
-                    self.interface.set_color(button_number, color_exists)
+                    cur_color = color_recorded
+                else:
+                    cur_color = color_exists
+                self.interface.set_color(button_number, cur_color)
 
     def process_button(self, button_number, action, press_type, event_id):
         # updates happen at the time of button press
@@ -300,8 +304,8 @@ class Looper:
             color_mute = self.mode_color_map['mute_on']
             color_unmute = self.mode_color_map['mute_off']
             for loop in self.loops:
-                if not loop.has_had_something_recorded:
-                    continue
+                # if not loop.has_had_something_recorded:
+                #     continue
                 button_number = self.button_index_map[loop.track+1]
                 if loop.is_muted:
                     self.interface.set_color(button_number, color_mute)
