@@ -51,7 +51,7 @@ MODE_COLOR_MAP = {
     'mute': 'blue',
     'track': 'gray',
     'mute_on': 'blue',
-    'mute_off': 'darkgray',
+    'mute_off': 'gray',
     'track_recorded': 'gray',
     'track_exists': 'darkgray',
     }
