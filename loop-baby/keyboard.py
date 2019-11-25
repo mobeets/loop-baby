@@ -102,6 +102,8 @@ class Keyboard:
     def un_color(self, index):
         pass
 
-    def terminate(self):
+    def load_empty_session(self):
         pass
 
+    def terminate(self):
+        pass

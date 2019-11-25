@@ -384,6 +384,7 @@ class Looper:
             1. trellis: syncs, pauses every 0.02, triggers callbacks
             2. looper: processes any callbacks triggered by trellis
         """
+        self.client.load_empty_session()
         if self.verbose:
             print('Looper on!')
         try:
@@ -407,7 +408,8 @@ def main(args):
     # connect to SooperLooper via OSC
     if args.verbose:
         print('Setting up Sooper Looper OSC client...')
-    client = OscSooperLooper(client_url=args.osc_url)
+    client = OscSooperLooper(client_url=args.osc_url,
+        empty_session=args.empty_session_file)
 
     # connect with either trellis PCB or keyboard
     if args.verbose:
@@ -439,6 +441,8 @@ if __name__ == '__main__':
         choices=['purple', 'red', 'gray', 'green',
         'blue', 'orange'], default='blue')
     parser.add_argument('-o', '--osc_url', type=str,
-        default='127.0.0.1') # thisbemymachine.verizon.net
+        default='127.0.0.1')
+    parser.add_argument('--empty_session_file', type=str,
+        default='static/empty_session.slsess')
     args = parser.parse_args()
     main(args)

@@ -1,3 +1,4 @@
+
 # start jack server
 /usr/bin/jackd -dalsa -r48000 -p1024 -n2 -dhw:1 > jackd_errors.log 2>&1 &
 

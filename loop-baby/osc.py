@@ -15,7 +15,7 @@ MINIMUM_LOOP_DURATION = 60 # seconds
 MONO, STEREO = (1, 2)
 
 class OscBase:
-    def __init__(self, client_url=OSC_CLIENT_URL, client_port=OSC_CLIENT_PORT, client_name=OSC_CLIENT_NAME, server_url=OSC_SERVER_URL, server_port=OSC_SERVER_PORT, server_name=OSC_SERVER_NAME):
+    def __init__(self, client_url=OSC_CLIENT_URL, client_port=OSC_CLIENT_PORT, client_name=OSC_CLIENT_NAME, server_url=OSC_SERVER_URL, server_port=OSC_SERVER_PORT, server_name=OSC_SERVER_NAME, empty_session=None):
 
         self.client_url = client_url
         self.client_port = client_port
@@ -23,6 +23,7 @@ class OscBase:
         self.server_url = server_url
         self.server_port = server_port
         self.server_name = server_name
+        self.empty_session = empty_session # .slsess
 
         osc_startup()
         self.make_client()
@@ -107,6 +108,12 @@ class OscSooperLooper(OscBase):
 
     def get(self, param, loop=None):
         """
+        /get  s:param  s:return_url  s:retpath
+        OR
+        /sl/#/get  s:control  s:return_url  s: return_path
+          Which returns an OSC message to the given return url and path with
+          the arguments:
+              i:loop_index  s:control  f:value
         """
         # assert param.lower() in self.params
         if loop is None:
@@ -120,6 +127,7 @@ class OscSooperLooper(OscBase):
 
     def set(self, param, value, loop=None):
         """
+        /set  s:param  f:value
         sync_source: [-3 = internal, -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)]
         """
         assert param.lower() in self.params
@@ -137,6 +145,25 @@ class OscSooperLooper(OscBase):
             print("Set param={}, value={}, loop={}".format(param, value, loop))
         self._send_message(msg)
 
+    def load_empty_session(self):
+        """
+        /load_session   s:filename  s:return_url  s:error_path
+        """
+        if self.empty_session is None:
+            print('No empty session file (.slsess) was found.')
+            return
+        print('Loading empty session from file: {}'.format(self.empty_session))
+        msg = oscbuildparse.OSCMessage("/load_session", None,
+            [self.empty_session, self.return_url, "/ping"])
+
+    def save_session(self, outfile):
+        """
+        /save_session   s:filename  s:return_url  s:error_path
+        saves current session description to filename.
+        """
+        msg = oscbuildparse.OSCMessage("/save_session", None,
+            [outfile, self.return_url, "/ping"])
+
     def add_loop(self):
         """
         /loop_add  i:#channels  f:min_length_seconds
@@ -146,5 +173,11 @@ class OscSooperLooper(OscBase):
         self._send_message(msg)
 
     def ping(self):
+        """
+        /ping s:return_url s:return_path
+         If engine is there, it will respond with to the given URL and PATH
+          with an OSC message with arguments:
+             s:hosturl  s:version  i:loopcount
+        """
         msg = oscbuildparse.OSCMessage("/ping", None, [self.return_url, "/ping"])
         self._send_message(msg)
