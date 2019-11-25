@@ -67,23 +67,40 @@ class Loop:
         self.stopped_record_id = None
         self.has_had_something_recorded = False
 
+    def remute_if_necessary(self):
+        # need to re-mute if this track was initially muted
+        if self.is_muted:
+            self.client.hit('mute', self.track)
+
+    def toggle_record(self):
+        self.is_recording = not self.is_recording
+        self.client.hit('record', self.track)
+        self.has_had_something_recorded = True
+        if not self.is_recording:
+            # just stopped recording; check if we were muted
+            self.remute_if_necessary()
+
+    def toggle_overdub(self):
+        self.is_overdubbing = not self.is_overdubbing
+        self.client.hit('overdub', self.track)
+        self.has_had_something_recorded = True
+        if not self.is_overdubbing:
+            # just stopped overdubbing; check if we were muted
+            self.remute_if_necessary()
+
     def toggle(self, mode, event_id=None):
         if mode == 'record':
             if self.stopped_record_id == event_id and event_id is not None:
                 # already handled this event (preemptively)
                 return
-            self.is_recording = not self.is_recording
-            self.client.hit(mode, self.track)
-            self.has_had_something_recorded = True
+            self.toggle_record()
             return self.is_recording
 
         elif mode == 'overdub':
             if self.stopped_overdub_id == event_id and event_id is not None:
                 # already handled this event (preemptively)
                 return
-            self.is_overdubbing = not self.is_overdubbing
-            self.client.hit(mode, self.track)
-            self.has_had_something_recorded = True
+            self.toggle_overdub()
             return self.is_overdubbing
 
         elif mode == 'pause':
@@ -117,13 +134,11 @@ class Loop:
         self.stopped_record_id = None
         did_something = False
         if self.is_recording:
-            self.is_recording = not self.is_recording
-            self.client.hit('record', self.track)
+            self.toggle_overdub()
             self.stopped_record_id = event_id
             did_something = True
         elif self.is_overdubbing:
-            self.is_overdubbing = not self.is_overdubbing
-            self.client.hit('overdub', self.track)
+            self.toggle_overdub()
             self.was_stopped_overdubbing = True
             self.stopped_overdub_id = event_id
             did_something = True
