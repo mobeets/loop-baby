@@ -301,16 +301,15 @@ class Looper:
         self.interface.set_color(button_number, color)
 
         if mode == 'mute':
-            color_mute = self.mode_color_map['mute_on']
-            color_unmute = self.mode_color_map['mute_off']
             for loop in self.loops:
-                # if not loop.has_had_something_recorded:
-                #     continue
                 button_number = self.button_index_map[loop.track+1]
-                if loop.is_muted:
-                    self.interface.set_color(button_number, color_mute)
+                if not loop.has_had_something_recorded:
+                    color = self.mode_color_map['track_exists']
+                elif loop.is_muted:
+                    color = self.mode_color_map['mute_on']
                 else:
-                    self.interface.set_color(button_number, color_unmute)
+                    color = self.mode_color_map['mute_off']
+                self.interface.set_color(button_number, color)
 
         elif mode == 'clear':
             print('   Clear mode not implemented yet.')
