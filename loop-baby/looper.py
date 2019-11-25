@@ -388,6 +388,11 @@ class Looper:
             2. looper: processes any callbacks triggered by trellis
         """
         self.client.load_empty_session()
+        
+        # show paused color initially to show we're ready
+        color = self.mode_color_map['pause']
+        self.interface.set_color_of_group('play/pause', color)
+
         if self.verbose:
             print('Looper on!')
         try:
