@@ -1,3 +1,4 @@
+import time
 from board import SCL, SDA
 import busio
 from adafruit_neotrellis.neotrellis import NeoTrellis
