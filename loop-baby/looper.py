@@ -6,6 +6,7 @@ try:
 except:
     print('WARNING: Could not import Trellis')
 from keyboard import Keyboard
+from multipress import MultiPress
 from osc import OscSooperLooper
 
 BUTTON_PRESSED = 3
