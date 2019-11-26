@@ -48,11 +48,11 @@ class Trellis:
             print("Error: callback must be set using 'set_callback'")
 
         for i in range(self.nbuttons):
-            #activate rising edge events on all keys
+            # activate rising edge events on all keys
             self.trellis.activate_key(i, BUTTON_PRESSED)
-            #activate falling edge events on all keys
+            # activate falling edge events on all keys
             self.trellis.activate_key(i, BUTTON_RELEASED)
-            #set all keys to trigger the blink callback
+            # set all keys to trigger the blink callback
             self.trellis.callbacks[i] = self.button_handler
 
             #cycle the LEDs on startup
