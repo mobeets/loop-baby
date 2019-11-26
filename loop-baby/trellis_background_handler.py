@@ -17,13 +17,13 @@ CALLBACKS = {'shutdown': lambda: print('Shutting down.'),
 
 class MultiPress:
     def __init__(self, commands=None, callbacks=None):
-        self.commands = {(k,set(v)) for k,v in commands.items()}
+        self.commands = commands
         self.callbacks = callbacks
         self.pressed = set()
 
     def check_for_matches(self):
         for command, password in self.commands.items():
-            if password.issubset(self.pressed):
+            if self.pressed.issuperset(password):
                 # call the callback for this command
                 self.callbacks[command]()
                 # remove those keys from our pressed queue
