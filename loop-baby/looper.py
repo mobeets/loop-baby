@@ -250,9 +250,10 @@ class Looper:
             else:
                 if not self.is_playing:
                     if self.mode is not None and action == 'play/pause':
-                        if self.verbose:
-                            print('   Clearing color for play/pause')
-                        self.interface.un_color(button_number)
+                        pass
+                        # if self.verbose:
+                        #     print('   Clearing color for play/pause')
+                        # self.interface.un_color(button_number)
                     elif action in ['record', 'overdub', 'mute']:
                         if self.verbose:
                             print('   Clearing color for record/overdub/mute')
@@ -290,7 +291,10 @@ class Looper:
 
         if mode == self.mode:
             if self.verbose:
-                print('   Button pressed but no mode change.')
+                print('   Already in this mode, so setting mode to None.')
+            self.mode = None
+            self.interface.un_color('mode_buttons')
+            self.interface.un_color('track_buttons')
             return
 
         if mode == 'save/recall': # toggles
