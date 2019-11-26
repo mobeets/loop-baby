@@ -319,6 +319,7 @@ class Looper:
             self.interface.un_color('track_buttons')
             return
 
+        previous_mode = self.mode
         if mode == 'save/recall': # toggles
             if previous_mode == 'save':
                 mode = 'recall'
@@ -334,7 +335,6 @@ class Looper:
         # changing to any other type of mode clears all buttons (except play/pause)
         self.interface.un_color('mode_buttons')
         self.interface.un_color('track_buttons')
-        previous_mode = self.mode
         self.mode = mode
         color = self.mode_color_map[mode]
         self.interface.set_color(button_number, color)
