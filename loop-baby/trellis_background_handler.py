@@ -46,7 +46,7 @@ def main():
     i2c_bus = busio.I2C(SCL, SDA)
 
     # create the trellis
-    trellis = NeoTrellis(self.i2c_bus) # can set interrupt=True here...
+    trellis = NeoTrellis(i2c_bus) # can set interrupt=True here...
 
     handler = MultiPress(commands=COMMANDS,
         callbacks=CALLBACKS)
