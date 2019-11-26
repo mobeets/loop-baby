@@ -269,7 +269,11 @@ class Looper:
                     self.interface.un_color('track_buttons')
                     self.mode = None
             else:
+                # when unpausing, 'trigger' restarts from where we paused
                 self.client.hit('trigger', -1)
+                # but we must now check which tracks were muted and re-mute
+                for loop in self.loops:
+                    loop.remute_if_necessary()
             self.is_playing = not self.is_playing
             color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
             self.interface.set_color(button_number, color)
