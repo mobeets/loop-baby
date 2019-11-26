@@ -69,9 +69,17 @@ class Loop:
         self.has_had_something_recorded = False
 
     def remute_if_necessary(self):
-        # need to re-mute if this track was initially muted
+        """
+        need to re-mute if this track was initially muted
+        """
         if self.is_muted:
             self.client.hit('mute', self.track)
+
+    def mark_as_muted(self):
+        """
+        after a oneshot, we will be auto-muted by SL, so we deal with it
+        """
+        self.is_muted = True
 
     def toggle_record(self):
         self.is_recording = not self.is_recording
@@ -238,6 +246,7 @@ class Looper:
                 if self.mode in [None, 'oneshot', 'clear']:
                     # button press was a oneshot, so turn off light
                     self.interface.un_color(button_number)
+                    self.refresh_track_colors_in_mode()
             else:
                 if not self.is_playing:
                     if self.mode is not None and action == 'play/pause':
@@ -343,10 +352,17 @@ class Looper:
                 self.add_loop()
 
         elif self.mode == 'oneshot':
+            # warning: once you hit this once, this loop will forever
+            # be out of sync; this is because we cannot store the sync_pos
+            # and then restore it later
             if track <= self.nloops:
-                # warning: hitting oneshot unpauses the track...
+                # reset_sync_pos so that it always plays from the top
+                self.client.hit('reset_sync_pos', track-1)
                 self.client.hit(self.mode, track-1)
                 self.interface.set_color(button_number, color)
+                # if will auto-mute when done, so let's just mark this
+                # because we just have to deal with what SL wants
+                self.loops[track-1].mark_as_muted()
             else:
                 print('   Creating new loop: {}'.format(self.nloops+1))
                 self.add_loop()
