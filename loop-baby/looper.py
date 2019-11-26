@@ -56,6 +56,15 @@ MODE_COLOR_MAP = {
     'track_exists': 'darkgray',
     }
 
+META_COMMANDS = {'shutdown': [1,4,'E','H'], # shutdown the pi,
+    'hard_restart': ['A','B','C','D'], # restart the pi,
+    'soft_restart': ['E','F','G','H'], # kills everything, then restarts it all
+}
+META_CALLBACKS = {'shutdown': lambda: print('Shutting down.'),
+    'hard_restart': lambda: print('Hard restart.'),
+    'soft_restart': lambda: print('Soft restart.'),
+}
+
 class Loop:
     def __init__(self, track, client):
         self.track = track
@@ -154,8 +163,9 @@ class Loop:
         return did_something
 
 class Looper:
-    def __init__(self, client, interface, startup_color='blue',
-        nloops=1,  verbose=False, button_action_map=BUTTON_ACTION_MAP,
+    def __init__(self, client, interface, multipress=None,
+        startup_color='blue', nloops=1,  verbose=False,
+        button_action_map=BUTTON_ACTION_MAP,
         button_name_map=BUTTON_NAME_MAP, button_groups=BUTTON_GROUPS,
         mode_color_map=MODE_COLOR_MAP):
 
@@ -164,6 +174,7 @@ class Looper:
         self.interface.set_callback(self.button_handler)
         self.client = client
         self.client.verbose = self.verbose
+        self.multipress = multipress
 
         self.button_action_map = button_action_map
         self.action_button_map = dict((v,k) for k,v in button_action_map.items())
@@ -178,6 +189,7 @@ class Looper:
             vs = [self.button_index_map[n] for n in vs]
             self.interface.define_color_group(k, vs)
         self.mode_color_map = mode_color_map
+        self.buttons_pressed = set()
 
         # state variables:
         self.client.set('selected_loop_num', 0)
@@ -192,20 +204,29 @@ class Looper:
         self.loops.append(Loop(self.nloops, self.client))
         self.nloops = len(self.loops)
 
+    def check_for_multipress_matches(self):
+        if self.multipress is None:
+            return
+        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed)
+
     def button_handler(self, event):
         self.event_id += 1
-        if event.edge == BUTTON_PRESSED:
-            event_type = 'pressed'
-        elif event.edge == BUTTON_RELEASED:
-            event_type = 'released'
-        else:
-            event_type = None
-
         button_number = event.number
         button_name = self.button_name_map[button_number]
         action = self.button_action_map.get(button_name, button_name)
+
+        if event.edge == BUTTON_PRESSED:
+            event_type = 'pressed'
+            self.buttons_pressed.add(button_name)
+        elif event.edge == BUTTON_RELEASED:
+            event_type = 'released'
+            if button_name in self.buttons_pressed:
+                self.buttons_pressed.remove(button_name)
+        else:
+            event_type = None
         if self.verbose:
             print('Button {}: ({}, {}, {})'.format(event_type, action, button_number, button_name))
+        self.check_for_multipress_matches()
         self.process_button(button_number, action, event_type, self.event_id)
 
     def refresh_track_colors_in_mode(self):
@@ -452,9 +473,12 @@ def main(args):
         interface = Trellis(startup_color=args.color)
     elif args.interface == 'keyboard':
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
+    multipress = MultiPress(commands=META_COMMANDS,
+        callbacks=META_CALLBACKS)
 
     looper = Looper(client=client,
         interface=interface,
+        multipress=multipress,
         verbose=args.verbose)
     try:
         looper.start()

@@ -20,26 +20,26 @@ class MultiPress:
     def __init__(self, commands=None, callbacks=None):
         self.commands = commands
         self.callbacks = callbacks
-        self.pressed = set()
+        self.buttons_pressed = set()
 
     def check_for_matches(self):
         for command, password in self.commands.items():
-            if self.pressed.issuperset(password):
+            if self.buttons_pressed.issuperset(password):
                 # call the callback for this command
                 self.callbacks[command]()
-                # remove those keys from our pressed queue
+                # remove those keys from our buttons_pressed queue
                 # so we can't execute this multiple times
-                self.pressed.difference_update(password)
+                self.buttons_pressed.difference_update(password)
 
     def button_handler(self, event):
         button_number = event.number
         button_name = BUTTON_NAME_MAP[button_number]
 
         if event.edge == BUTTON_PRESSED:
-            self.pressed.add(button_name)
+            self.buttons_pressed.add(button_name)
         elif event.edge == BUTTON_RELEASED:
-            if button_name in self.pressed:
-                self.pressed.remove(button_name)
+            if button_name in self.buttons_pressed:
+                self.buttons_pressed.remove(button_name)
         self.check_for_matches()
 
 def main():
