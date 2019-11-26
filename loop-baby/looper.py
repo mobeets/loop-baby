@@ -415,9 +415,9 @@ class Looper:
             print('   Save not implemented yet.')
             self.interface.set_color(button_number, color)
 
-        elif self.mode == 'load':
+        elif self.mode == 'recall':
             # if we press a track that isn't an option, do nothing
-            print('   Load track not implemented yet.')
+            print('   Recall track not implemented yet.')
             self.interface.un_color(button_number)
 
         elif self.mode == 'clear':
@@ -465,6 +465,7 @@ def main(args):
     if args.verbose:
         print('Setting up Sooper Looper OSC client...')
     client = OscSooperLooper(client_url=args.osc_url,
+        session_dir=args.session_dir,
         empty_session=args.empty_session_file)
 
     # connect with either trellis PCB or keyboard
@@ -501,7 +502,9 @@ if __name__ == '__main__':
         'blue', 'orange'], default='blue')
     parser.add_argument('-o', '--osc_url', type=str,
         default='127.0.0.1')
+    parser.add_argument('--session_dir', type=str,
+        default='static/saved_sessions')
     parser.add_argument('--empty_session_file', type=str,
-        default='static/empty_session.slsess')
+        default='static/saved_sessions/empty_session.slsess')
     args = parser.parse_args()
     main(args)

@@ -1,4 +1,5 @@
 import time
+import os.path
 from osc4py3.as_eventloop import *
 from osc4py3 import oscbuildparse
 from osc4py3 import oscmethod as osm
@@ -15,7 +16,8 @@ MINIMUM_LOOP_DURATION = 60 # seconds
 MONO, STEREO = (1, 2)
 
 class OscBase:
-    def __init__(self, client_url=OSC_CLIENT_URL, client_port=OSC_CLIENT_PORT, client_name=OSC_CLIENT_NAME, server_url=OSC_SERVER_URL, server_port=OSC_SERVER_PORT, server_name=OSC_SERVER_NAME, empty_session=None):
+    def __init__(self, client_url=OSC_CLIENT_URL, client_port=OSC_CLIENT_PORT, client_name=OSC_CLIENT_NAME, server_url=OSC_SERVER_URL, server_port=OSC_SERVER_PORT, server_name=OSC_SERVER_NAME,
+        empty_session=None, session_dir=None):
 
         self.client_url = client_url
         self.client_port = client_port
@@ -24,6 +26,7 @@ class OscBase:
         self.server_port = server_port
         self.server_name = server_name
         self.empty_session = empty_session # .slsess
+        self.session_dir = session_dir
 
         osc_startup()
         self.make_client()
@@ -157,11 +160,26 @@ class OscSooperLooper(OscBase):
             [self.empty_session, self.return_url, "/ping"])
         self._send_message(msg)
 
+    def load_session(self, infile):
+        """
+        /load_session   s:filename  s:return_url  s:error_path
+        """
+        infile = os.path.join(self.session_dir, infile)
+        if not os.path.exists(infile):
+            print('Session file does not exist: {}'.format(infile))
+            return
+        print('Loading session from file: {}'.format(infile))
+        msg = oscbuildparse.OSCMessage("/load_session", None,
+            [infile, self.return_url, "/ping"])
+        self._send_message(msg)
+
     def save_session(self, outfile):
         """
         /save_session   s:filename  s:return_url  s:error_path
         saves current session description to filename.
         """
+        outfile = os.path.join(self.session_dir, outfile)
+        print('Saving session to file: {}'.format(outfile))
         msg = oscbuildparse.OSCMessage("/save_session", None,
             [outfile, self.return_url, "/ping"])
         self._send_message(msg)
