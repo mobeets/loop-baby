@@ -16,3 +16,5 @@ class MultiPress:
                 # remove those keys from our buttons_pressed queue
                 # so we can't execute this multiple times
                 buttons_pressed.difference_update(password)
+        return buttons_pressed
+
