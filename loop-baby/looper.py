@@ -382,6 +382,8 @@ class Looper:
             if track <= self.nloops:
                 is_muted = self.loops[track-1].toggle(self.mode)
                 color_mode = 'mute_on' if is_muted else 'mute_off'
+                if not is_muted and not self.loops[track-1].has_had_something_recorded:
+                    color_mode = 'track_exists'
                 color = self.mode_color_map[color_mode]
                 self.interface.set_color(button_number, color)
             else:
