@@ -36,10 +36,10 @@ class MultiPress:
         button_name = BUTTON_NAME_MAP[button_number]
 
         if event.edge == BUTTON_PRESSED:
-            self.pressed.add(button_number)
+            self.pressed.add(button_name)
         elif event.edge == BUTTON_RELEASED:
-            if button_number in self.pressed:
-                self.pressed.remove(button_number)
+            if button_name in self.pressed:
+                self.pressed.remove(button_name)
         self.check_for_matches()
 
 def main():
@@ -47,7 +47,7 @@ def main():
     i2c_bus = busio.I2C(SCL, SDA)
 
     # create the trellis
-    trellis = NeoTrellis(i2c_bus) # can set interrupt=True here...
+    trellis = NeoTrellis(i2c_bus)
 
     handler = MultiPress(commands=COMMANDS,
         callbacks=CALLBACKS)
