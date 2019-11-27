@@ -211,7 +211,7 @@ class Looper:
 
         # state variables:
         self.client.set('selected_loop_num', 0)
-        self.is_playing = False
+        self.is_playing = True
         self.mode = None
         self.modes = [None, 'record', 'overdub', 'mute', 'oneshot',
             'save', 'load', 'clear', 'settings']
