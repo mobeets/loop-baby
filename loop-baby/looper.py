@@ -215,6 +215,7 @@ class Looper:
         self.nloops = nloops
         self.maxloops = maxloops
         self.session_dir = session_dir
+        self.find_saved_sessions()
 
         # state variables:
         self.client.set('selected_loop_num', 0)
@@ -292,7 +293,7 @@ class Looper:
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
-                button_number = self.button_index_map[i+1]
+                button_number = self.button_index_map[i]
                 self.interface.set_color(button_number, color)
     
     def process_button(self, button_number, action, press_type, event_id):
