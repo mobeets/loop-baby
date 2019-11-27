@@ -499,13 +499,9 @@ class Looper:
             self.interface.un_color(button_number)
 
     def start(self):
-        """
-        if this doesn't work, is multithreading what we want?
-            1. trellis: syncs, pauses every 0.02, triggers callbacks
-            2. looper: processes any callbacks triggered by trellis
-        """
-        self.client.load_empty_session()
-        self.init_loops()
+        self.client.load_empty_session()   
+        time.sleep(0.2)
+        self.init_loops()     
         
         # show paused color initially to show we're ready
         color = self.mode_color_map['pause']
