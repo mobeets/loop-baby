@@ -1,5 +1,6 @@
 import sys
 import time
+import os.path
 import argparse
 try:
     from trellis import Trellis
@@ -59,6 +60,9 @@ MODE_COLOR_MAP = {
     'mute_off': 'gray',
     'track_recorded': 'gray',
     'track_exists': 'darkgray',
+    'session_exists': 'yellow',
+    'session_empty': 'darkgray',
+    'session_save_or_recall': 'green',
     }
 
 META_COMMANDS = {'shutdown': [1,4,'E','H'], # shutdown the pi,
@@ -180,7 +184,8 @@ class Loop:
 
 class Looper:
     def __init__(self, client, interface, multipress=None,
-        startup_color='blue', nloops=4,  verbose=False,
+        session_dir=None,
+        startup_color='blue', nloops=4, maxloops=8, verbose=False,
         button_action_map=BUTTON_ACTION_MAP,
         button_name_map=BUTTON_NAME_MAP, button_groups=BUTTON_GROUPS,
         mode_color_map=MODE_COLOR_MAP):
@@ -208,13 +213,15 @@ class Looper:
 
         # create loops
         self.nloops = nloops
+        self.maxloops = maxloops
+        self.session_dir = session_dir
 
         # state variables:
         self.client.set('selected_loop_num', 0)
         self.is_playing = True
         self.mode = None
         self.modes = [None, 'record', 'overdub', 'mute', 'oneshot',
-            'save', 'load', 'clear', 'settings']
+            'save', 'recall', 'clear', 'settings']
         self.event_id = 0
 
     def init_loops(self):
@@ -279,6 +286,14 @@ class Looper:
                 else:
                     color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
+        elif self.mode == 'save':
+            for i in range(1,self.maxloops+1):
+                if self.saved_sessions[i]['exists']:
+                    color = self.mode_color_map['session_exists']
+                else:
+                    color = self.mode_color_map['session_empty']
+                button_number = self.button_index_map[i+1]
+                self.interface.set_color(button_number, color)
     
     def process_button(self, button_number, action, press_type, event_id):
         # updates happen at the time of button press
@@ -298,7 +313,7 @@ class Looper:
         # below we just manage colors upon button release
         elif press_type == 'released':
             if type(action) is int:
-                if self.mode in [None, 'oneshot', 'undo', 'redo', 'clear']:
+                if self.mode in [None, 'oneshot', 'undo', 'redo', 'clear', 'save', 'recall']:
                     # button press was a single action, so turn off light
                     self.interface.un_color(button_number)
                     self.refresh_track_colors_in_mode()
@@ -353,8 +368,7 @@ class Looper:
             return
 
         previous_mode = self.mode
-        if mode == 'save/recall': # toggles
-            self.tracks_pressed_once = []
+        if mode == 'save/recall': # toggles            
             if previous_mode == 'save':
                 mode = 'recall'
             else:
@@ -402,11 +416,14 @@ class Looper:
         elif mode == 'settings':
             print('   Settings mode not implemented yet.')
 
-        elif mode == 'save':
-            print('   Save mode not implemented yet.')
-        
-        elif mode == 'recall':
-            print('   Recall mode not implemented yet.')
+        elif mode in ['save', 'recall']:
+            self.tracks_pressed_once = []
+            for i in range(1,self.maxloops+1):
+                if self.saved_sessions[i]['exists']:
+                    color = self.mode_color_map['session_exists']
+                else:
+                    color = self.mode_color_map['session_empty']
+                self.interface.set_color(button_number, color)
 
     def process_track_change(self, track, button_number, event_id):
         """
@@ -489,17 +506,44 @@ class Looper:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'save':
-            print('   Save not implemented yet.')
+            if not self.saved_sessions[track]['exists'] or track in self.tracks_pressed_once:
+                self.client.save_session(self.saved_sessions[track]['path'])
+                self.saved_sessions[track]['exists'] = True
+                color = self.mode_color_map['session_save_or_recall']
+                self.interface.set_color(button_number, color)
+                if self.verbose:
+                    print('   Saving session {}'.format(self.saved_sessions[track]['path']))
+            else:
+                if self.verbose:
+                    print('   Pressed track {} once for {}'.format(track, self.mode))
+                self.tracks_pressed_once = [track]
+                color = self.mode_color_map['track_pressed_once']
+                self.interface.set_color(button_number, color)
             self.interface.set_color(button_number, color)
 
         elif self.mode == 'recall':
-            # if we press a track that isn't an option, do nothing
-            print('   Recall track not implemented yet.')
+            if self.saved_sessions[track]['exists']:
+                self.client.load_session(self.saved_sessions[track]['path'])
+                color = self.mode_color_map['session_save_or_recall']
+                self.interface.set_color(button_number, color)
+                if self.verbose:
+                    print('   Loading session {}'.format(self.saved_sessions[track]['path']))
+            else:
+                print('   Saved session does not exist at track {}'.format(track))
             self.interface.un_color(button_number)
 
         elif self.mode == 'settings':
             print('   Settings track not implemented yet.')
             self.interface.un_color(button_number)
+
+    def find_saved_sessions(self):
+        self.saved_sessions = {}
+        for i in range(1,self.maxloops+1):
+            fnm = '{}.slsess'.format(i)
+            outfile = os.path.join(self.session_dir, fnm)
+            self.saved_sessions[i] = {'path': outfile, 'exists': False}
+            if os.path.exists(outfile):
+                self.saved_sessions[i]['exists'] = True
 
     def start(self):
         self.client.load_empty_session()   
@@ -534,7 +578,6 @@ def main(args):
     if args.verbose:
         print('Setting up Sooper Looper OSC client...')
     client = OscSooperLooper(client_url=args.osc_url,
-        session_dir=args.session_dir,
         empty_session=args.empty_session_file)
 
     # connect with either trellis PCB or keyboard
@@ -550,6 +593,7 @@ def main(args):
     looper = Looper(client=client,
         interface=interface,
         multipress=multipress,
+        session_dir=args.session_dir,
         verbose=args.verbose)
     try:
         looper.start()
