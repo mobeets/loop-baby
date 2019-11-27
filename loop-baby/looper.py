@@ -521,7 +521,6 @@ class Looper:
                 self.tracks_pressed_once = [track]
                 color = self.mode_color_map['track_pressed_once']
                 self.interface.set_color(button_number, color)
-            self.interface.set_color(button_number, color)
 
         elif self.mode == 'recall':
             if self.saved_sessions[track]['exists']:
