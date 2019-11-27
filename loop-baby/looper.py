@@ -223,7 +223,7 @@ class Looper:
         """
         one loop exists; must tell client about the remaining ones
         """
-        self.loops = [Loop(0, client, self.button_index_map[1])]
+        self.loops = [Loop(0, self.client, self.button_index_map[1])]
         [self.add_loop() for i in range(1,self.nloops)]
 
     def add_loop(self):
