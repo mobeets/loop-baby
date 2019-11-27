@@ -272,7 +272,7 @@ class Looper:
                 self.interface.set_color(loop.button_number, cur_color)
         elif self.mode in ['clear', 'undo', 'redo']:
             for loop in self.loops:
-                if loop.button_number in self.tracks_pressed_once:
+                if loop.track+1 in self.tracks_pressed_once:
                     if self.verbose:
                         print('    Refreshing {} {}'.format(loop.button_number, self.tracks_pressed_once))
                     color = self.mode_color_map['track_pressed_once']
@@ -483,6 +483,8 @@ class Looper:
                     if self.verbose:
                         print('   Pressed track {} once for {}'.format(track, self.mode))
                     self.tracks_pressed_once = [track]
+                    color = self.mode_color_map['track_pressed_once']
+                    self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
