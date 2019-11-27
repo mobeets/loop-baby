@@ -121,7 +121,6 @@ class Loop:
     def clear(self):
         self.client.hit('undo_all', self.track)
         self.has_had_something_recorded = False
-        self.is_muted = False
 
     def toggle(self, mode, event_id=None):
         if mode == 'record':
@@ -271,9 +270,11 @@ class Looper:
                 else:
                     cur_color = color_exists
                 self.interface.set_color(loop.button_number, cur_color)
-        elif self.mode in ['clear']:
+        elif self.mode in ['clear', 'undo', 'redo']:
             for loop in self.loops:
                 if loop.button_number in self.tracks_pressed_once:
+                    if self.verbose:
+                        print('    Refreshing {} {}'.format(loop.button_number, self.tracks_pressed_once))
                     color = self.mode_color_map['track_pressed_once']
                 else:
                     color = self.mode_color_map['track_exists']
@@ -571,6 +572,6 @@ if __name__ == '__main__':
     parser.add_argument('--session_dir', type=str,
         default='static/saved_sessions')
     parser.add_argument('--empty_session_file', type=str,
-        default='static/saved_sessions/empty_session.slsess')
+        default='/home/pi/loop-baby/static/saved_sessions/empty_session.slsess')
     args = parser.parse_args()
     main(args)
