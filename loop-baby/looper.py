@@ -52,6 +52,7 @@ MODE_COLOR_MAP = {
     'overdub': 'orange',
     'mute': 'blue',
     'track': 'gray',
+    'track_pressed_once': 'red',
     'undo': 'yellow',
     'redo': 'green',
     'mute_on': 'blue',
@@ -208,7 +209,7 @@ class Looper:
 
         # create loops
         self.nloops = nloops
-        self.loops = [Loop(i, client, self.button_index_map[i+1]) for i in range(nloops)]
+        self.init_loops()
 
         # state variables:
         self.client.set('selected_loop_num', 0)
@@ -217,6 +218,13 @@ class Looper:
         self.modes = [None, 'record', 'overdub', 'mute', 'oneshot',
             'save', 'load', 'clear', 'settings']
         self.event_id = 0
+
+    def init_loops(self):
+        """
+        one loop exists; must tell client about the remaining ones
+        """
+        self.loops = [Loop(i, client, self.button_index_map[1])]
+        [self.add_loop() for i in range(1,self.nloops)]
 
     def add_loop(self):
         self.client.add_loop()
@@ -263,6 +271,11 @@ class Looper:
                 else:
                     cur_color = color_exists
                 self.interface.set_color(loop.button_number, cur_color)
+        elif self.mode in ['clear'] and self.tracks_pressed_once:
+            for track in self.tracks_pressed_once:
+                loop = self.loops[track-1]
+                color = self.mode_color_map['track_pressed_once']
+                self.interface.set_color(loop.button_number, color)
 
     def process_button(self, button_number, action, press_type, event_id):
         # updates happen at the time of button press
