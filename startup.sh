@@ -6,7 +6,7 @@
 sleep 5 # seconds
 
 # start sooperlooper
-sooperlooper -p 9951 -l 1 -c 2 -t 40 &
+sooperlooper -p 9951 -l 4 -c 2 -t 40 &
 
 # wait for sooperlooper to start
 sleep 1
