@@ -44,7 +44,7 @@ MODE_COLOR_MAP = {
     None: 'gray',
     'oneshot': 'green',
     'save': 'yellow',
-    'recall': 'yellow',
+    'recall': 'green',
     'clear': 'blue',
     'settings': 'gray',
     'play': 'green',
@@ -424,6 +424,7 @@ class Looper:
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
+                button_number = self.button_index_map[i]
                 self.interface.set_color(button_number, color)
 
     def process_track_change(self, track, button_number, event_id):
@@ -617,8 +618,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--osc_url', type=str,
         default='127.0.0.1')
     parser.add_argument('--session_dir', type=str,
-        default='static/saved_sessions')
+        default='~/loop-baby/static/saved_sessions')
     parser.add_argument('--empty_session_file', type=str,
-        default='/home/pi/loop-baby/static/saved_sessions/empty_session.slsess')
+        default='~/loop-baby/static/saved_sessions/empty_session.slsess')
     args = parser.parse_args()
     main(args)
