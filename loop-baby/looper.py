@@ -618,8 +618,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--osc_url', type=str,
         default='127.0.0.1')
     parser.add_argument('--session_dir', type=str,
-        default='~/loop-baby/static/saved_sessions')
+        default='/home/pi/loop-baby/static/saved_sessions')
     parser.add_argument('--empty_session_file', type=str,
-        default='~/loop-baby/static/saved_sessions/empty_session.slsess')
+        default='/home/pi/loop-baby/static/saved_sessions/empty_session.slsess')
     args = parser.parse_args()
     main(args)
