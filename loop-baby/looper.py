@@ -204,6 +204,7 @@ class Looper:
             self.interface.define_color_group(k, vs)
         self.mode_color_map = mode_color_map
         self.buttons_pressed = set()
+        self.tracks_pressed_once = [] # for checking if track double-pressed
 
         # create loops
         self.nloops = nloops
@@ -337,12 +338,13 @@ class Looper:
 
         previous_mode = self.mode
         if mode == 'save/recall': # toggles
+            self.tracks_pressed_once = []
             if previous_mode == 'save':
                 mode = 'recall'
             else:
                 mode = 'save'
         elif mode == 'undo/redo': # toggles
-            if previous_mode = 'undo':
+            if previous_mode == 'undo':
                 mode = 'redo'
             else:
                 mode = 'undo'
@@ -376,6 +378,7 @@ class Looper:
                 self.interface.set_color(loop.button_number, color)
 
         elif mode == 'clear':
+            self.tracks_pressed_once = []
             for loop in self.loops:
                 color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
@@ -436,19 +439,36 @@ class Looper:
                 color = self.mode_color_map[color_mode]
                 self.interface.set_color(button_number, color)
             else:
-                print('   Loop index does not exist for '.format(self.mode))
+                print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'undo':
-            self.interface.set_color(button_number, color)
-            self.loops[track-1].undo()
+            if track <= self.nloops:
+                self.interface.set_color(button_number, color)
+                self.loops[track-1].undo()
+            else:
+                print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'redo':
-            self.interface.set_color(button_number, color)
-            self.loops[track-1].redo()
+            if track <= self.nloops:
+                self.interface.set_color(button_number, color)
+                self.loops[track-1].redo()
+            else:
+                print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'clear':
-            self.interface.set_color(button_number, color)
-            self.loops[track-1].clear()
+            if track <= self.nloops:
+                if track in self.tracks_pressed_once:
+                    if self.verbose:
+                        print('   Clearing track {}'.format(track))
+                        self.tracks_pressed_once = []
+                    self.interface.set_color(button_number, color)
+                    self.loops[track-1].clear()
+                else:
+                    if self.verbose:
+                        print('   Pressed track {} once for {}'.format(track, self.mode))
+                    self.tracks_pressed_once = [track]
+            else:
+                print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'save':
             print('   Save not implemented yet.')
