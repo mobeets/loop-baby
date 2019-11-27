@@ -224,7 +224,8 @@ class Looper:
         one loop exists; must tell client about the remaining ones
         """
         self.loops = [Loop(i, self.client, self.button_index_map[i+1]) for i in range(self.nloops)]
-        [self.client.add_loop() for i in range(self.nloops-1)]
+        for i in range(self.nloops-1):
+            self.client.add_loop()
 
     def add_loop(self):
         self.client.add_loop()
@@ -271,12 +272,14 @@ class Looper:
                 else:
                     cur_color = color_exists
                 self.interface.set_color(loop.button_number, cur_color)
-        elif self.mode in ['clear'] and self.tracks_pressed_once:
-            for track in self.tracks_pressed_once:
-                loop = self.loops[track-1]
-                color = self.mode_color_map['track_pressed_once']
+        elif self.mode in ['clear']:
+            for loop in self.loops:
+                if loop.button_number in self.tracks_pressed_once:
+                    color = self.mode_color_map['track_pressed_once']
+                else:
+                    color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
-
+    
     def process_button(self, button_number, action, press_type, event_id):
         # updates happen at the time of button press
         if press_type == 'pressed':
