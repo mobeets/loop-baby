@@ -209,7 +209,6 @@ class Looper:
 
         # create loops
         self.nloops = nloops
-        self.init_loops()
 
         # state variables:
         self.client.set('selected_loop_num', 0)
@@ -506,6 +505,7 @@ class Looper:
             2. looper: processes any callbacks triggered by trellis
         """
         self.client.load_empty_session()
+        self.init_loops()
         
         # show paused color initially to show we're ready
         color = self.mode_color_map['pause']
