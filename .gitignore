@@ -3,3 +3,4 @@
 __pycache__/
 static/samples/
 _old/
+static/saved_sessions/test.slsess

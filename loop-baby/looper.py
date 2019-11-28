@@ -1,6 +1,5 @@
 import sys
 import time
-import os.path
 import argparse
 try:
     from trellis import Trellis
@@ -9,6 +8,7 @@ except:
 from keyboard import Keyboard
 from multipress import MultiPress
 from osc import OscSooperLooper
+from save_and_recall import SLSessionManager
 
 BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
@@ -184,7 +184,7 @@ class Loop:
 
 class Looper:
     def __init__(self, client, interface, multipress=None,
-        session_dir=None,
+        sessions=None,
         startup_color='blue', nloops=4, maxloops=8, verbose=False,
         button_action_map=BUTTON_ACTION_MAP,
         button_name_map=BUTTON_NAME_MAP, button_groups=BUTTON_GROUPS,
@@ -214,8 +214,7 @@ class Looper:
         # create loops
         self.nloops = nloops
         self.maxloops = maxloops
-        self.session_dir = session_dir
-        self.find_saved_sessions()
+        self.sessions = sessions
 
         # state variables:
         self.client.set('selected_loop_num', 0)
@@ -288,8 +287,8 @@ class Looper:
                     color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
         elif self.mode == 'save':
-            for i in range(1,self.maxloops+1):
-                if self.saved_sessions[i]['exists']:
+            for i in range(self.maxloops):
+                if self.sessions.session_exists(i):
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
@@ -419,8 +418,8 @@ class Looper:
 
         elif mode in ['save', 'recall']:
             self.tracks_pressed_once = []
-            for i in range(1,self.maxloops+1):
-                if self.saved_sessions[i]['exists']:
+            for i in range(self.maxloops):
+                if self.sessions.session_exists(i):
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
@@ -508,13 +507,12 @@ class Looper:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'save':
-            if not self.saved_sessions[track]['exists'] or track in self.tracks_pressed_once:
-                self.client.save_session(self.saved_sessions[track]['path'])
-                self.saved_sessions[track]['exists'] = True
+            if not self.sessions.session_exists(track-1) or track in self.tracks_pressed_once:
+                self.sessions.save_session(track-1, self.loops)
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
                 if self.verbose:
-                    print('   Saving session {}'.format(self.saved_sessions[track]['path']))
+                    print('   Saving session at index {}'.format(track-1))
             else:
                 if self.verbose:
                     print('   Pressed track {} once for {}'.format(track, self.mode))
@@ -523,12 +521,12 @@ class Looper:
                 self.interface.set_color(button_number, color)
 
         elif self.mode == 'recall':
-            if self.saved_sessions[track]['exists']:
-                self.client.load_session(self.saved_sessions[track]['path'])
+            if self.sessions.session_exists(track-1):
+                self.sessions.load_session(track-1, self.loops)
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
                 if self.verbose:
-                    print('   Loading session {}'.format(self.saved_sessions[track]['path']))
+                    print('   Loading session at index {}'.format(track-1))
             else:
                 print('   Saved session does not exist at track {}'.format(track))
             self.interface.un_color(button_number)
@@ -536,15 +534,6 @@ class Looper:
         elif self.mode == 'settings':
             print('   Settings track not implemented yet.')
             self.interface.un_color(button_number)
-
-    def find_saved_sessions(self):
-        self.saved_sessions = {}
-        for i in range(1,self.maxloops+1):
-            fnm = '{}.slsess'.format(i)
-            outfile = os.path.join(self.session_dir, fnm)
-            self.saved_sessions[i] = {'path': outfile, 'exists': False}
-            if os.path.exists(outfile):
-                self.saved_sessions[i]['exists'] = True
 
     def start(self):
         self.client.load_empty_session()   
@@ -590,11 +579,12 @@ def main(args):
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
     multipress = MultiPress(commands=META_COMMANDS,
         callbacks=META_CALLBACKS)
+    sessions = SLSessionManager(args.session_dir, client)
 
     looper = Looper(client=client,
         interface=interface,
         multipress=multipress,
-        session_dir=args.session_dir,
+        sessions=sessions,
         verbose=args.verbose)
     try:
         looper.start()

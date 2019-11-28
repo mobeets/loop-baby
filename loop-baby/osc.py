@@ -177,6 +177,17 @@ class OscSooperLooper(OscBase):
             [outfile, self.return_url, "/ping"])
         self._send_message(msg)
 
+    def save_loop_audio(self, index, outfile):
+        """
+        /sl/#/save_loop   s:filename  s:format  s:endian  s:return_url  s:error_path
+       saves current loop to given filename, may return error to error_path
+       format and endian currently ignored, always uses 32 bit IEEE float WAV
+        """
+        print('Saving audio in loop {} to file: {}'.format(index, outfile))
+        msg = oscbuildparse.OSCMessage("/sl/{}/save_loop".format(i), None,
+            [outfile, None, None, self.return_url, "/ping"])
+        self._send_message(msg)
+
     def add_loop(self):
         """
         /loop_add  i:#channels  f:min_length_seconds
