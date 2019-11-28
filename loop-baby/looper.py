@@ -232,7 +232,7 @@ class Looper:
         for i in range(self.nloops-1):
             self.client.add_loop()
 
-    def add_loop(self):
+    def add_loop(self, internal_add_only=True):
         self.client.add_loop()
         self.loops.append(Loop(self.nloops, self.client, self.button_index_map[self.nloops+1]))
         self.nloops = len(self.loops)
@@ -521,12 +521,28 @@ class Looper:
                 self.interface.set_color(button_number, color)
 
         elif self.mode == 'recall':
-            if self.sessions.session_exists(track-1):
-                self.sessions.load_session(track-1, self.loops)
+            if self.sessions.session_exists(track-1) and track in self.tracks_pressed_once:
+                nloops = self.sessions.load_session(track-1, self.loops)
+                # remove extra loops (internally)
+                if nloops < self.nloops:
+                    self.loops = self.loops[:nloops]
+                    self.nloops = len(self.loops)
+                # add extra loops (internally)
+                while nloops > self.nloops:
+                    self.add_loop(internal_add_only=True)
+                # mark all existing loops as having had something recorded
+                for loop in self.loops:
+                    loop.has_had_something_recorded = True
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
                 if self.verbose:
                     print('   Loading session at index {}'.format(track-1))
+            elif track not in self.tracks_pressed_once:
+                if self.verbose:
+                    print('   Pressed track {} once for {}'.format(track, self.mode))
+                self.tracks_pressed_once = [track]
+                color = self.mode_color_map['track_pressed_once']
+                self.interface.set_color(button_number, color)
             else:
                 print('   Saved session does not exist at track {}'.format(track))
             self.interface.un_color(button_number)
