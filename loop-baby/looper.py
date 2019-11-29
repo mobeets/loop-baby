@@ -23,8 +23,8 @@ BUTTON_NAME_INVERSE = {
 BUTTON_NAME_MAP = dict((BUTTON_NAME_INVERSE[key],key) for key in BUTTON_NAME_INVERSE)
 
 BUTTON_GROUPS = {
-    'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G', 'H', 8],
-    'track_buttons': [1, 2, 3, 4, 5, 6, 7],
+    'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G', 'H'],
+    'track_buttons': [1, 2, 3, 4, 5, 6, 7, 8],
     'play/pause': ['E'],
     }
 
@@ -34,10 +34,9 @@ BUTTON_ACTION_MAP = {
     'C': 'undo/redo',
     'D': 'clear',
     'E': 'play/pause',
-    'F': 'record',
-    'G': 'overdub',
+    'F': 'record/overdub',
+    'G': 'settings',
     'H': 'mute',
-    8:   'settings',
     }
 
 MODE_COLOR_MAP = {
@@ -325,7 +324,7 @@ class Looper:
                     if self.verbose:
                         print('   Clearing color for save/recall/settings')
                     self.interface.un_color(button_number)
-                elif not self.is_playing and action in ['record', 'overdub', 'mute']:
+                elif not self.is_playing and action in ['record', 'overdub', 'record/overdub', 'mute']:
                     if self.verbose:
                         print('   Clearing color for record/overdub/mute')
                     self.interface.un_color(button_number)
@@ -374,16 +373,13 @@ class Looper:
             return
 
         previous_mode = self.mode
-        if mode == 'save/recall': # toggles            
-            if previous_mode == 'save':
-                mode = 'recall'
-            else:
-                mode = 'save'
-        elif mode == 'undo/redo': # toggles
-            if previous_mode == 'undo':
-                mode = 'redo'
-            else:
-                mode = 'undo'
+        # toggle different modes
+        if mode == 'record/overdub':
+            mode = 'overdub' if previous_mode == 'record' else 'record'
+        elif mode == 'save/recall':
+            mode = 'recall' if previous_mode == 'save' else 'save'
+        elif mode == 'undo/redo':
+            mode = 'redo' if previous_mode == 'undo' else 'undo'
 
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
             color = self.mode_color_map[mode]
