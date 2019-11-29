@@ -318,16 +318,14 @@ class Looper:
                     self.interface.un_color(button_number)
                     self.refresh_track_colors_in_mode()
             else:
-                if not self.is_playing:
-                    if self.mode is not None and action == 'play/pause':
-                        pass
-                        # if self.verbose:
-                        #     print('   Clearing color for play/pause')
-                        # self.interface.un_color(button_number)
-                    elif action in ['record', 'overdub', 'mute']:
-                        if self.verbose:
-                            print('   Clearing color for record/overdub/mute')
-                        self.interface.un_color(button_number)
+                if self.is_playing and action in ['save/recall', 'settings']:
+                    if self.verbose:
+                        print('   Clearing color for save/recall/settings')
+                    self.interface.un_color(button_number)
+                elif action in ['record', 'overdub', 'mute']:
+                    if self.verbose:
+                        print('   Clearing color for record/overdub/mute')
+                    self.interface.un_color(button_number)
 
     def process_mode_change(self, mode, button_number, event_id):
         """
