@@ -31,13 +31,13 @@ BUTTON_GROUPS = {
 BUTTON_ACTION_MAP = {
     'A': 'oneshot',
     'B': 'save/recall',
-    'C': 'clear',
-    'D': 'settings',
+    'C': 'undo/redo',
+    'D': 'clear',
     'E': 'play/pause',
     'F': 'record',
     'G': 'overdub',
     'H': 'mute',
-    8:   'undo/redo',
+    8:   'settings',
     }
 
 MODE_COLOR_MAP = {
@@ -349,6 +349,11 @@ class Looper:
                     self.interface.un_color('track_buttons')
                     self.mode = None
             else:
+                if self.mode in ['save/recall', 'settings']:
+                    print('   Cannot {} when playing, so exiting {} mode'.format(self.mode, self.mode))
+                    self.interface.un_color('mode_buttons')
+                    self.interface.un_color('track_buttons')
+                    self.mode = None
                 # when unpausing, 'trigger' restarts from where we paused
                 self.client.hit('trigger', -1)
                 # but we must now check which tracks were muted and re-mute
@@ -383,6 +388,11 @@ class Looper:
             color = self.mode_color_map[mode]
             self.interface.set_color(button_number, color)
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
+            return
+        if mode in ['save', 'recall', 'settings'] and self.is_playing:
+            color = self.mode_color_map[mode]
+            self.interface.set_color(button_number, color)
+            print('   Cannot {} when playing!'.format(mode))
             return
 
         # changing to any other type of mode clears all buttons (except play/pause)
@@ -554,10 +564,10 @@ class Looper:
     def start(self):
         self.client.load_empty_session()   
         time.sleep(0.2)
-        self.init_loops()     
+        self.init_loops()
         
-        # show paused color initially to show we're ready
-        color = self.mode_color_map['pause']
+        # show playing color initially to show we're ready
+        color = self.mode_color_map['play']
         self.interface.set_color_of_group('play/pause', color)
 
         if self.verbose:
