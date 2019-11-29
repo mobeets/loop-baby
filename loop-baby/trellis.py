@@ -18,7 +18,7 @@ class Trellis:
         self.nbuttons = 16
         self.colors = {'off': (0, 0, 0), 'purple': (180, 0, 255),
             'red': (255, 0, 0), 'orange': (143, 73, 3),
-            'green': (0, 255, 0), 'yellow': (255, 255, 0), 
+            'green': (0, 255, 0), 'yellow': (158, 152, 17),
             'gray': (100, 100, 100),
             'blue': (0, 0, 255),
             'lightblue': (7, 34, 81),

@@ -61,7 +61,6 @@ MODE_COLOR_MAP = {
     'track_exists': 'darkgray',
     'session_exists': 'pink',
     'session_empty': 'darkgray',
-    'session_save_or_recall': 'green',
     }
 
 META_COMMANDS = {'shutdown': [1,4,'E','H'], # shutdown the pi,
@@ -286,6 +285,8 @@ class Looper:
                     color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
         elif self.mode in ['save', 'recall']:
+            if self.verbose:
+                print([self.sessions.session_exists(i) for i in range(self.maxloops)])
             for i in range(self.maxloops):
                 if self.sessions.session_exists(i):
                     if i+1 in self.tracks_pressed_once:
@@ -516,7 +517,7 @@ class Looper:
         elif self.mode == 'save':
             if not self.sessions.session_exists(track-1) or track in self.tracks_pressed_once:
                 self.sessions.save_session(track-1, self.loops)
-                color = self.mode_color_map['session_save_or_recall']
+                color = self.mode_color_map['track']
                 self.interface.set_color(button_number, color)
                 self.tracks_pressed_once = []
                 if self.verbose:
