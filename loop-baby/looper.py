@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import argparse
@@ -9,6 +10,8 @@ from keyboard import Keyboard
 from multipress import MultiPress
 from osc import OscSooperLooper
 from save_and_recall import SLSessionManager
+
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
@@ -23,6 +26,7 @@ BUTTON_NAME_INVERSE = {
 BUTTON_NAME_MAP = dict((BUTTON_NAME_INVERSE[key],key) for key in BUTTON_NAME_INVERSE)
 
 BUTTON_GROUPS = {
+    'all': BUTTON_NAME_INVERSE.keys(),
     'mode_buttons': ['A', 'B', 'C', 'D', 'F', 'G', 'H'],
     'track_buttons': [1, 2, 3, 4, 5, 6, 7, 8],
     'play/pause': ['E'],
@@ -63,13 +67,22 @@ MODE_COLOR_MAP = {
     'session_empty': 'darkgray',
     }
 
-META_COMMANDS = {'shutdown': [1,4,'E','H'], # shutdown the pi,
-    'hard_restart': ['A','B','C','D'], # restart the pi,
-    'soft_restart': ['E','F','G','H'], # kills everything, then restarts it all
-}
-META_CALLBACKS = {'shutdown': lambda: print('Shutting down.'),
-    'hard_restart': lambda: print('Hard restart.'),
-    'soft_restart': lambda: print('Soft restart.'),
+META_COMMANDS = {
+    'shutdown': { # shutdown the pi,
+            'command': [1,2,3,4],
+            'restart_looper': False,
+            'callback': lambda: os.system('sudo halt')
+        },
+    'hard_restart': { # restart the pi,
+            'command': ['A','B','C','D'],
+            'restart_looper': False,
+            'callback': lambda: os.system('sudo reboot')
+        },
+    'soft_restart': { # calls ./startup.sh
+            'command': ['E','F','G','H'],
+            'restart_looper': True,
+            'callback': lambda: os.system('.' + os.path.join(BASE_PATH, 'startup.sh'))
+        },
 }
 
 class Loop:
@@ -238,7 +251,7 @@ class Looper:
     def check_for_multipress_matches(self):
         if self.multipress is None:
             return
-        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed)
+        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed, self)
 
     def button_handler(self, event):
         self.event_id += 1
@@ -560,7 +573,8 @@ class Looper:
             print('   Settings track not implemented yet.')
             self.interface.un_color(button_number)
 
-    def start(self):
+    def init_looper(self):
+        # load empty session
         self.client.load_empty_session()   
         time.sleep(0.2)
         self.init_loops()
@@ -568,6 +582,9 @@ class Looper:
         # show playing color initially to show we're ready
         color = self.mode_color_map['play']
         self.interface.set_color_of_group('play/pause', color)
+        
+    def start(self):
+        self.init_looper()
 
         if self.verbose:
             print('Looper on!')
@@ -602,8 +619,7 @@ def main(args):
         interface = Trellis(startup_color=args.color)
     elif args.interface == 'keyboard':
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
-    multipress = MultiPress(commands=META_COMMANDS,
-        callbacks=META_CALLBACKS)
+    multipress = MultiPress(META_COMMANDS)
     sessions = SLSessionManager(args.session_dir, client)
 
     looper = Looper(client=client,
@@ -632,8 +648,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--osc_url', type=str,
         default='127.0.0.1')
     parser.add_argument('--session_dir', type=str,
-        default='/home/pi/loop-baby/static/saved_sessions')
+        default=os.path.join(BASE_PATH, 'static', 'saved_sessions')
     parser.add_argument('--empty_session_file', type=str,
-        default='/home/pi/loop-baby/static/saved_sessions/empty_session.slsess')
+        default=os.path.join(BASE_PATH, 'static', 'saved_sessions', 'empty_session.slsess')
     args = parser.parse_args()
     main(args)

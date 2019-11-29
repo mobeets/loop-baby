@@ -1,3 +1,6 @@
+# end previous processes
+killall jackd || echo "jackd was not running."
+killall sooperlooper || echo "sooperlooper was not running."
 
 # start jack server
 /usr/bin/jackd -dalsa -r48000 -p1024 -n2 -dhw:1 -s > jackd_errors.log 2>&1 &
