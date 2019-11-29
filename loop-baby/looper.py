@@ -286,7 +286,7 @@ class Looper:
                 else:
                     color = self.mode_color_map['track_exists']
                 self.interface.set_color(loop.button_number, color)
-        elif self.mode == 'save':
+        elif self.mode in ['save', 'recall']:
             for i in range(self.maxloops):
                 if self.sessions.session_exists(i):
                     if i+1 in self.tracks_pressed_once:
