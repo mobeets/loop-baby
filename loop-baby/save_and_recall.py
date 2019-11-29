@@ -80,7 +80,7 @@ class SLSessionManager:
         for i,loop in enumerate(loops):
             if not loop.has_had_something_recorded:
                 continue
-            audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}'.format(i))
+            audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}.wav'.format(i))
             self.client.save_loop_audio(index, audiofile)
         self.prep_saved_sessions()
 
