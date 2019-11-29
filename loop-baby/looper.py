@@ -629,7 +629,7 @@ if __name__ == '__main__':
         default='trellis')
     parser.add_argument('-c', '--color', type=str,
         choices=['purple', 'red', 'gray', 'green',
-        'blue', 'orange'], default='blue')
+        'blue', 'orange', 'random'], default='random')
     parser.add_argument('-o', '--osc_url', type=str,
         default='127.0.0.1')
     parser.add_argument('--session_dir', type=str,
