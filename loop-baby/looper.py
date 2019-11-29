@@ -322,7 +322,7 @@ class Looper:
                     if self.verbose:
                         print('   Clearing color for save/recall/settings')
                     self.interface.un_color(button_number)
-                elif action in ['record', 'overdub', 'mute']:
+                elif not self.is_playing and action in ['record', 'overdub', 'mute']:
                     if self.verbose:
                         print('   Clearing color for record/overdub/mute')
                     self.interface.un_color(button_number)
@@ -347,7 +347,7 @@ class Looper:
                     self.interface.un_color('track_buttons')
                     self.mode = None
             else:
-                if self.mode in ['save/recall', 'settings']:
+                if self.mode in ['save', 'recall', 'settings']:
                     print('   Cannot {} when playing, so exiting {} mode'.format(self.mode, self.mode))
                     self.interface.un_color('mode_buttons')
                     self.interface.un_color('track_buttons')

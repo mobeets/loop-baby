@@ -81,7 +81,7 @@ class SLSessionManager:
             if not loop.has_had_something_recorded:
                 continue
             audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}.wav'.format(i))
-            self.client.save_loop_audio(index, audiofile)
+            self.client.save_loop_audio(i, audiofile)
         self.prep_saved_sessions()
 
     def load_session(self, index):
