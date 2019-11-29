@@ -64,6 +64,8 @@ class SLSessionManager:
                 saved_sessions[i].update(audio_info)
                 saved_sessions[i]['exists'] = True
         self.saved_sessions = saved_sessions
+        print('Updated saved sessions')
+        print([y['exists'] for x,y in saved_sessions.items()])
 
     def session_exists(self, index):
         """
