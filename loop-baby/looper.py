@@ -292,7 +292,7 @@ class Looper:
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
-                button_number = self.button_index_map[i]
+                button_number = self.button_index_map[i+1]
                 self.interface.set_color(button_number, color)
     
     def process_button(self, button_number, action, press_type, event_id):
@@ -431,7 +431,7 @@ class Looper:
                     color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
-                button_number = self.button_index_map[i]
+                button_number = self.button_index_map[i+1]
                 self.interface.set_color(button_number, color)
 
     def process_track_change(self, track, button_number, event_id):
