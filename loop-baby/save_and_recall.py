@@ -15,7 +15,7 @@ class SLSessionManager:
         """
         audiofiles = glob.glob(os.path.join(infile + '_loop_*.wav'))
         indices = [int(x.split('_loop_')[1].split('.wav')[0]) for x in audiofiles]
-        self.saved_sessions = dict(zip(indices, audiofiles))
+        return dict(zip(indices, audiofiles))
 
     def add_audio_paths_to_slsess_file(self, infile, audiofiles):
         """
@@ -63,7 +63,7 @@ class SLSessionManager:
                 audio_info = self.get_audio(infile)
                 saved_sessions[i].update(audio_info)
                 saved_sessions[i]['exists'] = True
-        return saved_sessions
+        self.saved_sessions = saved_sessions
 
     def session_exists(self, index):
         """
