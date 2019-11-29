@@ -7,7 +7,7 @@ class SLSessionManager:
         self.session_dir = session_dir
         self.client = client
         self.maxloops = maxloops
-        self.prep_saved_sessions()
+        self.sync()
 
     def find_audiofiles_for_slsess_file(self, infile):
         """
@@ -48,7 +48,7 @@ class SLSessionManager:
             'has_audio': has_audio,
             'nloops': len(has_audio)}
 
-    def prep_saved_sessions(self):
+    def sync(self):
         """
         look for slsess files, and corresponding audio files
         then inject the audio file paths into the slsess file,
@@ -91,7 +91,7 @@ class SLSessionManager:
                 continue
             audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}.wav'.format(i))
             self.client.save_loop_audio(i, audiofile)
-        self.prep_saved_sessions()
+        self.saved_sessions[index]['exists'] = True
 
     def load_session(self, index):
         """
