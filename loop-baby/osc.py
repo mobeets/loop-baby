@@ -184,8 +184,8 @@ class OscSooperLooper(OscBase):
        format and endian currently ignored, always uses 32 bit IEEE float WAV
         """
         print('Saving audio in loop {} to file: {}'.format(index, outfile))
-        msg = oscbuildparse.OSCMessage("/sl/{}/save_loop".format(index), None,
-            [outfile, None, None, self.return_url, "/ping"])
+        msg = oscbuildparse.OSCMessage("/sl/{}/save_loop".format(index),
+            None, [outfile, '', '', self.return_url, "/ping"])
         self._send_message(msg)
 
     def add_loop(self):

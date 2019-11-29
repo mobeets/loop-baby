@@ -289,7 +289,10 @@ class Looper:
         elif self.mode == 'save':
             for i in range(self.maxloops):
                 if self.sessions.session_exists(i):
-                    color = self.mode_color_map['session_exists']
+                    if i+1 in self.tracks_pressed_once:
+                        color = self.mode_color_map['track_pressed_once']
+                    else:
+                        color = self.mode_color_map['session_exists']
                 else:
                     color = self.mode_color_map['session_empty']
                 button_number = self.button_index_map[i+1]
