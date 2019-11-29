@@ -1,4 +1,4 @@
-import os.path
+import os
 import glob
 import xml.etree.ElementTree
 
@@ -71,11 +71,20 @@ class SLSessionManager:
         """
         return self.saved_sessions[index]['exists']
 
+    def remove_audio_files(self, paths):
+        """
+        removes .wav files when overwriting saved session
+        """
+        for path in paths:
+            os.system('rm {}'.format(path))
+
     def save_session(self, index, loops):
         """
         save session in SL (.slsess); then save audio (.wav)
         """
         outfile = self.saved_sessions[index]['session']
+        if self.saved_sessions[index]['exists']:
+            self.remove_audio_files(self.saved_sessions[index]['audiofiles'])
         self.client.save_session(outfile)
         for i,loop in enumerate(loops):
             if not loop.has_had_something_recorded:
