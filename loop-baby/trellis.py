@@ -1,4 +1,5 @@
 import time
+import random
 from board import SCL, SDA
 import busio
 from adafruit_neotrellis.neotrellis import NeoTrellis
@@ -43,6 +44,9 @@ class Trellis:
         # set handlers for button press
         self.activate(self.startup_color)
 
+    def random_color(self):
+        return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
     def activate(self, startup_color=None):
         if self.button_handler is None:
             print("Error: callback must be set using 'set_callback'")
@@ -57,12 +61,16 @@ class Trellis:
 
             #cycle the LEDs on startup
             if startup_color is not None:
-                self.trellis.pixels[i] = self.colors[startup_color]
-                time.sleep(.05)
+                if startup_color == 'random':
+                    color = self.random_color()
+                else:
+                    color = self.colors[startup_color]
+                self.trellis.pixels[i] = color
+                time.sleep(.03)
 
         for i in range(self.nbuttons):
             self.trellis.pixels[i] = self.colors['off']
-            time.sleep(.05)
+            time.sleep(.03)
 
     def define_color_group(self, group_name, button_numbers):
         self.color_groups[group_name] = button_numbers
