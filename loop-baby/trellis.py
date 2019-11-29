@@ -29,7 +29,7 @@ class Trellis:
         self.trellis = NeoTrellis(self.i2c_bus) # can set interrupt=True here...
 
         # for handling colors of groups of buttons
-        if startup_color not in self.colors:
+        if startup_color not in self.colors and startup_color != 'random':
             print('WARNING: Did not recognize color. Using {}'.format(self.default_color))
             startup_color = self.default_color
         self.startup_color = startup_color
