@@ -7,7 +7,7 @@ class SLSessionManager:
         self.session_dir = session_dir
         self.client = client
         self.maxloops = maxloops
-        self.saved_sessions = self.prep_saved_sessions()
+        self.prep_saved_sessions()
 
     def find_audiofiles_for_slsess_file(self, infile):
         """
@@ -15,7 +15,7 @@ class SLSessionManager:
         """
         audiofiles = glob.glob(os.path.join(infile + '_loop_*.wav'))
         indices = [int(x.split('_loop_')[1].split('.wav')[0]) for x in audiofiles]
-        return dict(zip(indices, audiofiles))
+        self.saved_sessions = dict(zip(indices, audiofiles))
 
     def add_audio_paths_to_slsess_file(self, infile, audiofiles):
         """
@@ -26,14 +26,16 @@ class SLSessionManager:
         """
         et = xml.etree.ElementTree.parse(infile)
         loopers = et.find('Loopers')
+        has_audio = []
         for index, looper in enumerate(loopers):
             if index in audiofiles:
                 loopers[index].set('loop_audio', audiofiles[index])
             elif 'loop_audio' in loopers[index].keys():
                 # file must have been deleted, because we didn't find it
                 loopers[index].attrib.pop('loop_audio')
+            has_audio.append('loop_audio' in loopers[index].keys())
         et.write(infile)
-        return len(loopers)
+        return has_audio
 
     def get_audio(self, infile):
         """
@@ -41,8 +43,10 @@ class SLSessionManager:
         then add the audio paths to the slsess file if they are not there
         """
         audiofiles = self.find_audiofiles_for_slsess_file(infile)
-        nloops = self.add_audio_paths_to_slsess_file(infile, audiofiles)
-        return {'audiofiles': audiofiles, 'nloops': nloops}
+        has_audio = self.add_audio_paths_to_slsess_file(infile, audiofiles)
+        return {'audiofiles': audiofiles,
+            'has_audio': has_audio,
+            'nloops': len(has_audio)}
 
     def prep_saved_sessions(self):
         """
@@ -71,9 +75,14 @@ class SLSessionManager:
         """
         save session in SL (.slsess); then save audio (.wav)
         """
-        self.client.save_session(self.saved_sessions[index]['session'])
-        # todo: save audio
-        self.saved_sessions[index]['exists'] = True
+        outfile = self.saved_sessions[index]['session']
+        self.client.save_session(outfile)
+        for i,loop in enumerate(loops):
+            if not loop.has_had_something_recorded:
+                continue
+            audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}'.format(i))
+            self.client.save_loop_audio(index, audiofile)
+        self.prep_saved_sessions()
 
     def load_session(self, index):
         """
@@ -81,4 +90,4 @@ class SLSessionManager:
         return the number of loops we need to have
         """
         self.client.load_session(self.saved_sessions[index]['session'])
-        return self.saved_sessions[index]['nloops']
+        return self.saved_sessions[index]['has_audio']

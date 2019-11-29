@@ -530,7 +530,8 @@ class Looper:
 
         elif self.mode == 'recall':
             if self.sessions.session_exists(track-1) and track in self.tracks_pressed_once:
-                nloops = self.sessions.load_session(track-1)
+                has_audio = self.sessions.load_session(track-1)
+                nloops = len(has_audio)
                 # remove extra loops (internally)
                 if nloops < self.nloops:
                     self.loops = self.loops[:nloops]
@@ -538,9 +539,9 @@ class Looper:
                 # add extra loops (internally)
                 while nloops > self.nloops:
                     self.add_loop(internal_add_only=True)
-                # mark all existing loops as having had something recorded
-                for loop in self.loops:
-                    loop.has_had_something_recorded = True
+                # mark any existing loops that have something recorded
+                for i,loop in enumerate(self.loops):
+                    loop.has_had_something_recorded = has_audio[i]
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
                 if self.verbose:
