@@ -17,16 +17,19 @@ class Trellis:
         self.debug = debug
         self.nbuttons = 16
         self.colors = {'off': (0, 0, 0), 'purple': (180, 0, 255),
-            'red': (255, 0, 0), 'orange': (255, 160, 0),
+            'red': (255, 0, 0), 'orange': (143, 73, 3),
             'green': (0, 255, 0), 'yellow': (255, 255, 0), 
             'gray': (100, 100, 100),
             'blue': (0, 0, 255),
             'lightblue': (7, 34, 81),
+            'blueish': (33, 211, 237),
             'darkgray': (10, 10, 10),
             'seagreen': (30, 255, 30),
+            'lightseagreen': (39, 239, 120),
             'salmon': (206, 28, 41),
             'lightorange': (176, 76, 9),
             'lightpurple': (87, 20, 174),
+            'lighterpurple': (70, 27, 87),
             'pink': (100, 0, 100)}
 
         # create the i2c object for the trellis

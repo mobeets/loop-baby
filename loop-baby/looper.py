@@ -31,11 +31,11 @@ BUTTON_GROUPS = {
 BUTTON_ACTION_MAP = {
     'A': 'oneshot',
     'B': 'save/recall',
-    'C': 'undo/redo',
+    'C': 'settings',
     'D': 'clear',
     'E': 'play/pause',
     'F': 'record/overdub',
-    'G': 'settings',
+    'G': 'undo/redo',
     'H': 'mute',
     }
 
@@ -48,9 +48,9 @@ MODE_COLOR_MAP = {
     'overdub': 'orange',
     'mute': 'lightblue',
     'clear': 'blue',
-    'undo': 'yellow',
-    'redo': 'green',
-    'oneshot': 'seagreen',
+    'undo': 'lightseagreen',
+    'redo': 'seagreen',
+    'oneshot': 'green',
     'save': 'pink',
     'recall': 'lightorange',
     'settings': 'lightpurple',
