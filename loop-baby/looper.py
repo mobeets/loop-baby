@@ -522,6 +522,7 @@ class Looper:
                 self.sessions.save_session(track-1, self.loops)
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
+                self.tracks_pressed_once = []
                 if self.verbose:
                     print('   Saving session at index {}'.format(track-1))
             else:
@@ -547,6 +548,7 @@ class Looper:
                     loop.has_had_something_recorded = has_audio[i]
                 color = self.mode_color_map['session_save_or_recall']
                 self.interface.set_color(button_number, color)
+                self.tracks_pressed_once = []
                 if self.verbose:
                     print('   Loading session at index {}'.format(track-1))
             elif track not in self.tracks_pressed_once:
