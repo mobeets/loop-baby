@@ -530,7 +530,7 @@ class Looper:
 
         elif self.mode == 'recall':
             if self.sessions.session_exists(track-1) and track in self.tracks_pressed_once:
-                nloops = self.sessions.load_session(track-1, self.loops)
+                nloops = self.sessions.load_session(track-1)
                 # remove extra loops (internally)
                 if nloops < self.nloops:
                     self.loops = self.loops[:nloops]
