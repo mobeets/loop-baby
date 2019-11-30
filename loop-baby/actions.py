@@ -209,6 +209,8 @@ class MultiPress:
             if buttons_pressed.issuperset(item['command']):
                 found_match = True
                 # call the callback for this command
+                looper.interface.set_color_all_buttons('off')
+                looper.interface.sync()
                 item['callback']()
                 if item['restart_looper']:
                     # todo: color all keys red

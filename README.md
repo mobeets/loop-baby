@@ -18,7 +18,10 @@ software:
 
 ## running
 
-Current start-up process:
+current start-up process (these lines can be added to `/etc/rc.local` to be run on boot):
 
-1. `./startup.sh`
-2. `python3 looper.py -v`
+```
+./startup.sh
+python3 looper.py -v
+```
+
