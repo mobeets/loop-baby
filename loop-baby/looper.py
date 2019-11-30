@@ -210,17 +210,6 @@ class Looper:
         """
         set colors of all mode buttons based on self.mode
         """
-        # set play/pause color
-        button_number = self.button_index_map[self.action_button_map['play/pause']]
-        if self.is_playing:
-            color = self.mode_color_map['play']
-        else:
-            color = self.mode_color_map['pause']
-        if self.verbose:
-            print('Setting color: {} -> {}'.format(button_number, color))
-        self.interface.set_color(button_number, color)
-
-        # set mode color
         for mode_button in self.mode_buttons:
             button_number = self.button_index_map[self.action_button_map[mode_button]]
             if mode_button == 'play/pause':
