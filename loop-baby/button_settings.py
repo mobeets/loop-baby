@@ -45,7 +45,7 @@ META_COMMANDS = {
 	'soft_restart': { # calls ./startup.sh
         'command': [15, 11, 7, 3],
         'restart_looper': True,
-        'callback': lambda: os.system('.' + os.path.join(BASE_PATH, 'startup.sh'))
+        'callback': lambda: os.system(os.path.join(BASE_PATH, 'startup.sh'))
         },
     'test': {
     	'command': [12, 8, 13, 9],
