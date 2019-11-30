@@ -4,7 +4,7 @@ def make_actions(button_map, meta_commands, client, interface):
     actions = {'loops': [], 'sessions': [], 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
-            actions['loops'].append(Loop(name-1, client, button_number, interface))
+            actions['loops'].append(Loop(name-1, button_number, interface, client, ))
             actions['sessions'].append(SessionButton(name-1, button_number, interface))
         else:
             actions['modes'].append(Button(name, button_number, interface))
@@ -23,6 +23,7 @@ class Button:
         color is str
         and can be either the color name, or a key to color_map
         """
+        print('Setting color for {}: {}'.format(self.button_number, color))
         self.interface.set_color(self.button_number, color)
 
 class SessionButton(Button):
@@ -31,14 +32,11 @@ class SessionButton(Button):
         self.pressed_once = False
 
 class Loop(Button):
-    def __init__(self, track, client, button_number, interface):
+    def __init__(self, track, button_number, interface, client):
         super().__init__(track, button_number, interface)
         self.track = track
         self.client = client
         self.is_enabled = False
-
-    def enable(self):
-        self.is_enabled = True
         self.is_playing = False
         self.is_muted = False
         self.is_recording = False
@@ -48,6 +46,9 @@ class Loop(Button):
         self.stopped_record_id = None
         self.pressed_once = False
         self.has_had_something_recorded = False
+
+    def enable(self):
+        self.is_enabled = True
 
     def disable(self):
         self.is_enabled = False

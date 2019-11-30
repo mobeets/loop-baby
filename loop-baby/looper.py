@@ -40,6 +40,7 @@ class Looper:
         self.event_id = 0 # for counting button events
         self.buttons_pressed = set()
         self.nloops = nloops
+        1/0
 
     def init_loops(self):
         """
@@ -65,8 +66,7 @@ class Looper:
         this gets called when a Trellis button is pressed
         """
         self.event_id += 1
-        button_number = event.number
-        button_name = self.button_map[button_number]
+        button_name = self.button_map[event.number]
 
         if event.edge == BUTTON_PRESSED:
             event_type = 'pressed'
