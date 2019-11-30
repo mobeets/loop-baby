@@ -89,10 +89,10 @@ META_COMMANDS = {
 
 class Looper:
     def __init__(self, client, interface, multipress=None,
-        sessions=None,
-        startup_color='blue', nloops=4, maxloops=8, verbose=False,
+        sessions=None, startup_color='random', verbose=False,
+        nloops=4, maxloops=8,
         button_action_map=BUTTON_ACTION_MAP,
-        button_name_map=BUTTON_NAME_MAP, button_groups=BUTTON_GROUPS,
+        button_name_map=BUTTON_NAME_MAP,
         mode_color_map=MODE_COLOR_MAP):
 
         self.verbose = verbose
@@ -105,28 +105,17 @@ class Looper:
         self.button_action_map = button_action_map
         self.action_button_map = dict((v,k) for k,v in button_action_map.items())
 
-        # define button groups
         self.button_name_map = button_name_map
         self.button_index_map = dict((v,k) for k,v in button_name_map.items())
-        self.button_groups = button_groups
-        for k,vs in self.button_groups.items():
-            vs = [self.button_index_map[n] for n in vs]
-            self.interface.define_color_group(k, vs)
         self.mode_color_map = mode_color_map
         self.buttons_pressed = set()
+        self.mode_buttons = list(self.action_button_map)
+        
         self.tracks_pressed_once = [] # for checking if track double-pressed
-
-        # create loops
+        self.event_id = 0
         self.nloops = nloops
         self.maxloops = maxloops
         self.sessions = sessions
-
-        # state variables:
-        self.client.set('selected_loop_num', 0)
-        self.is_playing = True
-        self.mode = None
-        self.mode_buttons = list(self.action_button_map)
-        self.event_id = 0
 
     def init_loops(self):
         """
@@ -482,7 +471,7 @@ class Looper:
 
     def init_looper(self):
         # load empty session
-        self.client.load_empty_session()   
+        self.client.load_empty_session()
         time.sleep(0.2)
         self.init_loops()
         self.mode = None

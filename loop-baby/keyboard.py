@@ -90,19 +90,7 @@ class Keyboard:
             event = Event(self.button, self.pressed_code)
             self.callbacks[self.button](event)
 
-    def define_color_group(self, group_name, button_numbers):
-        pass
-
-    def set_color_of_group(self, group_name, color):
-        pass
-
-    def set_color(self, index, color, uncolor=None):
-        pass
-
-    def un_color(self, index):
-        pass
-
-    def load_empty_session(self):
+    def set_color(self, index, color):
         pass
 
     def terminate(self):

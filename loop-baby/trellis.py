@@ -15,7 +15,7 @@ class Trellis:
     relays button presses by adding them to a queue
     buttons can be referred to by name, index, or color group name
     """
-    def __init__(self, startup_color='red', debug=True):
+    def __init__(self, startup_color='random', debug=True):
 
         self.debug = debug
         self.nbuttons = 16
@@ -42,9 +42,6 @@ class Trellis:
         self.trellis = NeoTrellis(self.i2c_bus) # can set interrupt=True here...
 
         # for handling colors of groups of buttons
-        if startup_color not in self.colors and startup_color != 'random':
-            print('WARNING: Did not recognize color. Using {}'.format(self.default_color))
-            startup_color = self.default_color
         self.startup_color = startup_color
         self.color_groups = {}
 
@@ -82,23 +79,8 @@ class Trellis:
             self.trellis.pixels[i] = self.colors['off']
             time.sleep(.03)
 
-    def define_color_group(self, group_name, button_numbers):
-        self.color_groups[group_name] = button_numbers
-
-    def set_color_of_group(self, group_name, color):
-        for i in self.color_groups[group_name]:
-            self.set_color(i, color)
-
-    def set_color(self, index, color, uncolor=None):
-        if uncolor: # a group name that we want to uncolor
-            self.un_color(uncolor)
+    def set_color(self, index, color):
         self.trellis.pixels[index] = self.colors[color]
-
-    def un_color(self, index):
-        if type(index) is int:
-            self.set_color(index, 'off')
-        else:
-            self.set_color_of_group(index, 'off')
 
     def sync(self):
         self.trellis.sync()
