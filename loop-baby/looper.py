@@ -355,8 +355,9 @@ class Looper:
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
         if mode in ['save', 'recall', 'settings'] and self.is_playing:
-            print('   Cannot {} when playing!'.format(mode))
-            return
+            if self.verbose:
+                print('   Pausing so we can switch modes to {}'.format(mode))
+                self.pause()
 
         if mode == 'clear':
             self.tracks_pressed_once = []
@@ -447,18 +448,7 @@ class Looper:
 
         elif self.mode == 'recall':
             if self.sessions.session_exists(track-1) and track in self.tracks_pressed_once:
-                has_audio = self.sessions.load_session(track-1)
-                nloops = len(has_audio)
-                # remove extra loops (internally)
-                if nloops < self.nloops:
-                    self.loops = self.loops[:nloops]
-                    self.nloops = len(self.loops)
-                # add extra loops (internally)
-                while nloops > self.nloops:
-                    self.add_loop(internal_add_only=True)
-                # mark any existing loops that have something recorded
-                for i,loop in enumerate(self.loops):
-                    loop.has_had_something_recorded = has_audio[i]
+                self.recall_session(track)
                 self.tracks_pressed_once = []
                 if self.verbose:
                     print('   Loading session at index {}'.format(track-1))
@@ -471,6 +461,24 @@ class Looper:
 
         elif self.mode == 'settings':
             print('   Settings track not implemented yet.')
+
+    def recall_session(self, track):
+        """
+        when recalling a session, we have to make sure
+        we have the right number of loops
+        """
+        has_audio = self.sessions.load_session(track-1)
+        nloops = len(has_audio)
+        # remove extra loops (internally)
+        if nloops < self.nloops:
+            self.loops = self.loops[:nloops]
+            self.nloops = len(self.loops)
+        # add extra loops (internally)
+        while nloops > self.nloops:
+            self.add_loop(internal_add_only=True)
+        # mark any existing loops that have something recorded
+        for i,loop in enumerate(self.loops):
+            loop.has_had_something_recorded = has_audio[i]
 
     def init_looper(self):
         # load empty session
