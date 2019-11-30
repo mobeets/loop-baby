@@ -36,6 +36,9 @@ class Loop(Button):
         super().__init__(track, button_number, interface)
         self.track = track
         self.client = client
+        self.reset_state()
+
+    def reset_state(self):
         self.is_enabled = False
         self.is_playing = False
         self.is_muted = False
@@ -51,7 +54,7 @@ class Loop(Button):
         self.is_enabled = True
 
     def disable(self):
-        self.is_enabled = False
+        self.reset_state()
 
     def toggle_pressed(self):
         if not self.is_enabled:

@@ -45,7 +45,11 @@ class Looper:
         """
         enable internal loops, and create them in SL
         """
-        # first disable (in case we are restarting)
+        self.client.load_empty_session()
+        time.sleep(0.2) # delay to wait for SL
+
+        self.nloops = self.initial_nloops
+        # first disable loops (in case we are restarting)
         for loop in self.loops:
             loop.disable()
         # now enable up to self.nloops
@@ -154,7 +158,7 @@ class Looper:
                 elif loop.has_had_something_recorded:
                     color = 'track_recorded'
                 else:
-                    color = 'track_exists'
+                    color = 'off'
                 loop.set_color(color)
         elif self.mode in ['record', 'overdub']:
             # color buttons if track exists but isn't currently being recorded to
@@ -409,12 +413,10 @@ class Looper:
 
     def init_looper(self):
         # load empty session
-        self.nloops = self.initial_nloops
-        self.client.load_empty_session()
-        time.sleep(0.2)
         self.init_loops()
         self.mode = None
         self.is_playing = True
+        self.interface.set_color_all_buttons('off')
         self.set_mode_colors_given_mode()
         if self.verbose:
             print('Looper on!')
