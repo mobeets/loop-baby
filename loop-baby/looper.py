@@ -280,6 +280,10 @@ class Looper:
                     color = self.mode_color_map['session_empty']
                 button_number = self.button_index_map[i+1]
                 self.interface.set_color(button_number, color)
+        elif self.mode == 'settings':
+            for loop in self.loops:
+                color = 'off'
+                self.interface.set_color(loop.button_number, color)
 
     def pause(self):
         """
