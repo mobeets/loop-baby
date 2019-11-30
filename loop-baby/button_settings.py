@@ -1,4 +1,5 @@
 import os
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
