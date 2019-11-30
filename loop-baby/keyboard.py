@@ -3,6 +3,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import random
 import pygame
 
+# converts key presses into trellis button numbers
 KEYBOARD_MAP = {
     '1': 12, '2': 8,  '3': 4, '4': 0,
     'q': 13, 'w': 9,  'e': 5, 'r': 1,

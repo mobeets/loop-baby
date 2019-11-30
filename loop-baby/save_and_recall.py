@@ -3,8 +3,9 @@ import glob
 import xml.etree.ElementTree
 
 class SLSessionManager:
-    def __init__(self, session_dir, client, maxloops=8):
+    def __init__(self, sessions, session_dir, client, maxloops=8):
         self.session_dir = session_dir
+        self.sessions = sessions
         self.client = client
         self.maxloops = maxloops
         self.sync()

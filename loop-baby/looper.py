@@ -7,9 +7,9 @@ try:
 except:
     print('WARNING: Could not import Trellis')
 
-from buttons import make_buttons
-from keyboard import Keyboard
+from actions import make_actions
 from osc import OscSooperLooper
+from keyboard import Keyboard
 from save_and_recall import SLSessionManager
 from button_settings import BUTTON_MAP, COLOR_MAP, META_COMMANDS
 
@@ -19,23 +19,25 @@ BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
 
 class Looper:
-    def __init__(self, client, interface, buttons,
-        sessions=None, startup_color='random', verbose=False,
-        nloops=4):
+    def __init__(self, client, interface, button_map, meta_commands,
+        session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
         self.client = client
         self.client.verbose = self.verbose
         self.interface = interface
         self.interface.set_callback(self.button_handler)
-        self.sessions = sessions
+
+        actions = make_actions(button_map, meta_commands,
+            self.client, self.interface)
+        self.button_map = button_map
+        self.loops = actions['loops']
+        self.mode_buttons = actions['modes']
+        self.multipress = actions['multipress']
+        self.session_manager = SLSessionManager(actions['sessions'],
+            session_dir, self.client)
 
         self.event_id = 0 # for counting button events
-        self.button_map = buttons['button_map']
-        self.mode_buttons = buttons['modes']
-        self.session_buttons = buttons['sessions']
-        self.loops = buttons['loops']
-        self.multipress = buttons['multipress']
         self.buttons_pressed = set()
         self.nloops = nloops
 
@@ -58,14 +60,6 @@ class Looper:
         self.loops[self.nloops].enable()
         self.nloops += 1
 
-    def check_for_multipress_matches(self):
-        """
-        check if any buttons currently being pressed are a command
-        """
-        if self.multipress is None:
-            return
-        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed, self)
-
     def button_handler(self, event):
         """
         this gets called when a Trellis button is pressed
@@ -86,7 +80,9 @@ class Looper:
                 return
         if self.verbose:
             print('Button {}: ({}, {})'.format(event_type, event.number, button_name))
-        self.check_for_multipress_matches()
+        # check if the set of buttons currently pressed are a command
+        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed, self)
+        # process individual button press
         self.process_button(button_name, event_type, self.event_id)
 
     def process_button(self, button_name, press_type, event_id):
@@ -205,8 +201,8 @@ class Looper:
                     color = 'off'
                 loop.set_color(color)
         elif self.mode in ['save', 'recall']:
-            for session in self.session_buttons:
-                if self.sessions.exists(session.name):
+            for session in self.session_manager.sessions:
+                if self.session_manager.exists(session.name):
                     if session.pressed_once:
                         color = 'track_pressed_once'
                     else:
@@ -289,9 +285,9 @@ class Looper:
             for loop in self.loops:
                 loop.pressed_once = False
         elif mode in ['save', 'recall']:
-            for session in self.session_buttons:
+            for session in self.session_manager.sessions:
                 session.pressed_once = False
-            self.sessions.sync()
+            self.session_manager.sync()
         elif mode == 'settings':
             print('   Settings mode not implemented yet.')
 
@@ -316,10 +312,10 @@ class Looper:
                 loop = None
             session = None
         else:
-            session = self.session_buttons[track-1]
+            session = self.session_manager.sessions[track-1]
             loop = None
 
-        elif self.mode == 'oneshot':
+        if self.mode == 'oneshot':
             # warning: once you hit this once, this loop will forever
             # be out of sync; this is because we cannot store the sync_pos
             # and then restore it later
@@ -365,8 +361,8 @@ class Looper:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'save':
-            if not self.sessions.exists(session.name) or session.pressed_once:
-                self.sessions.save_session(session.name, self.loops)
+            if not self.session_manager.exists(session.name) or session.pressed_once:
+                self.session_manager.save_session(session.name, self.loops)
                 session.pressed_once = False
                 if self.verbose:
                     print('   Saving session at index {}'.format(track-1))
@@ -376,7 +372,7 @@ class Looper:
                 session.pressed_once = True
 
         elif self.mode == 'recall':
-            if self.sessions.exists(session.name) and session.pressed_once:
+            if self.session_manager.exists(session.name) and session.pressed_once:
                 self.recall_session(session)
                 session.pressed_once = False
                 if self.verbose:
@@ -396,7 +392,7 @@ class Looper:
         when recalling a session, we have to make sure
         we have the right number of loops
         """
-        has_audio = self.sessions.load_session(session.name)
+        has_audio = self.session_manager.load_session(session.name)
         nloops = len(has_audio)
         # remove extra loops (internally)
         for loop in self.loops[nloops:]:
@@ -451,13 +447,12 @@ def main(args):
     elif args.interface == 'keyboard':
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
     interface.set_color_map(COLOR_MAP)
-    buttons = make_buttons(BUTTON_MAP, META_COMMANDS, client, interface)
     
-    sessions = SLSessionManager(args.session_dir, client)
     looper = Looper(client=client,
         interface=interface,
-        buttons=buttons,
-        sessions=sessions,
+        button_map=BUTTON_MAP,
+        meta_commands=META_COMMANDS,
+        session_dir=args.session_dir,
         verbose=args.verbose)
     try:
         looper.start()

@@ -3,8 +3,7 @@ BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
 	13: 5,  9: 6,  5: 7,  1: 8,
 	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'clear',
-	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 'mute': 3
-	}
+	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute'}
 
 COLOR_MAP = {
     None: 'gray',

@@ -1,16 +1,16 @@
 import time
 
-def make_buttons(button_map, meta_commands, client, interface):
-    buttons = {'loops': [], 'sessions': [], 'modes': []}
+def make_actions(button_map, meta_commands, client, interface):
+    actions = {'loops': [], 'sessions': [], 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
-            buttons['loops'].append(Loop(name-1, client, button_number, interface))
-            buttons['sessions'].append(SessionButton(name-1, button_number, interface))
+            actions['loops'].append(Loop(name-1, client, button_number, interface))
+            actions['sessions'].append(SessionButton(name-1, button_number, interface))
         else:
-            buttons['modes'].append(Button(name, button_number, interface))
-    buttons['button_map'] = button_map
-    buttons['multipress'] = MultiPress(meta_commands)
-    return buttons
+            actions['modes'].append(Button(name, button_number, interface))
+    actions['button_map'] = button_map
+    actions['multipress'] = MultiPress(meta_commands)
+    return actions
 
 class Button:
     def __init__(self, name, button_number, interface):
