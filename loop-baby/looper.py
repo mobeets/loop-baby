@@ -40,7 +40,6 @@ class Looper:
         self.event_id = 0 # for counting button events
         self.buttons_pressed = set()
         self.nloops = nloops
-        1/0
 
     def init_loops(self):
         """
