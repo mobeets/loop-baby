@@ -204,9 +204,10 @@ class MultiPress:
         self.nseconds_restart_delay = 7 # delay after restart
 
     def check_for_matches(self, buttons_pressed, looper):
-        
+        found_match = False
         for name, item in self.commands.items():
             if buttons_pressed.issuperset(item['command']):
+                found_match = True
                 # call the callback for this command
                 item['callback']()
                 if item['restart_looper']:
@@ -225,4 +226,4 @@ class MultiPress:
                 # remove those keys from our buttons_pressed queue
                 # so we can't execute this multiple times
                 buttons_pressed.difference_update(item['command'])
-        return buttons_pressed
+        return buttons_pressed, found_match

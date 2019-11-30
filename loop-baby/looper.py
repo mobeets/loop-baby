@@ -88,7 +88,9 @@ class Looper:
         if self.verbose:
             print('Button {}: ({}, {})'.format(event_type, event.number, button_name))
         # check if the set of buttons currently pressed are a command
-        self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed, self)
+        self.buttons_pressed, found_match = self.multipress.check_for_matches(self.buttons_pressed, self)
+        if found_match:
+            return
         # process individual button press
         self.process_button(button_name, event_type, self.event_id)
 
