@@ -284,6 +284,10 @@ class Looper:
             for loop in self.loops:
                 color = 'off'
                 self.interface.set_color(loop.button_number, color)
+        if self.mode not in ['save', 'recall', 'settings']:
+            # set all unused track buttons to off
+            for i in range(self.nloops, self.maxloops):
+                self.interface.set_color(loop.button_number, 'off')
 
     def pause(self):
         """
