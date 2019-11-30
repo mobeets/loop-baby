@@ -3,13 +3,13 @@ killall jackd || echo "jackd was not running."
 killall sooperlooper || echo "sooperlooper was not running."
 
 # start jack server
-/usr/bin/jackd -dalsa -r48000 -p1024 -n2 -dhw:1 -s & || echo "error starting jackd"
+/usr/bin/jackd -dalsa -r48000 -p1024 -n2 -dhw:1 -s &
 
 # wait for jack to start
 sleep 5 # seconds
 
 # start sooperlooper
-sooperlooper -p 9951 -l 1 -c 2 -t 40 & || echo "error starting sooperlooper"
+sooperlooper -p 9951 -l 1 -c 2 -t 40 &
 
 # wait for sooperlooper to start
 sleep 1
