@@ -2,6 +2,11 @@ import os
 import glob
 import xml.etree.ElementTree
 
+class SessionButton(Button):
+    def __init__(self, name, button_number, interface):
+        super().__init__(name, button_number, interface)
+        self.pressed_once = False
+
 class SLSessionManager:
     def __init__(self, session_dir, client, maxloops=8):
         self.session_dir = session_dir
@@ -65,7 +70,7 @@ class SLSessionManager:
                 saved_sessions[i]['exists'] = True
         self.saved_sessions = saved_sessions
 
-    def session_exists(self, index):
+    def exists(self, index):
         """
         check whether saved session file exists for this index
         """

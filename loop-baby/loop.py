@@ -1,9 +1,14 @@
+from buttons import Button
 
-class Loop:
-    def __init__(self, track, client, button_number):
+class Loop(Button):
+    def __init__(self, track, client, button_number, interface):
+        super().__init__(track, button_number, interface)
         self.track = track
         self.client = client
-        self.button_number = button_number
+        self.is_enabled = False
+
+    def enable(self):
+        self.is_enabled = True
         self.is_playing = False
         self.is_muted = False
         self.is_recording = False
@@ -11,12 +16,23 @@ class Loop:
         self.is_pressed = False
         self.stopped_overdub_id = None
         self.stopped_record_id = None
+        self.pressed_once = False
         self.has_had_something_recorded = False
+
+    def disable(self):
+        self.is_enabled = False
+
+    def toggle_pressed(self):
+        if not self.is_enabled:
+            return
+        self.is_pressed = not self.is_pressed
 
     def remute_if_necessary(self):
         """
         need to re-mute if this track was initially muted
         """
+        if not self.is_enabled:
+            return
         if self.is_muted:
             self.client.hit('mute', self.track)
 
@@ -24,9 +40,13 @@ class Loop:
         """
         after a oneshot, we will be auto-muted by SL, so we deal with it
         """
+        if not self.is_enabled:
+            return
         self.is_muted = True
 
     def toggle_record(self):
+        if not self.is_enabled:
+            return
         self.is_recording = not self.is_recording
         self.client.hit('record', self.track)
         self.has_had_something_recorded = True
@@ -35,6 +55,8 @@ class Loop:
             self.remute_if_necessary()
 
     def toggle_overdub(self):
+        if not self.is_enabled:
+            return
         self.is_overdubbing = not self.is_overdubbing
         self.client.hit('overdub', self.track)
         self.has_had_something_recorded = True
@@ -43,16 +65,33 @@ class Loop:
             self.remute_if_necessary()
 
     def undo(self):
+        if not self.is_enabled:
+            return
         self.client.hit('undo', self.track)
 
     def redo(self):
+        if not self.is_enabled:
+            return
         self.client.hit('redo', self.track)
 
     def clear(self):
+        if not self.is_enabled:
+            return
         self.client.hit('undo_all', self.track)
         self.has_had_something_recorded = False
 
+    def oneshot(self):
+        # reset_sync_pos so that it always plays from the top
+        self.client.hit('reset_sync_pos', self.track)
+        self.client.hit('oneshot', self.track)
+        # if will auto-mute when done, so let's just mark this
+        # because we just have to deal with what SL wants
+        self.mark_as_muted()
+
     def toggle(self, mode, event_id=None):
+        if not self.is_enabled:
+            return
+
         if mode == 'record':
             if self.stopped_record_id == event_id and event_id is not None:
                 # already handled this event (preemptively)
@@ -94,6 +133,8 @@ class Loop:
         recording...so in toggle(), we only toggle something if
         the event_id's don't match
         """
+        if not self.is_enabled:
+            return
         self.stopped_overdub_id = None
         self.stopped_record_id = None
         did_something = False

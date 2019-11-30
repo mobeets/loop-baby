@@ -43,10 +43,13 @@ class Trellis:
 
         # for handling colors of groups of buttons
         self.startup_color = startup_color
-        self.color_groups = {}
+        self.color_map = {}
 
         # to ensure callback set
         self.button_handler = None
+
+    def set_color_map(self, color_map):
+        self.color_map = color_map
 
     def set_callback(self, fcn):
         # callback for when buttons are pressed
@@ -80,6 +83,8 @@ class Trellis:
             time.sleep(.03)
 
     def set_color(self, index, color):
+        if color in self.color_map:
+            color = self.color_map[color]
         self.trellis.pixels[index] = self.colors[color]
 
     def sync(self):
