@@ -211,7 +211,6 @@ class Looper:
         set colors of all mode buttons based on self.mode
         """
         for mode_button in self.mode_buttons:
-            button_number = self.button_index_map[self.action_button_map[mode_button]]
             if mode_button == 'play/pause':
                 if self.is_playing:
                     color = self.mode_color_map['play']
@@ -222,6 +221,7 @@ class Looper:
                 color = self.mode_color_map[self.mode]
             else:
                 color = 'off'
+            button_number = self.button_index_map[self.action_button_map[mode_button]]
             self.interface.set_color(button_number, color)
 
     def set_track_colors_given_mode(self):
@@ -342,13 +342,13 @@ class Looper:
 
         # toggle different modes
         previous_mode = self.mode
-        self.mode = mode
         if mode == 'record/overdub':
             mode = 'overdub' if previous_mode == 'record' else 'record'
         elif mode == 'save/recall':
             mode = 'recall' if previous_mode == 'save' else 'save'
         elif mode == 'undo/redo':
             mode = 'redo' if previous_mode == 'undo' else 'undo'
+        self.mode = mode
 
         # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
