@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 BUTTON_MAP = { # arranged as installed
@@ -35,17 +37,17 @@ META_COMMANDS = {
     'shutdown': { # shutdown the pi,
         'command': [13, 9, 5, 1],
         'restart_looper': False,
-        'callback': lambda: os.system('sudo halt')
+        'callback': lambda: subprocess.Popen(['sudo', 'halt'])
     },
 	'hard_restart': { # restart the pi,
         'command': [14, 10, 6, 2],
         'restart_looper': False,
-        'callback': lambda: os.system('sudo reboot')
+        'callback': lambda: subprocess.Popen(['sudo', 'reboot'])        
     },
 	'soft_restart': { # calls ./startup.sh
         'command': [15, 11, 7, 3],
         'restart_looper': True,
-        'callback': lambda: os.system(os.path.join(BASE_PATH, 'startup.sh'))
+        'callback': lambda: subprocess.Popen(os.path.join(BASE_PATH, 'startup.sh'))
         },
     'test': {
     	'command': [12, 8, 13, 9],
