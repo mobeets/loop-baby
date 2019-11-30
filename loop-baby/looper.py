@@ -304,6 +304,8 @@ class Looper:
             if not self.loops[track-1].is_enabled and (track-2 < 0 or self.loops[track-2].is_enabled):
                 print('   Creating new loop: {}'.format(self.nloops+1))
                 self.add_loop()
+                # must toggle again, since before it wouldn't have applied
+                self.loops[track-1].toggle_pressed()
 
         if self.mode not in ['save', 'recall', 'settings']:
             loop = self.loops[track-1]

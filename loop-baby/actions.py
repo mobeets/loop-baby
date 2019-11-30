@@ -24,7 +24,6 @@ class Button:
         color is str
         and can be either the color name, or a key to color_map
         """
-        print('Setting color for {}: {}'.format(self.button_number, color))
         self.interface.set_color(self.button_number, color)
 
 class SessionButton(Button):
