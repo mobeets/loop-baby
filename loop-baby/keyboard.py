@@ -93,5 +93,8 @@ class Keyboard:
     def set_color(self, index, color):
         pass
 
+    def set_color_map(self, color_map):
+        pass
+
     def terminate(self):
         pass

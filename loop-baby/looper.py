@@ -8,7 +8,7 @@ except:
     print('WARNING: Could not import Trellis')
 
 from loop import Loop
-from buttons import ModeButton
+from buttons import Button
 from keyboard import Keyboard
 from multipress import MultiPress
 from osc import OscSooperLooper
@@ -20,39 +20,38 @@ BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file
 BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
 
-def make_buttons(button_map, client, interface):
+def make_buttons(button_map, meta_commands, client, interface):
     buttons = {'loops': [], 'sessions': [], 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
             buttons['loops'].append(Loop(name-1, client, button_number, interface))
             buttons['sessions'].append(SessionButton(name-1, button_number, interface))
         else:
-            buttons['modes'].append(ModeButton(name, button_number, interface))
+            buttons['modes'].append(Button(name, button_number, interface))
+    buttons['button_map'] = button_map
+    buttons['multipress'] = MultiPress(meta_commands)
     return buttons
 
 class Looper:
-    def __init__(self, client, interface, buttons, multipress=None,
+    def __init__(self, client, interface, buttons,
         sessions=None, startup_color='random', verbose=False,
-        nloops=4, maxloops=8):
+        nloops=4):
 
         self.verbose = verbose
+        self.client = client
+        self.client.verbose = self.verbose
         self.interface = interface
         self.interface.set_callback(self.button_handler)
+        self.sessions = sessions
 
+        self.event_id = 0 # for counting button events
+        self.button_map = buttons['button_map']
         self.mode_buttons = buttons['modes']
         self.session_buttons = buttons['sessions']
         self.loops = buttons['loops']
-
-        self.client = client
-        self.client.verbose = self.verbose
-        self.multipress = multipress
-
+        self.multipress = buttons['multipress']
         self.buttons_pressed = set()
-        self.tracks_pressed_once = [] # for checking if track double-pressed
-        self.event_id = 0
         self.nloops = nloops
-        self.maxloops = maxloops
-        self.sessions = sessions
 
     def init_loops(self):
         """
@@ -87,28 +86,24 @@ class Looper:
         """
         self.event_id += 1
         button_number = event.number
-
-        button_name = self.button_name_map[button_number]
-        action = self.button_action_map.get(button_name, button_name)
+        button_name = self.button_map[button_number]
 
         if event.edge == BUTTON_PRESSED:
             event_type = 'pressed'
-            self.buttons_pressed.add(button_number)
+            self.buttons_pressed.add(event.number)
         elif event.edge == BUTTON_RELEASED:
             event_type = 'released'
-            if button_number in self.buttons_pressed:
-                self.buttons_pressed.remove(button_number)
+            if event.number in self.buttons_pressed:
+                self.buttons_pressed.remove(event.number)
             else:
                 # false event (happens sometimes for some reason)
                 return
-        else:
-            event_type = None
         if self.verbose:
-            print('Button {}: ({}, {}, {})'.format(event_type, action, button_number, button_name))
+            print('Button {}: ({}, {})'.format(event_type, event.number, button_name))
         self.check_for_multipress_matches()
-        self.process_button(button_number, action, event_type, self.event_id)
+        self.process_button(button_name, event_type, self.event_id)
 
-    def process_button(self, button_number, action, press_type, event_id):
+    def process_button(self, button_name, press_type, event_id):
         """
         handle a button press based on whether it's mode/track
         and press/release
@@ -122,17 +117,17 @@ class Looper:
                 loop.stop_record_or_overdub(event_id)
 
             # now handle the button press
-            if type(action) is int:
-                self.process_track_change(action, button_number, event_id)
+            if type(button_name) is int:
+                self.process_track_change(button_name, event_id)
             else:
-                self.process_mode_change(action, button_number, event_id)
+                self.process_mode_change(button_name)
                 self.set_mode_colors_given_mode()
             self.set_track_colors_given_mode()
 
         # mark when a track button is unpressed
         elif press_type == 'released':
-            if type(action) is int and action < len(self.loops):
-                self.loops[action-1].is_pressed = False
+            if type(button_name) is int:
+                self.loops[button_name-1].toggle_pressed()
                 self.set_track_colors_given_mode()
 
     def set_mode_colors_given_mode(self):
@@ -263,7 +258,7 @@ class Looper:
             loop.remute_if_necessary()
         self.is_playing = True
 
-    def process_mode_change(self, mode, button_number, event_id):
+    def process_mode_change(self, mode):
         """
         the only mode that does something when pressed is 'play/pause'
         otherwise, we basically wait until a track button is pressed to do anything
@@ -314,7 +309,7 @@ class Looper:
         elif mode == 'settings':
             print('   Settings mode not implemented yet.')
 
-    def process_track_change(self, track, button_number, event_id):
+    def process_track_change(self, track, event_id):
         """
         actions depend on what mode we're in
         we also set button color based on the mode
@@ -470,15 +465,12 @@ def main(args):
     elif args.interface == 'keyboard':
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
     interface.set_color_map(COLOR_MAP)
-    buttons = make_buttons(BUTTON_MAP, client, interface)
-
-    multipress = MultiPress(META_COMMANDS)
+    buttons = make_buttons(BUTTON_MAP, META_COMMANDS, client, interface)
+    
     sessions = SLSessionManager(args.session_dir, client)
-
     looper = Looper(client=client,
         interface=interface,
         buttons=buttons,
-        multipress=multipress,
         sessions=sessions,
         verbose=args.verbose)
     try:

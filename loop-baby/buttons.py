@@ -11,6 +11,3 @@ class Button:
         and can be either the color name, or a key to color_map
         """
         self.interface.set_color(self.button_number, color)
-
-class ModeButton(Button):
-    pass
