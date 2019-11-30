@@ -39,12 +39,16 @@ class Looper:
 
         self.event_id = 0 # for counting button events
         self.buttons_pressed = set()
-        self.nloops = nloops
+        self.initial_nloops = nloops
 
     def init_loops(self):
         """
         enable internal loops, and create them in SL
         """
+        # first disable (in case we are restarting)
+        for loop in self.loops:
+            loop.disable()
+        # now enable up to self.nloops
         for loop in self.loops[:self.nloops]:
             loop.enable()
         # one loop exists; must tell SL about the remaining ones
@@ -405,6 +409,7 @@ class Looper:
 
     def init_looper(self):
         # load empty session
+        self.nloops = self.initial_nloops
         self.client.load_empty_session()
         time.sleep(0.2)
         self.init_loops()
