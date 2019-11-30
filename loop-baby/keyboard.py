@@ -91,6 +91,9 @@ class Keyboard:
             event = Event(self.button, self.pressed_code)
             self.callbacks[self.button](event)
 
+    def set_color_all_buttons(self, color):
+        pass
+
     def set_color(self, index, color):
         pass
 

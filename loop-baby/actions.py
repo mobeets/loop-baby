@@ -195,15 +195,21 @@ class MultiPress:
         self.commands = commands
 
     def check_for_matches(self, buttons_pressed, looper):
+        nseconds_restart_delay = 7 # delay after restart
         for name, item in self.commands.items():
             if buttons_pressed.issuperset(item['command']):
                 # call the callback for this command
                 item['callback']()
                 if item['restart_looper']:
                     # todo: color all keys red
-                    # looper.interface.set_color_of_group('all', 'red')
+                    for j in range(nseconds_restart_delay):
+                        if j % 2 == 0:
+                            color = 'red'
+                        else:
+                            color = 'off'
+                        looper.interface.set_color_all_buttons('all', color)
+                        time.sleep(1)
                     # wait a generous amount of time for startup.sh to finish
-                    time.sleep(7)
                     # clear loops and start from scratch
                     looper.init_looper()
                 # remove those keys from our buttons_pressed queue

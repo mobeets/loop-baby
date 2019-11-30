@@ -31,18 +31,23 @@ COLOR_MAP = {
 
 META_COMMANDS = {
     'shutdown': { # shutdown the pi,
-            'command': [13, 9, 5, 1],
-            'restart_looper': False,
-            'callback': lambda: os.system('sudo halt')
+        'command': [13, 9, 5, 1],
+        'restart_looper': False,
+        'callback': lambda: os.system('sudo halt')
+    },
+	'hard_restart': { # restart the pi,
+        'command': [14, 10, 6, 2],
+        'restart_looper': False,
+        'callback': lambda: os.system('sudo reboot')
+    },
+	'soft_restart': { # calls ./startup.sh
+        'command': [15, 11, 7, 3],
+        'restart_looper': True,
+        'callback': lambda: os.system('.' + os.path.join(BASE_PATH, 'startup.sh'))
         },
-    'hard_restart': { # restart the pi,
-            'command': [14, 10, 6, 2],
-            'restart_looper': False,
-            'callback': lambda: os.system('sudo reboot')
-        },
-    'soft_restart': { # calls ./startup.sh
-            'command': [15, 11, 7, 3],
-            'restart_looper': True,
-            'callback': lambda: os.system('.' + os.path.join(BASE_PATH, 'startup.sh'))
-        },
+    'test': {
+    	'command': [12, 8, 13, 9],
+        'restart_looper': True,
+    	'callback': lambda: print('Testing!'),
+    },
 }
