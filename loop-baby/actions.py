@@ -207,7 +207,7 @@ class MultiPress:
                             color = 'red'
                         else:
                             color = 'off'
-                        looper.interface.set_color_all_buttons('all', color)
+                        looper.interface.set_color_all_buttons(color)
                         time.sleep(1)
                     # wait a generous amount of time for startup.sh to finish
                     # clear loops and start from scratch
