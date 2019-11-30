@@ -416,6 +416,7 @@ class Looper:
         self.init_loops()
         self.mode = None
         self.is_playing = True
+        self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
         self.set_mode_colors_given_mode()
         if self.verbose:
