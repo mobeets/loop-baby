@@ -1,8 +1,6 @@
 import os
 import subprocess
 
-BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-
 BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
 	13: 5,  9: 6,  5: 7,  1: 8,
@@ -33,6 +31,8 @@ COLOR_MAP = {
     'session_empty': 'darkgray',
     }
 
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+
 META_COMMANDS = {
     'shutdown': { # shutdown the pi,
         'command': [13, 9, 5, 1],
@@ -47,7 +47,7 @@ META_COMMANDS = {
 	'soft_restart': { # calls ./startup.sh
         'command': [15, 11, 7, 3],
         'restart_looper': True,
-        'callback': lambda: subprocess.Popen(os.path.join(BASE_PATH, 'startup.sh'))
+        'callback': lambda: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         },
     'test': {
     	'command': [12, 8, 13, 9],
