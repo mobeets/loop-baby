@@ -1,11 +1,12 @@
 import time
 
 def make_actions(button_map, meta_commands, client, interface):
-    actions = {'loops': [], 'sessions': [], 'modes': []}
+    ntracks = len([x for x in button_map.values() if type(x) is int])
+    actions = {'loops': [None]*ntracks, 'sessions': [None]*ntracks, 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
-            actions['loops'].append(Loop(name-1, button_number, interface, client, ))
-            actions['sessions'].append(SessionButton(name-1, button_number, interface))
+            actions['loops'][name-1] = Loop(name-1, button_number, interface, client, )
+            actions['sessions'][name-1] = SessionButton(name-1, button_number, interface)
         else:
             actions['modes'].append(Button(name, button_number, interface))
     actions['button_map'] = button_map
