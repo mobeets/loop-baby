@@ -217,8 +217,9 @@ class Looper:
                     color = self.mode_color_map['play']
                 else:
                     color = self.mode_color_map['pause']
-            elif mode_button == self.mode:
-                color = self.mode_color_map[mode_button]
+            elif self.mode in mode_button.split('/'):
+                # e.g., mode_button might be 'record/overdub'
+                color = self.mode_color_map[self.mode]
             else:
                 color = 'off'
             self.interface.set_color(button_number, color)
