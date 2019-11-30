@@ -125,7 +125,7 @@ class Looper:
         self.client.set('selected_loop_num', 0)
         self.is_playing = True
         self.mode = None
-        self.modes = [None] + list(self.action_button_map)
+        self.mode_buttons = list(self.action_button_map)
         self.event_id = 0
 
     def init_loops(self):
@@ -159,6 +159,9 @@ class Looper:
             event_type = 'released'
             if button_name in self.buttons_pressed:
                 self.buttons_pressed.remove(button_name)
+            else:
+                # false event (happens sometimes for some reason)
+                return
         else:
             event_type = None
         if self.verbose:
@@ -173,27 +176,25 @@ class Looper:
             color = self.mode_color_map['play']
         else:
             color = self.mode_color_map['pause']
+        if self.verbose:
+            print('Setting color: {} -> {}'.format(button_number, color))
         self.interface.set_color(button_number, color)
 
         # set mode color
-        for mode in self.modes:
-            if mode is None:
-                continue
-            button_number = self.button_index_map[self.action_button_map[mode]]
-            if mode == self.mode:
-                color = self.mode_color_map[mode]
+        for mode_button in self.mode_buttons:
+            button_number = self.button_index_map[self.action_button_map[mode_button]]
+            if mode_button == self.mode:
+                color = self.mode_color_map[mode_button]
             else:
                 color = 'off'
             self.interface.set_color(button_number, color)
 
     def set_track_colors_given_mode(self):
         if self.mode == None:
-            self.interface.un_color('mode_buttons')
             for loop in self.loops:
+                color = 'off'
                 if loop.is_pressed:
                     color = self.mode_color_map['track']
-                else:
-                    color = 'off'
                 self.interface.set_color(loop.button_number, color)
         elif self.mode == 'oneshot':
             for loop in self.loops:
@@ -206,7 +207,6 @@ class Looper:
                 self.interface.set_color(loop.button_number, color)
         elif self.mode in ['record', 'overdub']:
             # color buttons if track exists but isn't currently being recorded to
-            # self.interface.un_color('track_buttons')
             for loop in self.loops:
                 if loop.is_recording or loop.is_overdubbing:
                     color = self.mode_color_map[self.mode]
@@ -270,83 +270,63 @@ class Looper:
                 self.set_mode_colors_given_mode()
             self.set_track_colors_given_mode()
 
-        # below we just manage colors upon button release
+        # mark when a track button is unpressed
         elif press_type == 'released':
             if type(action) is int and action < len(self.loops):
                 self.loops[action-1].is_pressed = False
                 self.set_track_colors_given_mode()
-                # if self.mode in ['clear', 'save', 'recall']:
-                #     # button press was a single action, so turn off light
-                #     self.interface.un_color(button_number)
-                #     self.set_track_colors_given_mode()
-            else:
-                if self.is_playing and action in ['save/recall', 'settings']:
-                    if self.verbose:
-                        print('   Clearing color for save/recall/settings')
-                    self.interface.un_color(button_number)
-                elif not self.is_playing and action in ['record', 'overdub', 'record/overdub', 'mute']:
-                    if self.verbose:
-                        print('   Clearing color for record/overdub/mute')
-                    self.interface.un_color(button_number)
 
     def pause(self):
         """
-        pause all loops
+        pause all loops, and mark sync position for when we play
         """
         self.client.hit('set_sync_pos', -1)
         self.client.hit('pause_on', -1)
         if self.mode in ['record', 'overdub', 'mute']:
             print('   Cannot {} when paused, so exiting {} mode'.format(self.mode, self.mode))
-            # self.interface.un_color('mode_buttons')
-            # self.interface.un_color('track_buttons')
             self.mode = None
-        self.is_playing = True
+        self.is_playing = False
 
     def play(self):
         """
         play all loops
+        then re-mute any as necessary, since 'trigger' unmutes all
         """
         if self.mode in ['save', 'recall', 'settings']:
             print('   Cannot {} when playing, so exiting {} mode'.format(self.mode, self.mode))
-            # self.interface.un_color('mode_buttons')
-            # self.interface.un_color('track_buttons')
             self.mode = None
         # when unpausing, 'trigger' restarts from where we paused
         self.client.hit('trigger', -1)
         # but we must now check which tracks were muted and re-mute
         for loop in self.loops:
             loop.remute_if_necessary()
-        self.is_playing = False
+        self.is_playing = True
 
     def process_mode_change(self, mode, button_number, event_id):
         """
         the only mode that does something when pressed is 'play/pause'
-        otherwise, we may need to handle button colors, but we otherwise
-        just wait until a track button is pressed to do anything
+        otherwise, we basically wait until a track button is pressed to do anything
         """
         if self.verbose:
             print('   Mode change: {} -> {}'.format(self.mode, mode))
 
-        if mode == 'play/pause': # applies to all loops
+        if mode == 'play/pause':
             if self.is_playing:
                 self.pause()
             else:
                 self.play()
-            self.is_playing = not self.is_playing
-            # color = self.mode_color_map['play'] if self.is_playing else self.mode_color_map['pause']
-            # self.interface.set_color(button_number, color)
             return
 
+        # if we are already in this mode, exit this mode
         if mode == self.mode:
             if self.verbose:
                 print('   Already in this mode, so setting mode to None.')
             self.mode = None
-            # self.interface.un_color('mode_buttons')
-            # self.interface.un_color('track_buttons')
             return
 
         # toggle different modes
         previous_mode = self.mode
+        self.mode = mode
         if mode == 'record/overdub':
             mode = 'overdub' if previous_mode == 'record' else 'record'
         elif mode == 'save/recall':
@@ -354,56 +334,19 @@ class Looper:
         elif mode == 'undo/redo':
             mode = 'redo' if previous_mode == 'undo' else 'undo'
 
+        # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
-            # color = self.mode_color_map[mode]
-            # self.interface.set_color(button_number, color)
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
         if mode in ['save', 'recall', 'settings'] and self.is_playing:
-            # color = self.mode_color_map[mode]
-            # self.interface.set_color(button_number, color)
             print('   Cannot {} when playing!'.format(mode))
             return
 
-        # changing to any other type of mode clears all buttons (except play/pause)
-        # self.interface.un_color('mode_buttons')
-        # self.interface.un_color('track_buttons')
-        self.mode = mode
-        # color = self.mode_color_map[mode]
-        # self.interface.set_color(button_number, color)
-
-        # if mode == 'mute':
-        #     for loop in self.loops:
-        #         if not loop.has_had_something_recorded:
-        #             color = self.mode_color_map['track_exists']
-        #         elif loop.is_muted:
-        #             color = self.mode_color_map['mute_on']
-        #         else:
-        #             color = self.mode_color_map['mute_off']
-        #         self.interface.set_color(loop.button_number, color)
-
-        # elif mode == 'undo' or mode == 'redo':
-        #     for loop in self.loops:
-        #         color = self.mode_color_map['track_exists']
-        #         self.interface.set_color(loop.button_number, color)
-
         if mode == 'clear':
             self.tracks_pressed_once = []
-            # for loop in self.loops:
-            #     color = self.mode_color_map['track_exists']
-            #     self.interface.set_color(loop.button_number, color)
-
         elif mode in ['save', 'recall']:
             self.tracks_pressed_once = []
             self.sessions.sync()
-            # for i in range(self.maxloops):
-            #     if self.sessions.session_exists(i):
-            #         color = self.mode_color_map['session_exists']
-            #     else:
-            #         color = self.mode_color_map['session_empty']
-            #     button_number = self.button_index_map[i+1]
-            #     self.interface.set_color(button_number, color)
-
         elif mode == 'settings':
             print('   Settings mode not implemented yet.')
 
@@ -416,10 +359,8 @@ class Looper:
             print('   ({}) track = {}'.format(self.mode, track))
         if track < len(self.loops):
             self.loops[track-1].is_pressed = True
-        # color = self.mode_color_map['track']
 
         if self.mode == None:
-            # self.interface.set_color(button_number, color)
             if track > self.nloops:
                 print('   Creating new loop: {}'.format(self.nloops+1))
                 self.add_loop()
@@ -432,14 +373,12 @@ class Looper:
                 # reset_sync_pos so that it always plays from the top
                 self.client.hit('reset_sync_pos', track-1)
                 self.client.hit(self.mode, track-1)
-                # self.interface.set_color(button_number, color)
                 # if will auto-mute when done, so let's just mark this
                 # because we just have to deal with what SL wants
                 self.loops[track-1].mark_as_muted()
             else:
                 print('   Creating new loop: {}'.format(self.nloops+1))
                 self.add_loop()
-                # print('   Loop index does not exist for '.format(self.mode))
 
         elif self.mode in ['record', 'overdub']:
             if track <= self.nloops:
@@ -450,25 +389,17 @@ class Looper:
         elif self.mode == 'mute':
             if track <= self.nloops:
                 self.loops[track-1].toggle(self.mode)
-                # is_muted = self.loops[track-1].toggle(self.mode)
-                # color_mode = 'mute_on' if is_muted else 'mute_off'
-                # if not is_muted and not self.loops[track-1].has_had_something_recorded:
-                #     color_mode = 'track_exists'
-                # color = self.mode_color_map[color_mode]
-                # self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'undo':
             if track <= self.nloops:
-                # self.interface.set_color(button_number, color)
                 self.loops[track-1].undo()
             else:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'redo':
             if track <= self.nloops:
-                # self.interface.set_color(button_number, color)
                 self.loops[track-1].redo()
             else:
                 print('   Loop index does not exist for {}'.format(self.mode))
@@ -479,22 +410,17 @@ class Looper:
                     if self.verbose:
                         print('   Clearing track {}'.format(track))
                     self.tracks_pressed_once = []
-                    # self.interface.set_color(button_number, color)
                     self.loops[track-1].clear()
                 else:
                     if self.verbose:
                         print('   Pressed track {} once for {}'.format(track, self.mode))
                     self.tracks_pressed_once = [track]
-                    # color = self.mode_color_map['track_pressed_once']
-                    # self.interface.set_color(button_number, color)
             else:
                 print('   Loop index does not exist for {}'.format(self.mode))
 
         elif self.mode == 'save':
             if not self.sessions.session_exists(track-1) or track in self.tracks_pressed_once:
                 self.sessions.save_session(track-1, self.loops)
-                # color = self.mode_color_map['track']
-                # self.interface.set_color(button_number, color)
                 self.tracks_pressed_once = []
                 if self.verbose:
                     print('   Saving session at index {}'.format(track-1))
@@ -502,8 +428,6 @@ class Looper:
                 if self.verbose:
                     print('   Pressed track {} once for {}'.format(track, self.mode))
                 self.tracks_pressed_once = [track]
-                # color = self.mode_color_map['track_pressed_once']
-                # self.interface.set_color(button_number, color)
 
         elif self.mode == 'recall':
             if self.sessions.session_exists(track-1) and track in self.tracks_pressed_once:
@@ -519,8 +443,6 @@ class Looper:
                 # mark any existing loops that have something recorded
                 for i,loop in enumerate(self.loops):
                     loop.has_had_something_recorded = has_audio[i]
-                # color = self.mode_color_map['session_save_or_recall']
-                # self.interface.set_color(button_number, color)
                 self.tracks_pressed_once = []
                 if self.verbose:
                     print('   Loading session at index {}'.format(track-1))
@@ -528,15 +450,11 @@ class Looper:
                 if self.verbose:
                     print('   Pressed track {} once for {}'.format(track, self.mode))
                 self.tracks_pressed_once = [track]
-                # color = self.mode_color_map['track_pressed_once']
-                # self.interface.set_color(button_number, color)
             else:
                 print('   Saved session does not exist at track {}'.format(track))
-            # self.interface.un_color(button_number)
 
         elif self.mode == 'settings':
             print('   Settings track not implemented yet.')
-            # self.interface.un_color(button_number)
 
     def init_looper(self):
         # load empty session
