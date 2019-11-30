@@ -7,30 +7,16 @@ try:
 except:
     print('WARNING: Could not import Trellis')
 
-from loop import Loop
-from buttons import Button
+from buttons import make_buttons
 from keyboard import Keyboard
-from multipress import MultiPress
 from osc import OscSooperLooper
-from save_and_recall import SLSessionManager, SessionButton
+from save_and_recall import SLSessionManager
 from button_settings import BUTTON_MAP, COLOR_MAP, META_COMMANDS
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
-
-def make_buttons(button_map, meta_commands, client, interface):
-    buttons = {'loops': [], 'sessions': [], 'modes': []}
-    for button_number, name in button_map.items():
-        if type(name) is int:
-            buttons['loops'].append(Loop(name-1, client, button_number, interface))
-            buttons['sessions'].append(SessionButton(name-1, button_number, interface))
-        else:
-            buttons['modes'].append(Button(name, button_number, interface))
-    buttons['button_map'] = button_map
-    buttons['multipress'] = MultiPress(meta_commands)
-    return buttons
 
 class Looper:
     def __init__(self, client, interface, buttons,

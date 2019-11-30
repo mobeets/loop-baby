@@ -2,11 +2,6 @@ import os
 import glob
 import xml.etree.ElementTree
 
-class SessionButton(Button):
-    def __init__(self, name, button_number, interface):
-        super().__init__(name, button_number, interface)
-        self.pressed_once = False
-
 class SLSessionManager:
     def __init__(self, session_dir, client, maxloops=8):
         self.session_dir = session_dir
