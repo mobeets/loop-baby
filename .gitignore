@@ -1,6 +1,8 @@
 *.pyc
 .DS_Store
 __pycache__/
-static/samples/
 _old/
-static/saved_sessions/test.slsess
+jackd_errors.log
+static/samples/
+static/saved_sessions/*
+!static/saved_sessions/empty_session.slsess
