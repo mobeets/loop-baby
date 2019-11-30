@@ -7,7 +7,7 @@ try:
 except:
     print('WARNING: Could not import Trellis')
 
-from track import Track
+from loop import Loop
 from keyboard import Keyboard
 from multipress import MultiPress
 from osc import OscSooperLooper
@@ -130,23 +130,33 @@ class Looper:
 
     def init_loops(self):
         """
-        one loop exists; must tell client about the remaining ones
+        create loops internally, and with SL
         """
-        self.loops = [Track(i, self.client, self.button_index_map[i+1]) for i in range(self.nloops)]
+        self.loops = [Loop(i, self.client, self.button_index_map[i+1]) for i in range(self.nloops)]
+        # one loop exists; must tell SL about the remaining ones
         for i in range(self.nloops-1):
             self.client.add_loop()
 
     def add_loop(self, internal_add_only=True):
+        """
+        add an additional loop internally, and with SL
+        """
         self.client.add_loop()
-        self.loops.append(Track(self.nloops, self.client, self.button_index_map[self.nloops+1]))
+        self.loops.append(Loop(self.nloops, self.client, self.button_index_map[self.nloops+1]))
         self.nloops = len(self.loops)
 
     def check_for_multipress_matches(self):
+        """
+        check if any buttons currently being pressed are a command
+        """
         if self.multipress is None:
             return
         self.buttons_pressed = self.multipress.check_for_matches(self.buttons_pressed, self)
 
     def button_handler(self, event):
+        """
+        this gets called when a Trellis button is pressed
+        """
         self.event_id += 1
         button_number = event.number
         button_name = self.button_name_map[button_number]
@@ -169,7 +179,37 @@ class Looper:
         self.check_for_multipress_matches()
         self.process_button(button_number, action, event_type, self.event_id)
 
+    def process_button(self, button_number, action, press_type, event_id):
+        """
+        handle a button press based on whether it's mode/track
+        and press/release
+        then update colors of all buttons
+        """
+        # updates happen at the time of button press
+        if press_type == 'pressed':
+            # any time a button is pressed, we will
+            # stop any recording/overdubbing going on
+            for loop in self.loops:
+                loop.stop_record_or_overdub(event_id)
+
+            # now handle the button press
+            if type(action) is int:
+                self.process_track_change(action, button_number, event_id)
+            else:
+                self.process_mode_change(action, button_number, event_id)
+                self.set_mode_colors_given_mode()
+            self.set_track_colors_given_mode()
+
+        # mark when a track button is unpressed
+        elif press_type == 'released':
+            if type(action) is int and action < len(self.loops):
+                self.loops[action-1].is_pressed = False
+                self.set_track_colors_given_mode()
+
     def set_mode_colors_given_mode(self):
+        """
+        set colors of all mode buttons based on self.mode
+        """
         # set play/pause color
         button_number = self.button_index_map[self.action_button_map['play/pause']]
         if self.is_playing:
@@ -183,13 +223,21 @@ class Looper:
         # set mode color
         for mode_button in self.mode_buttons:
             button_number = self.button_index_map[self.action_button_map[mode_button]]
-            if mode_button == self.mode:
+            if mode_button == 'play/pause':
+                if self.is_playing:
+                    color = self.mode_color_map['play']
+                else:
+                    color = self.mode_color_map['pause']
+            elif mode_button == self.mode:
                 color = self.mode_color_map[mode_button]
             else:
                 color = 'off'
             self.interface.set_color(button_number, color)
 
     def set_track_colors_given_mode(self):
+        """
+        set colors of all track buttons based on self.mode
+        """
         if self.mode == None:
             for loop in self.loops:
                 color = 'off'
@@ -253,28 +301,6 @@ class Looper:
                     color = self.mode_color_map['session_empty']
                 button_number = self.button_index_map[i+1]
                 self.interface.set_color(button_number, color)
-    
-    def process_button(self, button_number, action, press_type, event_id):
-        # updates happen at the time of button press
-        if press_type == 'pressed':
-            # any time a button is pressed, we will
-            # stop any recording/overdubbing going on
-            for loop in self.loops:
-                loop.stop_record_or_overdub(event_id)
-
-            # now handle the button press
-            if type(action) is int:
-                self.process_track_change(action, button_number, event_id)
-            else:
-                self.process_mode_change(action, button_number, event_id)
-                self.set_mode_colors_given_mode()
-            self.set_track_colors_given_mode()
-
-        # mark when a track button is unpressed
-        elif press_type == 'released':
-            if type(action) is int and action < len(self.loops):
-                self.loops[action-1].is_pressed = False
-                self.set_track_colors_given_mode()
 
     def pause(self):
         """

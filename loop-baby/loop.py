@@ -1,5 +1,5 @@
 
-class Track:
+class Loop:
     def __init__(self, track, client, button_number):
         self.track = track
         self.client = client

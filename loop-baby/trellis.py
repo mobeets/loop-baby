@@ -87,19 +87,16 @@ class Trellis:
 
     def set_color_of_group(self, group_name, color):
         for i in self.color_groups[group_name]:
-            self.trellis.pixels[i] = self.colors[color]
+            self.set_color(i, color)
 
     def set_color(self, index, color, uncolor=None):
         if uncolor: # a group name that we want to uncolor
-            if uncolor not in self.color_groups:
-                print("Error! Undefined color group: {}".format(uncolor))
-            else:
-                self.un_color(uncolor)
+            self.un_color(uncolor)
         self.trellis.pixels[index] = self.colors[color]
 
     def un_color(self, index):
         if type(index) is int:
-            self.trellis.pixels[index] = self.colors['off']
+            self.set_color(index, 'off')
         else:
             self.set_color_of_group(index, 'off')
 
