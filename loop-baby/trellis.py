@@ -7,6 +7,9 @@ from adafruit_neotrellis.neotrellis import NeoTrellis
 BUTTON_PRESSED = NeoTrellis.EDGE_RISING
 BUTTON_RELEASED = NeoTrellis.EDGE_FALLING
 
+def random_color():
+    return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
 class Trellis:
     """
     relays button presses by adding them to a queue
@@ -54,9 +57,6 @@ class Trellis:
         # set handlers for button press
         self.activate(self.startup_color)
 
-    def random_color(self):
-        return (random.randint(0,255), random.randint(0,255), random.randint(0,255))
-
     def activate(self, startup_color=None):
         if self.button_handler is None:
             print("Error: callback must be set using 'set_callback'")
@@ -72,7 +72,7 @@ class Trellis:
             #cycle the LEDs on startup
             if startup_color is not None:
                 if startup_color == 'random':
-                    color = self.random_color()
+                    color = random_color()
                 else:
                     color = self.colors[startup_color]
                 self.trellis.pixels[i] = color
