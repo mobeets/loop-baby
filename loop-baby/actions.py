@@ -56,10 +56,15 @@ class Loop(Button):
     def disable(self):
         self.reset_state()
 
-    def toggle_pressed(self):
+    def press(self):
         if not self.is_enabled:
             return
-        self.is_pressed = not self.is_pressed
+        self.is_pressed = True
+
+    def unpress(self):
+        if not self.is_enabled:
+            return
+        self.is_pressed = False
 
     def remute_if_necessary(self):
         """

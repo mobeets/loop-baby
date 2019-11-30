@@ -116,7 +116,7 @@ class Looper:
         # mark when a track button is unpressed
         elif press_type == 'released':
             if type(button_name) is int:
-                self.loops[button_name-1].toggle_pressed()
+                self.loops[button_name-1].unpress()
                 self.set_track_colors_given_mode()
 
     def set_mode_colors_given_mode(self):
@@ -306,14 +306,14 @@ class Looper:
         if self.verbose:
             print('   ({}) track = {}'.format(self.mode, track))
         if track < len(self.loops):
-            self.loops[track-1].toggle_pressed()
+            self.loops[track-1].press()
 
         if self.mode == None:
             if not self.loops[track-1].is_enabled and (track-2 < 0 or self.loops[track-2].is_enabled):
                 print('   Creating new loop: {}'.format(self.nloops+1))
                 self.add_loop()
                 # must toggle again, since before it wouldn't have applied
-                self.loops[track-1].toggle_pressed()
+                self.loops[track-1].press()
 
         if self.mode not in ['save', 'recall', 'settings']:
             loop = self.loops[track-1]
