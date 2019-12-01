@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+import subprocess
 try:
     from trellis import Trellis
 except:
@@ -279,12 +280,13 @@ class Looper:
             mode = 'recall' if previous_mode == 'save' else 'save'
         elif mode == 'undo/redo':
             mode = 'redo' if previous_mode == 'undo' else 'undo'
-        self.mode = mode
 
         # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
             print('   Cannot {} when paused; otherwise loops will get out of sync!'.format(mode))
             return
+        
+        self.mode = mode
         if mode in ['save', 'recall', 'settings'] and self.is_playing:
             if self.verbose:
                 print('   Pausing so we can switch modes to {}'.format(mode))
@@ -444,8 +446,7 @@ class Looper:
             print('See ya!')
 
 def main(args):
-    # start jackd and sooperlooper
-    import subprocess
+    # start jackd and sooperlooper    
     subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
 
     # connect to SooperLooper via OSC
