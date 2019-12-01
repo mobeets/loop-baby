@@ -3,8 +3,8 @@ Description=My service
 After=network.target
 
 [Service]
-ExecStart=static/startup_at_boot.sh
-WorkingDirectory=/home/pi/loop-baby
+ExecStart=startup_at_boot.sh
+WorkingDirectory=/home/pi/loop-baby/static
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
