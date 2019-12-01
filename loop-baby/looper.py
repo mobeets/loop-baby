@@ -20,23 +20,23 @@ BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
 
 class Looper:
-    def __init__(self, client, interface, button_map, meta_commands,
+    def __init__(self, sl_client, interface, button_map, meta_commands,
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
-        self.client = client
-        self.client.verbose = self.verbose
+        self.sl_client = sl_client
+        self.sl_client.verbose = self.verbose
         self.interface = interface
         self.interface.set_callback(self.button_handler)
 
         actions = make_actions(button_map, meta_commands,
-            self.client, self.interface)
+            self.sl_client, self.interface)
         self.button_map = button_map
         self.loops = actions['loops']
         self.mode_buttons = actions['modes']
         self.multipress = actions['multipress']
         self.session_manager = SLSessionManager(actions['sessions'],
-            session_dir, self.client)
+            session_dir, self.sl_client)
 
         self.event_id = 0 # for counting button events
         self.buttons_pressed = set()
@@ -46,7 +46,7 @@ class Looper:
         """
         enable internal loops, and create them in SL
         """
-        self.client.load_empty_session()
+        self.sl_client.load_empty_session()
         time.sleep(0.2) # delay to wait for SL
 
         self.nloops = self.initial_nloops
@@ -58,14 +58,14 @@ class Looper:
             loop.enable()
         # one loop exists; must tell SL about the remaining ones
         for i in range(self.nloops-1):
-            self.client.add_loop()
+            self.sl_client.add_loop()
 
     def add_loop(self, internal_add_only=False):
         """
         add an additional loop internally, and with SL
         """
         if not internal_add_only:
-            self.client.add_loop()
+            self.sl_client.add_loop()
         self.loops[self.nloops].enable()
         self.nloops += 1
 
@@ -228,8 +228,8 @@ class Looper:
         """
         pause all loops, and mark sync position for when we play
         """
-        self.client.hit('set_sync_pos', -1)
-        self.client.hit('pause_on', -1)
+        self.sl_client.hit('set_sync_pos', -1)
+        self.sl_client.hit('pause_on', -1)
         if self.mode in ['record', 'overdub', 'mute']:
             print('   Cannot {} when paused, so setting mode -> None'.format(self.mode))
             self.mode = None
@@ -244,7 +244,7 @@ class Looper:
             print('   Cannot {} when playing, so setting mode -> None'.format(self.mode))
             self.mode = None
         # when unpausing, 'trigger' restarts from where we paused
-        self.client.hit('trigger', -1)
+        self.sl_client.hit('trigger', -1)
         # but we must now check which tracks were muted and re-mute
         for loop in self.loops:
             loop.remute_if_necessary()
@@ -440,7 +440,7 @@ class Looper:
         if self.verbose:
             print()
             print('Ending looper...')
-        self.client.terminate()
+        self.sl_client.terminate()
         self.interface.terminate()
         if self.verbose:
             print('See ya!')
@@ -454,7 +454,7 @@ def main(args):
     # connect to SooperLooper via OSC
     if args.verbose:
         print('Setting up Sooper Looper OSC client...')
-    client = OscSooperLooper(client_url=args.osc_url,
+    sl_client = OscSooperLooper(client_url=args.osc_url,
         empty_session=args.empty_session_file)
 
     # connect with either trellis PCB or keyboard
@@ -466,7 +466,7 @@ def main(args):
         interface = Keyboard(BUTTON_PRESSED, BUTTON_RELEASED)
     interface.set_color_map(COLOR_MAP)
     
-    looper = Looper(client=client,
+    looper = Looper(sl_client=sl_client,
         interface=interface,
         button_map=BUTTON_MAP,
         meta_commands=META_COMMANDS,

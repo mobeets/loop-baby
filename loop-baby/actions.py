@@ -1,11 +1,11 @@
 import time
 
-def make_actions(button_map, meta_commands, client, interface):
+def make_actions(button_map, meta_commands, sl_client, interface):
     ntracks = len([x for x in button_map.values() if type(x) is int])
     actions = {'loops': [None]*ntracks, 'sessions': [None]*ntracks, 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
-            actions['loops'][name-1] = Loop(name-1, button_number, interface, client, )
+            actions['loops'][name-1] = Loop(name-1, button_number, interface, sl_client, )
             actions['sessions'][name-1] = SessionButton(name-1, button_number, interface)
         else:
             actions['modes'].append(Button(name, button_number, interface))
@@ -32,10 +32,10 @@ class SessionButton(Button):
         self.pressed_once = False
 
 class Loop(Button):
-    def __init__(self, track, button_number, interface, client):
+    def __init__(self, track, button_number, interface, sl_client):
         super().__init__(track, button_number, interface)
         self.track = track
-        self.client = client
+        self.sl_client = sl_client
         self.reset_state()
 
     def reset_state(self):
@@ -73,7 +73,7 @@ class Loop(Button):
         if not self.is_enabled:
             return
         if self.is_muted:
-            self.client.hit('mute', self.track)
+            self.sl_client.hit('mute', self.track)
 
     def mark_as_muted(self):
         """
@@ -87,7 +87,7 @@ class Loop(Button):
         if not self.is_enabled:
             return
         self.is_recording = not self.is_recording
-        self.client.hit('record', self.track)
+        self.sl_client.hit('record', self.track)
         self.has_had_something_recorded = True
         if not self.is_recording:
             # just stopped recording; check if we were muted
@@ -97,7 +97,7 @@ class Loop(Button):
         if not self.is_enabled:
             return
         self.is_overdubbing = not self.is_overdubbing
-        self.client.hit('overdub', self.track)
+        self.sl_client.hit('overdub', self.track)
         self.has_had_something_recorded = True
         if not self.is_overdubbing:
             # just stopped overdubbing; check if we were muted
@@ -106,23 +106,23 @@ class Loop(Button):
     def undo(self):
         if not self.is_enabled:
             return
-        self.client.hit('undo', self.track)
+        self.sl_client.hit('undo', self.track)
 
     def redo(self):
         if not self.is_enabled:
             return
-        self.client.hit('redo', self.track)
+        self.sl_client.hit('redo', self.track)
 
     def clear(self):
         if not self.is_enabled:
             return
-        self.client.hit('undo_all', self.track)
+        self.sl_client.hit('undo_all', self.track)
         self.has_had_something_recorded = False
 
     def oneshot(self):
         # reset_sync_pos so that it always plays from the top
-        self.client.hit('reset_sync_pos', self.track)
-        self.client.hit('oneshot', self.track)
+        self.sl_client.hit('reset_sync_pos', self.track)
+        self.sl_client.hit('oneshot', self.track)
         # if will auto-mute when done, so let's just mark this
         # because we just have to deal with what SL wants
         self.mark_as_muted()
@@ -147,16 +147,16 @@ class Loop(Button):
 
         elif mode == 'pause':
             if self.is_playing:
-                self.client.hit('pause_on', self.track)
+                self.sl_client.hit('pause_on', self.track)
             else:
-                self.client.hit('pause_off', self.track)
+                self.sl_client.hit('pause_off', self.track)
             self.is_playing = not self.is_playing
 
         elif mode == 'mute':
             if self.is_muted:
-                self.client.hit('mute_off', self.track)
+                self.sl_client.hit('mute_off', self.track)
             else:
-                self.client.hit('mute_on', self.track)
+                self.sl_client.hit('mute_on', self.track)
             self.is_muted = not self.is_muted
             return self.is_muted
 

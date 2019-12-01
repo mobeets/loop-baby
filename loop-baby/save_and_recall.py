@@ -3,10 +3,10 @@ import glob
 import xml.etree.ElementTree
 
 class SLSessionManager:
-    def __init__(self, sessions, session_dir, client, maxloops=8):
+    def __init__(self, sessions, session_dir, sl_client, maxloops=8):
         self.session_dir = session_dir
         self.sessions = sessions
-        self.client = client
+        self.sl_client = sl_client
         self.maxloops = maxloops
         self.sync()
 
@@ -86,12 +86,12 @@ class SLSessionManager:
         outfile = self.saved_sessions[index]['session']
         if self.saved_sessions[index]['exists']:
             self.remove_audio_files(self.saved_sessions[index]['audiofiles'])
-        self.client.save_session(outfile)
+        self.sl_client.save_session(outfile)
         for i,loop in enumerate(loops):
             if not loop.has_had_something_recorded:
                 continue
             audiofile = outfile.replace('.slsess', '.slsess_loop_{0:02d}.wav'.format(i))
-            self.client.save_loop_audio(i, audiofile)
+            self.sl_client.save_loop_audio(i, audiofile)
         self.saved_sessions[index]['exists'] = True
 
     def load_session(self, index):
@@ -99,5 +99,5 @@ class SLSessionManager:
         load the .slsess file (which contains links to audio files)
         return the number of loops we need to have
         """
-        self.client.load_session(self.saved_sessions[index]['session'])
+        self.sl_client.load_session(self.saved_sessions[index]['session'])
         return self.saved_sessions[index]['has_audio']
