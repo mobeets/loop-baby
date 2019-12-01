@@ -3,7 +3,7 @@ Description=My service
 After=network.target
 
 [Service]
-ExecStart=/home/pi/loop-baby/static/startup_at_boot.sh
+ExecStart=/usr/bin/python3 -u /home/pi/loop-baby/loop-baby/looper.py
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
