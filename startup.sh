@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export DISPLAY=:0
+
 # end previous processes
 killall jackd || echo "jackd was not running."
 killall sooperlooper || echo "sooperlooper was not running."
