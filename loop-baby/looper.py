@@ -446,8 +446,10 @@ class Looper:
             print('See ya!')
 
 def main(args):
-    # start jackd and sooperlooper    
-    subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+    # start jackd and sooperlooper, and wait until finished
+    if args.startup:
+        startup = subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+        startup.communicate()
 
     # connect to SooperLooper via OSC
     if args.verbose:
@@ -480,8 +482,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="looper")
     parser.add_argument('-v', '--verbose',
-        dest='verbose', action='store_true',
-        default=True)
+        dest='verbose', action='store_true')
+    parser.add_argument('-s', '--startup',
+        dest='startup', action='store_true')
     parser.add_argument('-i', '--interface',
         choices=['keyboard', 'trellis'],
         default='trellis')

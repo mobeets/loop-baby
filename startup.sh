@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# necessary to start jack
 export DISPLAY=:0
 
 # end previous processes
