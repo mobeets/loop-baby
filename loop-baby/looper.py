@@ -446,7 +446,7 @@ class Looper:
 def main(args):
     # start jackd and sooperlooper
     import subprocess
-    subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')
+    subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
 
     # connect to SooperLooper via OSC
     if args.verbose:
