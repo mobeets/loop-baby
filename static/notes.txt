@@ -2,6 +2,14 @@
 Recent notes
 --------------
 
+sudo cp static/looper.service /etc/systemd/system/looper.service
+sudo systemctl start looper.service
+sudo systemctl stop looper.service
+sudo systemctl enable looper.service
+sudo systemctl disable looper.service
+systemctl daemon-reload
+sudo journalctl -u looper.service
+sudo usermod -a -G audio pi
 
 --------------
 Parts

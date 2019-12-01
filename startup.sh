@@ -9,7 +9,7 @@ killall sooperlooper || echo "sooperlooper was not running."
 # /usr/bin/jackd -dalsa -r48000 -p1024 -n2 -D -Chw:Device,0 -Phw:Device &
 
 # wait for jack to start
-# sleep 5 # seconds
+sleep 5 # seconds
 
 # start sooperlooper
 sooperlooper -p 9951 -l 1 -c 2 -t 40 &
