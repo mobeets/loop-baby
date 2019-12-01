@@ -35,7 +35,7 @@ BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file
 
 META_COMMANDS = {
     'shutdown': { # shutdown the pi,
-        'command': [13, 9, 5, 1],
+        'command': [12, 0, 15, 3],
         'restart_looper': False,
         'callback': lambda: subprocess.Popen(['sudo', 'halt'])
     },
@@ -49,9 +49,4 @@ META_COMMANDS = {
         'restart_looper': True,
         'callback': lambda: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         },
-    'test': {
-    	'command': [12, 8, 13, 9],
-        'restart_looper': True,
-    	'callback': lambda: print('Testing!'),
-    },
 }

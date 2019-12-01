@@ -2,14 +2,6 @@
 Recent notes
 --------------
 
-sudo cp static/looper.service /etc/systemd/system/looper.service
-sudo systemctl start looper.service
-sudo systemctl stop looper.service
-sudo systemctl enable looper.service
-sudo systemctl disable looper.service
-systemctl daemon-reload
-sudo journalctl -u looper.service
-sudo usermod -a -G audio pi
 
 --------------
 Parts
@@ -309,3 +301,27 @@ Next steps:
 - Good guide for getting low-latency audio with Jack on Rasbian
 	- https://wiki.linuxaudio.org/wiki/raspberrypi#running_jack
 - https://journeytounknownsoundscapes.blogspot.com/2015/05/a-new-looper-in-town-raspberry-pi-with.html
+
+------------------------------------------------
+Making the looper start on boot with systemd
+------------------------------------------------
+
+To start jackd at boot, I had to do two things:
+- add `export DISPLAY=:0` to startup.sh
+- `sudo usermod -a -G audio pi`
+
+(It might have been only the first item that was necessary, but I did the second one as well.)
+
+To start looper.py you must use systemd. Basic procedure:s
+
+- sudo cp static/looper.service /etc/systemd/system/looper.service
+- sudo systemctl start looper.service
+- sudo systemctl stop looper.service
+- sudo systemctl enable looper.service
+
+When updating the service file:
+- sudo cp static/looper.service /etc/systemd/system/looper.service
+- systemctl daemon-reload
+
+To view logs:
+- sudo journalctl -u looper.service
