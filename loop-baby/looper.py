@@ -12,7 +12,7 @@ from actions import make_actions
 from osc import OscSooperLooper
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
-from button_settings import BUTTON_MAP, COLOR_MAP, META_COMMANDS
+from button_settings import COLOR_MAP, BUTTON_MAP, SETTINGS_MAP, META_COMMANDS
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -20,7 +20,8 @@ BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
 
 class Looper:
-    def __init__(self, sl_client, interface, button_map, meta_commands,
+    def __init__(self, sl_client, interface, button_map,
+        settings_map, meta_commands,
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
@@ -29,12 +30,12 @@ class Looper:
         self.interface = interface
         self.interface.set_callback(self.button_handler)
 
-        actions = make_actions(button_map, meta_commands,
-            self.sl_client, self.interface)
+        actions = make_actions(self.sl_client, self.interface, button_map, meta_commands, settings_map)
         self.button_map = button_map
         self.loops = actions['loops']
         self.mode_buttons = actions['modes']
         self.multipress = actions['multipress']
+        self.settings = actions['settings']
         self.session_manager = SLSessionManager(actions['sessions'],
             session_dir, self.sl_client)
 
@@ -93,9 +94,9 @@ class Looper:
         if found_match:
             return
         # process individual button press
-        self.process_button(button_name, event_type, self.event_id)
+        self.process_button(button_name, event.number, event_type, self.event_id)
 
-    def process_button(self, button_name, press_type, event_id):
+    def process_button(self, button_name, button_number, press_type, event_id):
         """
         handle a button press based on whether it's mode/track
         and press/release
@@ -110,7 +111,7 @@ class Looper:
 
             # now handle the button press
             if type(button_name) is int:
-                self.process_track_change(button_name, event_id)
+                self.process_track_change(button_name, button_number, event_id)
             else:
                 self.process_mode_change(button_name)
                 self.set_mode_colors_given_mode()
@@ -221,8 +222,11 @@ class Looper:
                     color = 'session_empty'
                 session.set_color(color)
         elif self.mode == 'settings':
-            for loop in self.loops:
-                loop.set_color('off')
+            for button in self.settings:
+                if button.is_set:
+                    button.set_color(button.param + '_' + button.name)
+                else:
+                    button.set_color('off')
 
     def pause(self):
         """
@@ -299,10 +303,8 @@ class Looper:
             for session in self.session_manager.sessions:
                 session.pressed_once = False
             self.session_manager.sync()
-        elif mode == 'settings':
-            print('   Settings mode not implemented yet.')
 
-    def process_track_change(self, track, event_id):
+    def process_track_change(self, track, button_number, event_id):
         """
         actions depend on what mode we're in
         we also set button color based on the mode
@@ -319,14 +321,20 @@ class Looper:
                 # must toggle again, since before it wouldn't have applied
                 self.loops[track-1].press()
 
-        if self.mode not in ['save', 'recall', 'settings']:
+        if self.mode in ['save', 'recall']:
+            session = self.session_manager.sessions[track-1]
+            loop = None
+            setting = None
+        elif self.mode == 'settings':
+            loop = None
+            session = None
+            setting = self.settings[button_number]
+        else:
             loop = self.loops[track-1]
             if not self.loops[track-1].is_enabled:
                 loop = None
             session = None
-        else:
-            session = self.session_manager.sessions[track-1]
-            loop = None
+            setting = None
 
         if self.mode == 'oneshot':
             # warning: once you hit this once, this loop will forever
@@ -398,7 +406,12 @@ class Looper:
                 print('   Saved session does not exist at track {}'.format(track))
 
         elif self.mode == 'settings':
-            print('   Settings track not implemented yet.')
+            # unset all settings buttons with the same param
+            for s in self.settings:
+                if s.param == setting.param:
+                    s.unset()
+            # now we set the one we pressed
+            setting.set()
 
     def recall_session(self, session):
         """
@@ -469,6 +482,7 @@ def main(args):
     looper = Looper(sl_client=sl_client,
         interface=interface,
         button_map=BUTTON_MAP,
+        settings_map=SETTINGS_MAP,
         meta_commands=META_COMMANDS,
         session_dir=args.session_dir,
         verbose=args.verbose)

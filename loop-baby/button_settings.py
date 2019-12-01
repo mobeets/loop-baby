@@ -7,6 +7,11 @@ BUTTON_MAP = { # arranged as installed
 	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'clear',
 	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute'}
 
+SETTINGS_MAP = {
+	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2), 4: None, 0: None,
+	13: ('sync_source', 'midi', -2), 9: ('sync_source', 'none', 0), 5: None, 1: None,
+}
+
 COLOR_MAP = {
     None: 'gray',
     'track': 'gray',
@@ -29,6 +34,10 @@ COLOR_MAP = {
     'track_exists': 'darkgray',
     'session_exists': 'pink',
     'session_empty': 'darkgray',
+    'sync_source_track_1': 'track',
+    'sync_source_track_2': 'track',
+    'sync_source_midi': 'salmon',
+    'sync_source_none': 'darkgray',
     }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))

@@ -1,16 +1,25 @@
 import time
 
-def make_actions(button_map, meta_commands, sl_client, interface):
+def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
+
+    # make loops, sessions, and modes
     ntracks = len([x for x in button_map.values() if type(x) is int])
     actions = {'loops': [None]*ntracks, 'sessions': [None]*ntracks, 'modes': []}
     for button_number, name in button_map.items():
         if type(name) is int:
-            actions['loops'][name-1] = Loop(name-1, button_number, interface, sl_client, )
+            actions['loops'][name-1] = Loop(name-1, button_number, interface, sl_client)
             actions['sessions'][name-1] = SessionButton(name-1, button_number, interface)
         else:
             actions['modes'].append(Button(name, button_number, interface))
+
+    # make settings
+    actions['settings'] = []
+    for button_number, (param, name, value) in settings_map.items()
+        actions['settings'].append(SettingsButton(param, name, value, button_number, interface, sl_client))
+
     actions['button_map'] = button_map
     actions['multipress'] = MultiPress(meta_commands)
+
     return actions
 
 class Button:
@@ -30,6 +39,25 @@ class SessionButton(Button):
     def __init__(self, name, button_number, interface):
         super().__init__(name, button_number, interface)
         self.pressed_once = False
+
+class SettingsButton(Button):
+    def __init__(self, param, name, value, button_number, interface, sl_client):
+        super().__init__(name, button_number, interface)
+        self.param = param
+        self.value = value
+        self.sl_client = sl_client
+        self.is_set = False
+
+    def set(self, value):
+        if self.param is None:
+            return
+        self.is_set = True
+        self.sl_client.hit('set', self.param, self.value)
+
+    def unset(self):
+        if self.param is None:
+            return
+        self.is_set = False
 
 class Loop(Button):
     def __init__(self, track, button_number, interface, sl_client):
