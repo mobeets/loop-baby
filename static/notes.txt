@@ -325,3 +325,26 @@ When updating the service file:
 
 To view logs:
 - sudo journalctl -u looper.service
+
+----------------
+Midi sync notes
+----------------
+
+Hardware:
+- note that the Roland keyboard does NOT output midi clock, at least how it's currently set-up; I had to take the midi out from the TR-8
+
+Jack:
+- in qjackctl, I connected the midi from my usb into sooperlooper
+	- ALSA: "16:USB Midi > 0:USB Midi MIDI 1" => "129:sooperlooper > 0:sooperlooper"
+	- these ports don't show up in 'jack_lsp -c' so it might be a separate thing to make this link programmatically
+
+Sooperlooper (SL):
+- set "sync_source" to "Midi"; you'll know it's working because in the GUI the 'tap' button should blink and the bpm should update
+- pretty sure that if 'quantize' isn't on, the sync option does nothing
+	- need to figure out how to set this using OSC...
+	- I think I want this set to "8th"
+	- but actually, if you set "8th/cycle" to "8", and quantize to "cycle", then it will sync to every measure
+- on each track, you need to set "sync" for it to quantize operations like record, overdub, trigger, etc.
+- I do NOT want "play sync" I don't think, even though it sounded like a good idea in text. in practice it seemed to make things way worse.
+- more info here: http://essej.net/sooperlooper/doc_sync.html
+
