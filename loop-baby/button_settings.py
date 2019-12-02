@@ -36,8 +36,8 @@ COLOR_MAP = {
     'track_exists': 'darkgray',
     'session_exists': 'pink',
     'session_empty': 'darkgray',
-    'sync_source_track_1': 'track',
-    'sync_source_track_2': 'track',
+    'sync_source_track_1': 'gray',
+    'sync_source_track_2': 'gray',
     'sync_source_midi': 'salmon',
     'sync_source_none': 'darkgray',
     }
