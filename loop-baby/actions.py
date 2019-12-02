@@ -2,7 +2,7 @@ import time
 
 def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
 
-    # make loops, sessions, and modes
+    # make modes, loops, and sessions (the latter are indexed by track number)
     ntracks = len([x for x in button_map.values() if type(x) is int])
     actions = {'loops': [None]*ntracks, 'sessions': [None]*ntracks, 'modes': []}
     for button_number, name in button_map.items():
@@ -14,7 +14,7 @@ def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
 
     # make settings
     actions['settings'] = []
-    for button_number, (param, name, value) in settings_map.items()
+    for button_number, (param, name, value) in settings_map.items():
         actions['settings'].append(SettingsButton(param, name, value, button_number, interface, sl_client))
 
     actions['button_map'] = button_map
@@ -48,11 +48,11 @@ class SettingsButton(Button):
         self.sl_client = sl_client
         self.is_set = False
 
-    def set(self, value):
+    def set(self):
         if self.param is None:
             return
         self.is_set = True
-        self.sl_client.hit('set', self.param, self.value)
+        self.sl_client.set(self.param, self.value)
 
     def unset(self):
         if self.param is None:

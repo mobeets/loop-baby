@@ -328,7 +328,7 @@ class Looper:
         elif self.mode == 'settings':
             loop = None
             session = None
-            setting = self.settings[button_number]
+            setting = next(s for s in self.settings if s.button_number == button_number)
         else:
             loop = self.loops[track-1]
             if not self.loops[track-1].is_enabled:

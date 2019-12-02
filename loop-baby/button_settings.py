@@ -8,8 +8,10 @@ BUTTON_MAP = { # arranged as installed
 	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute'}
 
 SETTINGS_MAP = {
-	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2), 4: None, 0: None,
-	13: ('sync_source', 'midi', -2), 9: ('sync_source', 'none', 0), 5: None, 1: None,
+	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2),
+		4: [None]*3, 0: [None]*3,
+	13: ('sync_source', 'midi', -2), 9: ('sync_source', 'none', 0),
+		5: [None]*3, 1: [None]*3,
 }
 
 COLOR_MAP = {
