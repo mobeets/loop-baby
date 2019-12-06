@@ -76,7 +76,18 @@ class OscSooperLooper(OscBase):
             7: 'inserting', 8: 'replacing', 9: 'delay',
             10: 'muted', 11: 'scratching', 12: 'oneshot',
             13: 'substitute', 14: 'paused', -1: 'unknown'}
-        self.params = ['sync_source', 'selected_loop_num', 'state']
+        self.global_params = ['dry', 'wet', 'input_gain', 'sync_source',
+            'tap_tempo', 'save_loop', 'auto_disable_latency',
+            'select_next_loop', 'select_prev_loop', 'select_all_loops',
+            'selected_loop_num']
+        self.track_params = ['rec_thresh', 'feedback', 'dry', 'wet',
+            'input_gain', 'rate', 'scratch_pos', 'delay_trigger', 'quantize',
+            'round', 'redo_is_tap', 'sync', 'playback_sync', 'use_rate',
+            'fade_samples', 'use_feedback_play', 'use_common_ins',
+            'use_common_outs', 'relative_sync', 'use_safety_feedback',
+            'pan_1', 'pan_2', 'pan_3', 'pan_4', 'input_latency',
+            'output_latency', 'trigger_latency', 'autoset_latency',
+            'mute_quantized']
         self.state = 'off'
         self.verbose = False
 
@@ -116,7 +127,6 @@ class OscSooperLooper(OscBase):
           the arguments:
               i:loop_index  s:control  f:value
         """
-        # assert param.lower() in self.params
         if loop is None:
             msg = oscbuildparse.OSCMessage("/get",
                 None, [param, self.return_url, "/get"])
@@ -131,8 +141,7 @@ class OscSooperLooper(OscBase):
         /set  s:param  f:value
         sync_source: [-3 = internal, -2 = midi, -1 = jack, 0 = none, # > 0 = loop number (1 indexed)]
         """
-        assert param.lower() in self.params
-        if param == 'sync_source':
+        if param in 'sync_source':
             assert value >= -3 and value <= MAX_LOOP_COUNT
         if param == 'selected_loop_num':
             assert value >= 0 and value <= MAX_LOOP_COUNT-1

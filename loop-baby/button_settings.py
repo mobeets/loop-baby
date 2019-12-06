@@ -9,9 +9,9 @@ BUTTON_MAP = { # arranged as installed
 
 SETTINGS_MAP = {
 	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2),
-		4: [None]*3, 0: [None]*3,
-	13: ('sync_source', 'midi', -2), 9: ('sync_source', 'none', 0),
-		5: [None]*3, 1: [None]*3,
+		4: ('sync_source', 'midi', -2), 0: ('sync_source', 'none', 0),
+	13: ('quantize', 'off', 0), 9: ('quantize', 'cycle', 1),
+		5: ('quantize', '8th', 2), 1: ('quantize', 'loop', 3),
 }
 
 COLOR_MAP = {

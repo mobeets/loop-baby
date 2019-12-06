@@ -48,11 +48,23 @@ class SettingsButton(Button):
         self.sl_client = sl_client
         self.is_set = False
 
-    def set(self):
+    def set(self, loops):
         if self.param is None:
             return
         self.is_set = True
-        self.sl_client.set(self.param, self.value)
+        if self.param == 'quantize':
+            for loop in loops:
+                loop.quantize(self.value)
+        elif self.param in ['sync_source']:
+            self.sl_client.set(self.param, self.value)
+            # we must also turn sync on for each track
+            for loop in loops:
+                if self.name == 'none':
+                    loop.sync_off()
+                else:
+                    loop.sync_on()
+        else:
+            self.sl_client.set(self.param, self.value)
 
     def unset(self):
         if self.param is None:
@@ -77,7 +89,8 @@ class Loop(Button):
         self.stopped_record_id = None
         self.pressed_once = False
         self.has_had_something_recorded = False
-        self.sync_on = False
+        self.sync_is_on = False
+        self.quantize_value = 0
 
     def enable(self):
         self.is_enabled = True
@@ -149,12 +162,16 @@ class Loop(Button):
         self.has_had_something_recorded = False
 
     def sync_on(self):
-        self.sl_client.set('sync', 1, self.track+1)
-        self.sync_on = True
+        self.sl_client.set('sync', 1, self.track)
+        self.sync_is_on = True
 
     def sync_off(self):
-        self.sl_client.set('sync', 0, self.track+1)
-        self.sync_off = False
+        self.sl_client.set('sync', 0, self.track)
+        self.sync_is_on = False
+
+    def quantize(self, value):
+        self.sl_client.set('quantize', value, self.track)
+        self.quantize_value = value
 
     def oneshot(self):
         # reset_sync_pos so that it always plays from the top
