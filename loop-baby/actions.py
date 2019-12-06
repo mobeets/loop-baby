@@ -77,6 +77,7 @@ class Loop(Button):
         self.stopped_record_id = None
         self.pressed_once = False
         self.has_had_something_recorded = False
+        self.sync_on = False
 
     def enable(self):
         self.is_enabled = True
@@ -146,6 +147,14 @@ class Loop(Button):
             return
         self.sl_client.hit('undo_all', self.track)
         self.has_had_something_recorded = False
+
+    def sync_on(self):
+        self.sl_client.set('sync', 1, self.track+1)
+        self.sync_on = True
+
+    def sync_off(self):
+        self.sl_client.set('sync', 0, self.track+1)
+        self.sync_off = False
 
     def oneshot(self):
         # reset_sync_pos so that it always plays from the top

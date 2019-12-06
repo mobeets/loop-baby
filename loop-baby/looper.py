@@ -412,6 +412,13 @@ class Looper:
                     s.unset()
             # now we set the one we pressed
             setting.set()
+            # if setting sync_source, we must also set sync on each track
+            if setting.param == 'sync_source':
+                for loop in self.loops:
+                    if setting.name == 'none':
+                        loop.sync_off()
+                    else:
+                        loop.sync_on()
 
     def recall_session(self, session):
         """
