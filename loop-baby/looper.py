@@ -429,11 +429,6 @@ class Looper:
     def initialize_settings(self):
         for button in self.settings:
             button.init(self.loops)
-            # if button.param in self.init_settings:
-            #     if button.name == self.init_settings[button.param]:
-            #         button.set(self.loops)
-            #     else:
-            #         button.unset()
 
     def init_looper(self):
         # load empty session
@@ -442,8 +437,8 @@ class Looper:
         self.is_playing = True
         self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
-        self.set_mode_colors_given_mode()
         self.initialize_settings()
+        self.set_mode_colors_given_mode()
         if self.verbose:
             print('Looper on!')
         

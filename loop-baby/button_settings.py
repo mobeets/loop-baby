@@ -20,7 +20,6 @@ SETTINGS_MAP = {
 	8: {'param': 'quantize',
 		'options': [('off', 0), ('cycle', 1), ('8th', 2), ('loop', 3)]}
 }
-# INIT_SETTINGS = {'sync_source': 'none', 'quantize': 'off'}
 
 COLOR_MAP = {
     None: 'gray',
@@ -45,13 +44,13 @@ COLOR_MAP = {
     'session_exists': 'pink',
     'session_empty': 'darkgray',
     'sync_source_none': 'off',
-    'sync_source_track_1': 'gray',
-    'sync_source_track_2': 'gray',
+    'sync_source_track_1': 'red',
+    'sync_source_track_2': 'orange',
     'sync_source_midi': 'salmon',
     'quantize_off': 'off',
-    'quantize_cycle': 'gray',
-    'quantize_8th': 'salmon',
-    'quantize_loop': 'darkgray',
+    'quantize_cycle': 'red',
+    'quantize_8th': 'orange',
+    'quantize_loop': 'salmon',
     }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
