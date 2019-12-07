@@ -7,18 +7,12 @@ BUTTON_MAP = { # arranged as installed
 	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'clear',
 	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute'}
 
-SETTINGS_MAP = { # button_number: (param, name, value)
-	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2),
-		4: ('sync_source', 'midi', -2), 0: ('sync_source', 'none', 0),
-	13: ('quantize', 'off', 0), 9: ('quantize', 'cycle', 1),
-		5: ('quantize', '8th', 2), 1: ('quantize', 'loop', 3),
-}
-
 SETTINGS_MAP = {
 	12: {'param': 'sync_source',
 		'options': [('none', 0), ('track_1', 1), ('track_2', 2), ('midi', -2)]},
 	8: {'param': 'quantize',
-		'options': [('off', 0), ('cycle', 1), ('8th', 2), ('loop', 3)]}
+		'options': [('off', 0), ('cycle_4', 1), ('cycle_8', 1), ('cycle_16', 1),
+			('8th', 2), ('loop', 3)]}
 }
 
 COLOR_MAP = {
@@ -46,11 +40,13 @@ COLOR_MAP = {
     'sync_source_none': 'off',
     'sync_source_track_1': 'red',
     'sync_source_track_2': 'orange',
-    'sync_source_midi': 'salmon',
+    'sync_source_midi': 'yellow',
     'quantize_off': 'off',
-    'quantize_cycle': 'red',
-    'quantize_8th': 'orange',
-    'quantize_loop': 'salmon',
+    'quantize_8th': 'red',
+    'quantize_cycle_4': 'orange',
+    'quantize_cycle_8': 'yellow',
+    'quantize_cycle_16': 'green',
+    'quantize_loop': 'blue',
     }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
@@ -70,5 +66,10 @@ META_COMMANDS = {
         'command': [15, 11, 7, 3],
         'restart_looper': True,
         'callback': lambda: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+        },
+   'light_show': {
+        'command': [15, 11, 14, 10],
+        'restart_looper': False,
+        'callback': lambda: None,
         },
 }

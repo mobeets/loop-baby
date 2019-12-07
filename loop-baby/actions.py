@@ -79,9 +79,9 @@ class SettingsButton(Button):
             # this is currently just a single default
             # the plan is to eventually have a 'quantize_x' setting
             # where x == 4, 8, 16, or whatever you want
-            if self.option[0] == 'cycle':
-                eighth_per_cycle = 16
-                self.sl_client.set('eighth_per_cycle', eighth_per_cycle)
+            if 'cycle_' in self.option[0]:
+                eighth_per_cycle = self.option[0].split('cycle_')[1]
+                self.sl_client.set('eighth_per_cycle', int(eighth_per_cycle))
         elif self.param in ['sync_source']:
             self.sl_client.set(self.param, self.option[1])
             # we must also turn sync on for each track

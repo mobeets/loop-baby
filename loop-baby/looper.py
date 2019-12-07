@@ -403,13 +403,7 @@ class Looper:
                 print('   Saved session does not exist at track {}'.format(track))
 
         elif self.mode == 'settings':
-            # unset all settings buttons with the same param
             setting.press(self.loops)
-            # for s in self.settings:
-            #     if s.param == setting.param:
-            #         s.unset()
-            # # now we set the one we pressed
-            # setting.set(self.loops)
 
     def recall_session(self, session):
         """

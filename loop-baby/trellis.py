@@ -82,10 +82,16 @@ class Trellis:
             self.trellis.pixels[i] = self.colors['off']
             time.sleep(.03)
 
+    def light_show(self):
+        button_indices = list(range(self.nbuttons))
+        random.shuffle(button_indices)
+        for i in button_indices:
+            self.trellis.pixels[i] = random_color()
+
     def set_color_all_buttons(self, color):
         for i in range(self.nbuttons):
             self.set_color(i, color)
-    
+
     def set_color(self, index, color):
         if color in self.color_map:
             color = self.color_map[color]
