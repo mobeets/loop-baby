@@ -12,7 +12,7 @@ from actions import make_actions
 from osc import OscSooperLooper
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
-from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, INIT_SETTINGS
+from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -21,7 +21,7 @@ BUTTON_RELEASED = 2
 
 class Looper:
     def __init__(self, sl_client, interface, button_map,
-        meta_commands, settings_map, init_settings,
+        meta_commands, settings_map,
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
@@ -36,7 +36,6 @@ class Looper:
         self.mode_buttons = actions['modes']
         self.multipress = actions['multipress']
         self.settings = actions['settings']
-        self.init_settings = init_settings
         self.session_manager = SLSessionManager(actions['sessions'],
             session_dir, self.sl_client)
 
@@ -224,10 +223,7 @@ class Looper:
                 session.set_color(color)
         elif self.mode == 'settings':
             for button in self.settings:
-                if button.is_set:
-                    button.set_color(button.param + '_' + button.name)
-                else:
-                    button.set_color('off')
+                button.set_color(button.param + '_' + button.option[0])
 
     def pause(self):
         """
@@ -408,11 +404,12 @@ class Looper:
 
         elif self.mode == 'settings':
             # unset all settings buttons with the same param
-            for s in self.settings:
-                if s.param == setting.param:
-                    s.unset()
-            # now we set the one we pressed
-            setting.set(self.loops)
+            setting.press(self.loops)
+            # for s in self.settings:
+            #     if s.param == setting.param:
+            #         s.unset()
+            # # now we set the one we pressed
+            # setting.set(self.loops)
 
     def recall_session(self, session):
         """
@@ -431,11 +428,12 @@ class Looper:
 
     def initialize_settings(self):
         for button in self.settings:
-            if button.param in self.init_settings:
-                if button.name == self.init_settings[button.param]:
-                    button.set(self.loops)
-                else:
-                    button.unset()
+            button.init(self.loops)
+            # if button.param in self.init_settings:
+            #     if button.name == self.init_settings[button.param]:
+            #         button.set(self.loops)
+            #     else:
+            #         button.unset()
 
     def init_looper(self):
         # load empty session
@@ -494,7 +492,6 @@ def main(args):
         button_map=BUTTON_MAP,
         meta_commands=META_COMMANDS,
         settings_map=SETTINGS_MAP,
-        init_settings=INIT_SETTINGS,
         session_dir=args.session_dir,
         verbose=args.verbose)
     try:

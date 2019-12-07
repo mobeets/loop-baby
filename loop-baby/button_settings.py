@@ -14,7 +14,13 @@ SETTINGS_MAP = { # button_number: (param, name, value)
 		5: ('quantize', '8th', 2), 1: ('quantize', 'loop', 3),
 }
 
-INIT_SETTINGS = {'sync_source': 'none', 'quantize': 'off'}
+SETTINGS_MAP = {
+	12: {'param': 'sync_source',
+		'options': [('none', 0), ('track_1', 1), ('track_2', 2), ('midi', -2)]},
+	8: {'param': 'quantize',
+		'options': [('off', 0), ('cycle', 1), ('8th', 2), ('loop', 3)]}
+}
+# INIT_SETTINGS = {'sync_source': 'none', 'quantize': 'off'}
 
 COLOR_MAP = {
     None: 'gray',
@@ -38,11 +44,11 @@ COLOR_MAP = {
     'track_exists': 'darkgray',
     'session_exists': 'pink',
     'session_empty': 'darkgray',
+    'sync_source_none': 'off',
     'sync_source_track_1': 'gray',
     'sync_source_track_2': 'gray',
     'sync_source_midi': 'salmon',
-    'sync_source_none': 'darkgray',
-    'quantize_off': 'gray',
+    'quantize_off': 'off',
     'quantize_cycle': 'gray',
     'quantize_8th': 'salmon',
     'quantize_loop': 'darkgray',

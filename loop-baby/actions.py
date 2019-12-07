@@ -14,8 +14,11 @@ def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
 
     # make settings
     actions['settings'] = []
-    for button_number, (param, name, value) in settings_map.items():
-        actions['settings'].append(SettingsButton(param, name, value, button_number, interface, sl_client))
+    for button_number, setting in settings_map.items():
+        actions['settings'].append(SettingsButton(setting['param'], button_number, setting['options'], interface, sl_client))        
+
+    # for button_number, (param, name, value) in settings_map.items():
+    #     actions['settings'].append(SettingsButton(param, name, value, button_number, interface, sl_client))
 
     actions['button_map'] = button_map
     actions['multipress'] = MultiPress(meta_commands)
@@ -41,41 +44,94 @@ class SessionButton(Button):
         self.pressed_once = False
 
 class SettingsButton(Button):
-    def __init__(self, param, name, value, button_number, interface, sl_client):
-        super().__init__(name, button_number, interface)
+    def __init__(self, param, button_number, options, interface, sl_client):
+        super().__init__(param, button_number, interface)
         self.param = param
-        self.value = value
+        self.options = options
+        self.noptions = len(options)
         self.sl_client = sl_client
-        self.is_set = False
 
-    def set(self, loops):
+    def init(self, loops):
         if self.param is None:
             return
-        self.is_set = True
+        self.current_index = 0
+        self.is_set = [False]*self.noptions
+        self.is_set[self.current_index] = True
+        self.option = self.options[self.current_index]
+        self.set_option(loops)
+
+    def press(self, loops):
+        """
+        pressing button moves us to the next option in the list
+        """
+        if self.param is None:
+            return
+        self.current_index = (self.current_index + 1) % self.noptions
+        self.is_set = [False]*self.noptions
+        self.is_set[self.current_index] = True
+        self.option = self.options[self.current_index]
+        self.set_option(loops)
+
+    def set_option(self, loops):
+        """
+        send new setting to SL
+        """
         if self.param == 'quantize':
             for loop in loops:
-                loop.quantize(self.value)
+                loop.quantize(self.option[1])
             # this is currently just a single default
             # the plan is to eventually have a 'quantize_x' setting
             # where x == 4, 8, 16, or whatever you want
-            if self.name == 'cycle':
+            if self.option[0] == 'cycle':
                 eighth_per_cycle = 16
                 self.sl_client.set('eighth_per_cycle', eighth_per_cycle)
         elif self.param in ['sync_source']:
-            self.sl_client.set(self.param, self.value)
+            self.sl_client.set(self.param, self.option[1])
             # we must also turn sync on for each track
             for loop in loops:
-                if self.name == 'none':
+                if self.option[0] == 'none':
                     loop.sync_off()
                 else:
                     loop.sync_on()
         else:
             self.sl_client.set(self.param, self.value)
 
-    def unset(self):
-        if self.param is None:
-            return
-        self.is_set = False
+# class SettingsButton(Button):
+#     def __init__(self, param, name, value, button_number, interface, sl_client):
+#         super().__init__(name, button_number, interface)
+#         self.param = param
+#         self.value = value
+#         self.sl_client = sl_client
+#         self.is_set = False
+
+#     def set(self, loops):
+#         if self.param is None:
+#             return
+#         self.is_set = True
+#         if self.param == 'quantize':
+#             for loop in loops:
+#                 loop.quantize(self.value)
+#             # this is currently just a single default
+#             # the plan is to eventually have a 'quantize_x' setting
+#             # where x == 4, 8, 16, or whatever you want
+#             if self.name == 'cycle':
+#                 eighth_per_cycle = 16
+#                 self.sl_client.set('eighth_per_cycle', eighth_per_cycle)
+#         elif self.param in ['sync_source']:
+#             self.sl_client.set(self.param, self.value)
+#             # we must also turn sync on for each track
+#             for loop in loops:
+#                 if self.name == 'none':
+#                     loop.sync_off()
+#                 else:
+#                     loop.sync_on()
+#         else:
+#             self.sl_client.set(self.param, self.value)
+
+#     def unset(self):
+#         if self.param is None:
+#             return
+#         self.is_set = False
 
 class Loop(Button):
     def __init__(self, track, button_number, interface, sl_client):
