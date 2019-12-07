@@ -42,6 +42,10 @@ COLOR_MAP = {
     'sync_source_track_2': 'gray',
     'sync_source_midi': 'salmon',
     'sync_source_none': 'darkgray',
+    'quantize_off': 'gray',
+    'quantize_cycle': 'gray',
+    'quantize_8th': 'salmon',
+    'quantize_loop': 'darkgray',
     }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
