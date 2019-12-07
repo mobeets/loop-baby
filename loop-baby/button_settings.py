@@ -11,8 +11,8 @@ SETTINGS_MAP = {
 	12: {'param': 'sync_source',
 		'options': [('none', 0), ('track_1', 1), ('track_2', 2), ('midi', -2)]},
 	8: {'param': 'quantize',
-		'options': [('off', 0), ('cycle_4', 1), ('cycle_8', 1), ('cycle_16', 1),
-			('8th', 2), ('loop', 3)]}
+		'options': [('off', 0), ('8th', 2), ('cycle_4', 1), ('cycle_8', 1),
+			('cycle_16', 1), ('loop', 3)]}
 }
 
 COLOR_MAP = {
@@ -55,21 +55,21 @@ META_COMMANDS = {
     'shutdown': { # shutdown the pi,
         'command': [12, 0, 15, 3],
         'restart_looper': False,
-        'callback': lambda: subprocess.Popen(['sudo', 'halt'])
+        'callback': lambda looper: subprocess.Popen(['sudo', 'halt'])
     },
 	'hard_restart': { # restart the pi,
         'command': [14, 10, 6, 2],
         'restart_looper': False,
-        'callback': lambda: subprocess.Popen(['sudo', 'reboot'])        
+        'callback': lambda looper: subprocess.Popen(['sudo', 'reboot'])        
     },
 	'soft_restart': { # calls ./startup.sh
         'command': [15, 11, 7, 3],
         'restart_looper': True,
-        'callback': lambda: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+        'callback': lambda looper: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         },
    'light_show': {
         'command': [15, 11, 14, 10],
         'restart_looper': False,
-        'callback': lambda: None,
+        'callback': lambda looper: looper.lightshow(),
         },
 }

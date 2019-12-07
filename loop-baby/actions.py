@@ -284,6 +284,7 @@ class MultiPress:
         for name, item in self.commands.items():
             if buttons_pressed.issuperset(item['command']):
                 found_match = True
+                print('MULTIPRESS COMMAND FOUND: {}'.format(name))
                 # call the callback for this command
                 looper.interface.set_color_all_buttons('off')
                 looper.interface.sync()

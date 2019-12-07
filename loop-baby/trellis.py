@@ -55,9 +55,9 @@ class Trellis:
         # callback for when buttons are pressed
         self.button_handler = fcn
         # set handlers for button press
-        self.activate(self.startup_color)
+        self.activate(self.startup_color, lightshow=True)
 
-    def activate(self, startup_color=None):
+    def activate(self, startup_color=None, lightshow=False):
         if self.button_handler is None:
             print("Error: callback must be set using 'set_callback'")
 
@@ -69,6 +69,8 @@ class Trellis:
             # set all keys to trigger the blink callback
             self.trellis.callbacks[i] = self.button_handler
 
+            if not lightshow:
+                continue
             #cycle the LEDs on startup
             if startup_color is not None:
                 if startup_color == 'random':
@@ -80,13 +82,27 @@ class Trellis:
 
         for i in range(self.nbuttons):
             self.trellis.pixels[i] = self.colors['off']
-            time.sleep(.03)
+            if lightshow:
+                time.sleep(.03)
 
-    def light_show(self):
-        button_indices = list(range(self.nbuttons))
-        random.shuffle(button_indices)
-        for i in button_indices:
-            self.trellis.pixels[i] = random_color()
+    def end_lightshow(self):
+        # reset callbacks and turn lights off
+        self.activate()
+
+    def lightshow(self):
+        # first, set callback to interrupt the show
+        for i in range(self.nbuttons):
+            self.trellis.callbacks[i] = self.end_lightshow
+        # now pick buttons and flash lights on/off in random order
+        for j in range(10):
+            button_indices = list(range(self.nbuttons))
+            random.shuffle(button_indices)
+            for i in button_indices:
+                self.trellis.pixels[i] = random_color()
+                time.sleep(.03)
+            self.sync()
+            time.sleep(.02)
+        self.end_lightshow()
 
     def set_color_all_buttons(self, color):
         for i in range(self.nbuttons):

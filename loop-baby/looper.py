@@ -435,6 +435,13 @@ class Looper:
         self.set_mode_colors_given_mode()
         if self.verbose:
             print('Looper on!')
+
+    def lightshow(self):
+        try:
+            self.interface.lightshow()
+        except KeyboardInterrupt:
+            # Properly close the system.
+            self.terminate()
         
     def start(self):
         self.init_looper()
