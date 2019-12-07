@@ -439,6 +439,7 @@ class Looper:
     def lightshow(self):
         try:
             self.interface.lightshow()
+            self.init_looper()
         except KeyboardInterrupt:
             # Properly close the system.
             self.terminate()

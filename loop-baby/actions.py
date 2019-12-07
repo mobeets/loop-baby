@@ -288,7 +288,7 @@ class MultiPress:
                 # call the callback for this command
                 looper.interface.set_color_all_buttons('off')
                 looper.interface.sync()
-                item['callback']()
+                item['callback'](looper)
                 if item['restart_looper']:
                     # todo: color all keys red
                     for j in range(self.nseconds_restart_delay):
