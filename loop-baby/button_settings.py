@@ -14,6 +14,8 @@ SETTINGS_MAP = {
 		5: ('quantize', '8th', 2), 1: ('quantize', 'loop', 3),
 }
 
+INIT_SETTINGS = {'sync_source': 'none', 'quantize': 'off'}
+
 COLOR_MAP = {
     None: 'gray',
     'track': 'gray',

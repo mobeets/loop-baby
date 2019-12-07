@@ -12,7 +12,7 @@ from actions import make_actions
 from osc import OscSooperLooper
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
-from button_settings import COLOR_MAP, BUTTON_MAP, SETTINGS_MAP, META_COMMANDS
+from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, INIT_SETTINGS
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -21,7 +21,7 @@ BUTTON_RELEASED = 2
 
 class Looper:
     def __init__(self, sl_client, interface, button_map,
-        settings_map, meta_commands,
+        meta_commands, settings_map, init_settings,
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
@@ -36,6 +36,7 @@ class Looper:
         self.mode_buttons = actions['modes']
         self.multipress = actions['multipress']
         self.settings = actions['settings']
+        self.init_settings = init_settings
         self.session_manager = SLSessionManager(actions['sessions'],
             session_dir, self.sl_client)
 
@@ -428,6 +429,14 @@ class Looper:
         for i,loop in enumerate(self.loops):
             loop.has_had_something_recorded = has_audio[i]
 
+    def initialize_settings(self):
+        for button in self.settings:
+            if button.param in self.init_settings:
+                if button.name == self.init_settings[button.param]:
+                    button.set(self.loops)
+                else:
+                    button.unset()
+
     def init_looper(self):
         # load empty session
         self.init_loops()
@@ -436,6 +445,7 @@ class Looper:
         self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
         self.set_mode_colors_given_mode()
+        self.initialize_settings()
         if self.verbose:
             print('Looper on!')
         
@@ -482,8 +492,9 @@ def main(args):
     looper = Looper(sl_client=sl_client,
         interface=interface,
         button_map=BUTTON_MAP,
-        settings_map=SETTINGS_MAP,
         meta_commands=META_COMMANDS,
+        settings_map=SETTINGS_MAP,
+        init_settings=INIT_SETTINGS,
         session_dir=args.session_dir,
         verbose=args.verbose)
     try:
