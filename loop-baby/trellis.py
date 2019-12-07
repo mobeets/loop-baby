@@ -97,15 +97,15 @@ class Trellis:
         for i in range(self.nbuttons):
             self.trellis.callbacks[i] = self.end_lightshow
         # now pick buttons and flash lights on/off in random order
-        for j in range(10):
+        while True:
             button_indices = list(range(self.nbuttons))
             random.shuffle(button_indices)
             for i in button_indices:
                 self.trellis.pixels[i] = random_color()
-                time.sleep(.03)
+                time.sleep(.07)
             for i in button_indices:
                 self.trellis.pixels[i] = self.colors['off']
-                time.sleep(.03)
+                time.sleep(.07)
             self.sync()
             time.sleep(.02)
             if not self.lightshow_on:
