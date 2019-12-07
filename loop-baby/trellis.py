@@ -87,7 +87,8 @@ class Trellis:
 
     def end_lightshow(self, *args):
         # reset callbacks and turn lights off
-        self.activate()
+        if event.edge == BUTTON_PRESSED:
+            self.activate()
 
     def lightshow(self):
         # first, set callback to interrupt the show

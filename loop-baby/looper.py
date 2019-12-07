@@ -74,6 +74,10 @@ class Looper:
         """
         this gets called when a Trellis button is pressed
         """
+        if self.mode == 'lightshow':
+            self.init_looper()
+            return
+        
         self.event_id += 1
         button_name = self.button_map[event.number]
 
@@ -438,6 +442,7 @@ class Looper:
 
     def lightshow(self):
         try:
+            self.mode = 'lightshow'
             self.interface.lightshow()
             self.init_looper()
         except KeyboardInterrupt:
