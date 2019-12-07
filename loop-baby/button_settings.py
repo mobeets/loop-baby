@@ -7,7 +7,7 @@ BUTTON_MAP = { # arranged as installed
 	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'clear',
 	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute'}
 
-SETTINGS_MAP = {
+SETTINGS_MAP = { # button_number: (param, name, value)
 	12: ('sync_source', 'track_1', 1), 8: ('sync_source', 'track_2', 2),
 		4: ('sync_source', 'midi', -2), 0: ('sync_source', 'none', 0),
 	13: ('quantize', 'off', 0), 9: ('quantize', 'cycle', 1),

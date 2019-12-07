@@ -55,6 +55,12 @@ class SettingsButton(Button):
         if self.param == 'quantize':
             for loop in loops:
                 loop.quantize(self.value)
+            # this is currently just a single default
+            # the plan is to eventually have a 'quantize_x' setting
+            # where x == 4, 8, 16, or whatever you want
+            if self.name == 'cycle':
+                eighth_per_cycle = 16
+                self.sl_client.set('eighth_per_cycle', eighth_per_cycle)
         elif self.param in ['sync_source']:
             self.sl_client.set(self.param, self.value)
             # we must also turn sync on for each track
