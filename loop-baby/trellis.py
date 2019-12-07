@@ -89,8 +89,10 @@ class Trellis:
         # reset callbacks and turn lights off
         if event is None or event.edge == BUTTON_PRESSED:
             self.activate()
+            self.lightshow_on = False
 
     def lightshow(self):
+        self.lightshow_on = True
         # first, set callback to interrupt the show
         for i in range(self.nbuttons):
             self.trellis.callbacks[i] = self.end_lightshow
@@ -101,9 +103,13 @@ class Trellis:
             for i in button_indices:
                 self.trellis.pixels[i] = random_color()
                 time.sleep(.03)
+            for i in button_indices:
+                self.trellis.pixels[i] = self.colors['off']
+                time.sleep(.03)
             self.sync()
             time.sleep(.02)
-        self.end_lightshow()
+            if not self.lightshow_on:
+                return
 
     def set_color_all_buttons(self, color):
         for i in range(self.nbuttons):
