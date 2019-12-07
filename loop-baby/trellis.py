@@ -103,13 +103,15 @@ class Trellis:
             for i in button_indices:
                 self.trellis.pixels[i] = random_color()
                 time.sleep(.07)
+                if not self.lightshow_on:
+                    return
             for i in button_indices:
                 self.trellis.pixels[i] = self.colors['off']
                 time.sleep(.07)
+                if not self.lightshow_on:
+                    return
             self.sync()
             time.sleep(.02)
-            if not self.lightshow_on:
-                return
 
     def set_color_all_buttons(self, color):
         for i in range(self.nbuttons):
