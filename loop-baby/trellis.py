@@ -85,7 +85,7 @@ class Trellis:
             if lightshow:
                 time.sleep(.03)
 
-    def end_lightshow(self):
+    def end_lightshow(self, *args):
         # reset callbacks and turn lights off
         self.activate()
 
