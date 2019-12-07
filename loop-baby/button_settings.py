@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+SCREENSAVER_TIME_SECS = 10
+
 BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
 	13: 5,  9: 6,  5: 7,  1: 8,

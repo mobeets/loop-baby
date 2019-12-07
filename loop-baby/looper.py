@@ -12,7 +12,7 @@ from actions import make_actions
 from osc import OscSooperLooper
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
-from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP
+from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, SCREENSAVER_TIME_SECS
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -20,8 +20,9 @@ BUTTON_PRESSED = 3
 BUTTON_RELEASED = 2
 
 class Looper:
-    def __init__(self, sl_client, interface, button_map,
-        meta_commands, settings_map,
+    def __init__(self, sl_client, interface, button_map=BUTTON_MAP,
+        meta_commands=META_COMMANDS, settings_map=SETTINGS_MAP,
+        screensaver_time_secs=SCREENSAVER_TIME_SECS, 
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
         self.verbose = verbose
@@ -42,6 +43,7 @@ class Looper:
         self.event_id = 0 # for counting button events
         self.buttons_pressed = set()
         self.initial_nloops = nloops
+        self.screensaver_time_secs = screensaver_time_secs
 
     def init_loops(self):
         """
@@ -77,7 +79,7 @@ class Looper:
         if self.mode == 'lightshow':
             self.init_looper()
             return
-        
+        self.time_last_pressed = time.time()
         self.event_id += 1
         button_name = self.button_map[event.number]
 
@@ -437,10 +439,13 @@ class Looper:
         self.interface.set_color_all_buttons('off')
         self.initialize_settings()
         self.set_mode_colors_given_mode()
+        self.time_last_pressed = time.time()
         if self.verbose:
             print('Looper on!')
 
     def lightshow(self):
+        if self.verbose:
+            print('Entering lightshow...')
         try:
             self.mode = 'lightshow'
             self.interface.lightshow()
@@ -455,6 +460,9 @@ class Looper:
             while True:
                 self.interface.sync()
                 time.sleep(.02)
+                if int(time.time() - self.time_last_pressed) > self.screensaver_time_secs:
+                    # turn on screensaver lightshow
+                    self.lightshow()
         except KeyboardInterrupt:
             # Properly close the system.
             self.terminate()
@@ -491,9 +499,6 @@ def main(args):
     
     looper = Looper(sl_client=sl_client,
         interface=interface,
-        button_map=BUTTON_MAP,
-        meta_commands=META_COMMANDS,
-        settings_map=SETTINGS_MAP,
         session_dir=args.session_dir,
         verbose=args.verbose)
     try:

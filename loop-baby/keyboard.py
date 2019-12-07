@@ -102,3 +102,7 @@ class Keyboard:
 
     def terminate(self):
         pass
+
+    def lightshow(self):
+        pass
+
