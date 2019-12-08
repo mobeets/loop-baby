@@ -517,7 +517,8 @@ class Looper:
         self.nloops = nloops
         # mark any existing loops that have something recorded
         for i,loop in enumerate(self.loops):
-            loop.has_had_something_recorded = has_audio[i]
+            if i < len(has_audio) and has_audio[i]:
+                loop.has_had_something_recorded = True
 
     def initialize_settings(self):
         """
