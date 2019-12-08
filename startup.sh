@@ -29,6 +29,8 @@ jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecti
 # connect USB Midi to Sooperlooper, if it is found
 midi_in=`aconnect -i | grep -m1 'USB Midi' | awk '{print $2}'`
 midi_out=`aconnect -o | grep -m1 'sooperlooper' | awk '{print $2}'`
+echo $midi_in
+echo $midi_out
 if [ -z "$midi_in" ]
 then
       echo "Connecting USB Midi to Sooperlooper"
