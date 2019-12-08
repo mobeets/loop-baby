@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-SCREENSAVER_TIME_SECS = 60
+SCREENSAVER_TIME_SECS = 60*5
 
 BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
@@ -60,18 +60,18 @@ META_COMMANDS = {
         'callback': lambda looper: subprocess.Popen(['sudo', 'halt'])
     },
 	'hard_restart': { # restart the pi,
-        'command': [14, 10, 6, 2],
+        'command': [13, 9, 5, 1],
         'restart_looper': False,
         'callback': lambda looper: subprocess.Popen(['sudo', 'reboot'])        
     },
 	'soft_restart': { # calls ./startup.sh
-        'command': [15, 11, 7, 3],
+        'command': [14, 10, 6, 2],
         'restart_looper': True,
         'callback': lambda looper: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         },
-   'light_show': {
-        'command': [15, 11, 14, 10],
-        'restart_looper': False,
-        'callback': lambda looper: looper.lightshow(),
-        },
+   # 'light_show': {
+   #      'command': [15, 11, 14, 10],
+   #      'restart_looper': False,
+   #      'callback': lambda looper: looper.lightshow(),
+   #      },
 }
