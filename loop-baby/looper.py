@@ -576,6 +576,7 @@ class Looper:
         if self.verbose:
             print()
             print('Ending looper...')
+        self.pause()
         self.sl_client.terminate()
         self.interface.terminate()
         if self.verbose:
