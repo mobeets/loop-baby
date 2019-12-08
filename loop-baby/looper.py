@@ -81,7 +81,7 @@ class Looper:
             return
         self.time_last_pressed = time.time()
         self.event_id += 1
-        button_name = self.button_map[event.number]
+        button_name = self.button_map[event.number]   
 
         if event.edge == BUTTON_PRESSED:
             event_type = 'pressed'
@@ -465,7 +465,7 @@ class Looper:
             slider_ratio = (track-1)*1.0/7.0
             self.gain_slider = slider_ratio
             gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
-            self.sl_client.get('input_gain', gain_ratio)
+            self.sl_client.set('input_gain', gain_ratio)
 
     def recall_session(self, session):
         """

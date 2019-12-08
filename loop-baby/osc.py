@@ -16,10 +16,12 @@ MINIMUM_LOOP_DURATION = 60 # seconds
 MONO, STEREO = (1, 2)
 
 def slider_ratio_to_gain_ratio(slider_ratio):
-    return np.power(2.0,(np.sqrt(np.sqrt(np.sqrt(slider_ratio)))*198.0-198.0)/6.0)
+    gr = np.power(2.0,(np.sqrt(np.sqrt(np.sqrt(slider_ratio)))*198.0-198.0)/6.0)
+    return float(gr)
 
 def gain_ratio_to_slider_ratio(gain_ratio):
-    return np.power((6.0*np.log(gain_ratio)/np.log(2.0)+198.0)/198.0, 8.0)
+    sr = np.power((6.0*np.log(gain_ratio)/np.log(2.0)+198.0)/198.0, 8.0)
+    return float(sr)
 
 class OscBase:
     def __init__(self, client_url=OSC_CLIENT_URL, client_port=OSC_CLIENT_PORT, client_name=OSC_CLIENT_NAME, server_url=OSC_SERVER_URL, server_port=OSC_SERVER_PORT, server_name=OSC_SERVER_NAME,
