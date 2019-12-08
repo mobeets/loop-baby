@@ -6,7 +6,7 @@ SCREENSAVER_TIME_SECS = 60*5
 BUTTON_MAP = { # arranged as installed
 	12: 1,  8: 2,  4: 3,  0: 4,
 	13: 5,  9: 6,  5: 7,  1: 8,
-	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'volume/gain',
+	14: 'oneshot', 10: 'save/recall', 6: 'settings', 2: 'volume/gain/monitor',
 	15: 'play/pause', 11: 'record/overdub', 7: 'undo/redo', 3: 'mute/clear'}
 
 SETTINGS_MAP = {
@@ -51,6 +51,7 @@ COLOR_MAP = {
     'quantize_loop': 'blue',
     'volume': 'red',
     'gain': 'orange',
+    'monitor': 'yellow',
 }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
@@ -71,9 +72,4 @@ META_COMMANDS = {
         'restart_looper': True,
         'callback': lambda looper: subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         },
-   # 'light_show': {
-   #      'command': [15, 11, 14, 10],
-   #      'restart_looper': False,
-   #      'callback': lambda looper: looper.lightshow(),
-   #      },
 }

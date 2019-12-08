@@ -118,8 +118,12 @@ class Looper:
             # now handle the button press
             if type(button_name) is int:
                 self.process_track_change(button_name, button_number, event_id)
+                if self.verbose:
+                    print('   ({}) track = {}'.format(self.mode, button_name))
             else:
                 self.process_mode_change(button_name)
+                if self.verbose:
+                    print('   Mode change -> {} ({})'.format(self.mode, 'playing' if self.is_playing else 'paused'))
                 self.set_mode_colors_given_mode()
             self.set_track_colors_given_mode()
 
@@ -263,6 +267,17 @@ class Looper:
                 else:
                     color = 'off'
                 loop.set_color(color)
+        elif self.mode == 'monitor':
+            # visualize monitor level by highlighting
+            # all tracks up to that proportion
+            # e.g., if slider_ratio is 0.5, color the first 4 tracks
+            track_count = int((MAX_LOOP_COUNT-1)*self.monitor_slider)
+            for loop in self.loops:                
+                if loop.track <= track_count:
+                    color = 'monitor'
+                else:
+                    color = 'off'
+                loop.set_color(color)
 
     def pause(self):
         """
@@ -295,9 +310,6 @@ class Looper:
         the only mode that does something when pressed is 'play/pause'
         otherwise, we basically wait until a track button is pressed to do anything
         """
-        if self.verbose:
-            print('   Mode change: {} -> {}'.format(self.mode, mode))
-
         if mode == 'play/pause':
             if self.is_playing:
                 self.pause()
@@ -322,7 +334,7 @@ class Looper:
             mode = 'redo' if previous_mode == 'undo' else 'undo'
         elif mode == 'mute/clear':
             mode = 'clear' if previous_mode == 'mute' else 'mute'
-        elif mode == 'volume/gain':
+        elif mode == 'volume/gain/monitor':
             if previous_mode == 'volume':
                 if self.selected_track is None:
                     mode = 'gain'
@@ -330,8 +342,10 @@ class Looper:
                     # here, we have just set the volume for a track,
                     # so now we just go back to the main menu for volume
                     mode = 'volume'
+            elif previous_mode == 'gain':
+                mode = 'monitor'
             else:
-                mode = 'volume'
+                mode = 'volume'                
 
         # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
@@ -359,8 +373,6 @@ class Looper:
         actions depend on what mode we're in
         we also set button color based on the mode
         """
-        if self.verbose:
-            print('   ({}) track = {}'.format(self.mode, track))
         if track < len(self.loops):
             self.loops[track-1].press()
 
@@ -474,6 +486,12 @@ class Looper:
             gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
             self.sl_client.set('input_gain', gain_ratio)
 
+        elif self.mode == 'monitor':
+            slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+            self.monitor_slider = slider_ratio
+            gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
+            self.sl_client.set('dry', gain_ratio)
+
     def recall_session(self, session):
         """
         when recalling a session, we have to make sure
@@ -499,6 +517,7 @@ class Looper:
         self.mode = None
         self.is_playing = True
         self.gain_slider = 1.0
+        self.monitor_slider = 1.0
         self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
         self.initialize_settings()
