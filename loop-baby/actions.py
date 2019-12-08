@@ -1,4 +1,5 @@
 import time
+from osc import slider_ratio_to_gain_ratio
 
 def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
 
@@ -113,6 +114,7 @@ class Loop(Button):
         self.has_had_something_recorded = False
         self.sync_is_on = False
         self.quantize_value = 0
+        self.volume = 1.0
 
     def enable(self):
         self.is_enabled = True
@@ -129,6 +131,16 @@ class Loop(Button):
         if not self.is_enabled:
             return
         self.is_pressed = False
+
+    def set_volume(self, slider_ratio):
+        """
+        set the volume of the loop, as a gain_ratio, in [0,1]
+        """
+        if not self.is_enabled:
+            return
+        self.volume = slider_ratio
+        gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
+        self.sl_client.set('wet', gain_ratio, self.track)
 
     def remute_if_necessary(self):
         """

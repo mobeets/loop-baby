@@ -9,7 +9,7 @@ except:
     print('WARNING: Could not import Trellis')
 
 from actions import make_actions
-from osc import OscSooperLooper
+from osc import OscSooperLooper, slider_ratio_to_gain_ratio
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
 from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, SCREENSAVER_TIME_SECS
@@ -287,6 +287,10 @@ class Looper:
             mode = 'recall' if previous_mode == 'save' else 'save'
         elif mode == 'undo/redo':
             mode = 'redo' if previous_mode == 'undo' else 'undo'
+        elif mode == 'mute/clear':
+            mode = 'clear' if previous_mode == 'mute' else 'mute'
+        elif mode == 'volume/gain':
+            mode = 'gain' if previous_mode == 'volume' else 'volume'
 
         # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
@@ -306,6 +310,8 @@ class Looper:
             for session in self.session_manager.sessions:
                 session.pressed_once = False
             self.session_manager.sync()
+        elif mode == 'volume':
+            self.selected_track = None
 
     def process_track_change(self, track, button_number, event_id):
         """
@@ -411,6 +417,23 @@ class Looper:
         elif self.mode == 'settings':
             setting.press(self.loops)
 
+        elif self.mode == 'volume':
+            if self.selected_track is None:
+                # here, pressing a track button selects the track
+                self.selected_track = loop
+            else:
+                # a track has already been selected,
+                # so here we set the volume of that selected track
+                slider_ratio = (track-1)*1.0/7.0
+                self.selected_track.set_volume(slider_ratio)
+                self.selected_track = None
+
+        elif self.mode == 'gain':
+            slider_ratio = (track-1)*1.0/7.0
+            self.gain_slider = slider_ratio
+            gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
+            self.sl_client.set('input_gain', gain_ratio)
+
     def recall_session(self, session):
         """
         when recalling a session, we have to make sure
@@ -435,6 +458,7 @@ class Looper:
         self.init_loops()
         self.mode = None
         self.is_playing = True
+        self.gain_slider = 1.0
         self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
         self.initialize_settings()
