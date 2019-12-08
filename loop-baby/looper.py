@@ -9,7 +9,7 @@ except:
     print('WARNING: Could not import Trellis')
 
 from actions import make_actions
-from osc import OscSooperLooper, slider_ratio_to_gain_ratio, MAX_LOOP_COUNT
+from osc import OscSooperLooper, slider_ratio_to_gain_ratio
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
 from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, SCREENSAVER_TIME_SECS
@@ -232,8 +232,15 @@ class Looper:
                     color = 'session_empty'
                 session.set_color(color)
         elif self.mode == 'settings':
+            button_numbers_set = []
+            # set color of the settings buttons
             for button in self.settings:
                 button.set_color(button.param + '_' + button.option[0])
+                button_numbers_set.append(button.button_number)
+            # now turn all other track buttons off
+            for loop in self.loops:
+                if loop.button_number not in button_numbers_set:
+                    loop.set_color('off')
         elif self.mode == 'volume':
             if self.selected_track is None:
                 # show tracks you can select to then set volume
@@ -249,7 +256,7 @@ class Looper:
                 # visualize volume by highlighting
                 # all tracks up to that proportion
                 # e.g., if slider_ratio is 0.5, color the first 4 tracks
-                track_count = int((MAX_LOOP_COUNT-1)*self.selected_track.volume_ratio)
+                track_count = int((len(self.loops)-1)*self.selected_track.volume_ratio)
                 for loop in self.loops:                
                     if loop.track <= track_count:
                         color = 'volume'
@@ -260,7 +267,7 @@ class Looper:
             # visualize gain level by highlighting
             # all tracks up to that proportion
             # e.g., if slider_ratio is 0.5, color the first 4 tracks
-            track_count = int((MAX_LOOP_COUNT-1)*self.gain_slider)
+            track_count = int((len(self.loops)-1)*self.gain_slider)
             for loop in self.loops:                
                 if loop.track <= track_count:
                     color = 'gain'
@@ -271,7 +278,7 @@ class Looper:
             # visualize monitor level by highlighting
             # all tracks up to that proportion
             # e.g., if slider_ratio is 0.5, color the first 4 tracks
-            track_count = int((MAX_LOOP_COUNT-1)*self.monitor_slider)
+            track_count = int((len(self.loops)-1)*self.monitor_slider)
             for loop in self.loops:                
                 if loop.track <= track_count:
                     color = 'monitor'
@@ -353,7 +360,7 @@ class Looper:
             return
         
         self.mode = mode
-        if mode in ['save', 'recall', 'settings'] and self.is_playing:
+        if mode in ['save', 'recall'] and self.is_playing:
             if self.verbose:
                 print('   Pausing so we can switch modes to {}'.format(mode))
                 self.pause()
@@ -394,7 +401,12 @@ class Looper:
         elif self.mode == 'settings':
             loop = None
             session = None
-            setting = next(s for s in self.settings if s.button_number == button_number)
+            try:
+                setting = next(s for s in self.settings if s.button_number == button_number)
+            except StopIteration:
+                if self.verbose:
+                    print('   No setting associated with that track button.')
+                return
         else:
             loop = self.loops[track-1]
             if not self.loops[track-1].is_enabled:
@@ -481,15 +493,15 @@ class Looper:
             else:
                 # a track has already been selected,
                 # so here we set the volume of that selected track
-                slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+                slider_ratio = (track-1)*1.0/(len(self.loops)-1)
                 self.selected_track.set_volume(slider_ratio)
 
         elif self.mode == 'gain':
-            self.gain_slider = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+            self.gain_slider = (track-1)*1.0/(len(self.loops)-1)
             self.set_level('input_gain', self.gain_slider)
 
         elif self.mode == 'monitor':
-            self.monitor_slider = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+            self.monitor_slider = (track-1)*1.0/(len(self.loops)-1)
             self.set_level('dry', self.monitor_slider)
 
     def recall_session(self, session):
