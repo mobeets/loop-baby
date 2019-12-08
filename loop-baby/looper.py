@@ -9,7 +9,7 @@ except:
     print('WARNING: Could not import Trellis')
 
 from actions import make_actions
-from osc import OscSooperLooper, slider_ratio_to_gain_ratio
+from osc import OscSooperLooper, slider_ratio_to_gain_ratio, MAX_LOOP_COUNT
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
 from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, SCREENSAVER_TIME_SECS
@@ -245,7 +245,7 @@ class Looper:
                 # visualize volume by highlighting
                 # all tracks up to that proportion
                 # e.g., if slider_ratio is 0.5, color the first 4 tracks
-                track_count = int(7*self.selected_track.volume_ratio)
+                track_count = int((MAX_LOOP_COUNT-1)*self.selected_track.volume_ratio)
                 for loop in self.loops:                
                     if loop.track <= track_count:
                         color = 'volume'
@@ -256,7 +256,7 @@ class Looper:
             # visualize gain level by highlighting
             # all tracks up to that proportion
             # e.g., if slider_ratio is 0.5, color the first 4 tracks
-            track_count = int(7*self.gain_slider)
+            track_count = int((MAX_LOOP_COUNT-1)*self.gain_slider)
             for loop in self.loops:                
                 if loop.track <= track_count:
                     color = 'gain'
@@ -323,7 +323,15 @@ class Looper:
         elif mode == 'mute/clear':
             mode = 'clear' if previous_mode == 'mute' else 'mute'
         elif mode == 'volume/gain':
-            mode = 'gain' if previous_mode == 'volume' else 'volume'
+            if previous_mode == 'volume'
+                if self.selected_track is None:
+                    mode = 'gain'
+                else:
+                    # here, we have just set the volume for a track,
+                    # so now we just go back to the main menu for volume
+                    mode = 'volume'
+            else:
+                mode = 'volume'
 
         # handle illegal actions
         if mode in ['record', 'overdub', 'mute'] and not self.is_playing:
@@ -457,12 +465,11 @@ class Looper:
             else:
                 # a track has already been selected,
                 # so here we set the volume of that selected track
-                slider_ratio = (track-1)*1.0/7.0
+                slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
                 self.selected_track.set_volume(slider_ratio)
-                self.selected_track = None
 
         elif self.mode == 'gain':
-            slider_ratio = (track-1)*1.0/7.0
+            slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
             self.gain_slider = slider_ratio
             gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
             self.sl_client.set('input_gain', gain_ratio)
