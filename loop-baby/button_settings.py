@@ -49,6 +49,8 @@ COLOR_MAP = {
     'quantize_cycle_8': 'yellow',
     'quantize_cycle_16': 'green',
     'quantize_loop': 'blue',
+    'volume': 'red',
+    'gain': 'orange',
     }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))

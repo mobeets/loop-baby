@@ -114,7 +114,7 @@ class Loop(Button):
         self.has_had_something_recorded = False
         self.sync_is_on = False
         self.quantize_value = 0
-        self.volume = 1.0
+        self.volume_ratio = 1.0
 
     def enable(self):
         self.is_enabled = True
@@ -138,7 +138,7 @@ class Loop(Button):
         """
         if not self.is_enabled:
             return
-        self.volume = slider_ratio
+        self.volume_ratio = slider_ratio
         gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
         self.sl_client.set('wet', gain_ratio, self.track)
 
@@ -196,18 +196,26 @@ class Loop(Button):
         self.has_had_something_recorded = False
 
     def sync_on(self):
+        if not self.is_enabled:
+            return
         self.sl_client.set('sync', 1, self.track)
         self.sync_is_on = True
 
     def sync_off(self):
+        if not self.is_enabled:
+            return
         self.sl_client.set('sync', 0, self.track)
         self.sync_is_on = False
 
     def quantize(self, value):
+        if not self.is_enabled:
+            return
         self.sl_client.set('quantize', value, self.track)
         self.quantize_value = value
 
     def oneshot(self):
+        if not self.is_enabled:
+            return
         # reset_sync_pos so that it always plays from the top
         self.sl_client.hit('reset_sync_pos', self.track)
         self.sl_client.hit('oneshot', self.track)

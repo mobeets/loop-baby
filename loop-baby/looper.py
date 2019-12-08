@@ -230,6 +230,39 @@ class Looper:
         elif self.mode == 'settings':
             for button in self.settings:
                 button.set_color(button.param + '_' + button.option[0])
+        elif self.mode == 'volume':
+            if self.selected_track is None:
+                # show tracks you can select to then set volume
+                for loop in self.loops:                
+                    if not loop.is_enabled:
+                        color = 'off'
+                    elif loop.has_had_something_recorded:
+                        color = 'track_recorded'
+                    else:
+                        color = 'track_exists'
+                    loop.set_color(color)
+            else:
+                # visualize volume by highlighting
+                # all tracks up to that proportion
+                # e.g., if slider_ratio is 0.5, color the first 4 tracks
+                track_count = int(7*self.selected_track.volume_ratio)
+                for loop in self.loops:                
+                    if loop.track <= track_count:
+                        color = 'volume'
+                    else:
+                        color = 'off'
+                    loop.set_color(color)
+        elif self.mode == 'gain':
+            # visualize gain level by highlighting
+            # all tracks up to that proportion
+            # e.g., if slider_ratio is 0.5, color the first 4 tracks
+            track_count = int(7*self.gain_slider)
+            for loop in self.loops:                
+                if loop.track <= track_count:
+                    color = 'gain'
+                else:
+                    color = 'off'
+                loop.set_color(color)
 
     def pause(self):
         """
@@ -432,7 +465,7 @@ class Looper:
             slider_ratio = (track-1)*1.0/7.0
             self.gain_slider = slider_ratio
             gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
-            self.sl_client.set('input_gain', gain_ratio)
+            self.sl_client.get('input_gain', gain_ratio)
 
     def recall_session(self, session):
         """
