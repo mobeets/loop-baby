@@ -323,7 +323,7 @@ class Looper:
         elif mode == 'mute/clear':
             mode = 'clear' if previous_mode == 'mute' else 'mute'
         elif mode == 'volume/gain':
-            if previous_mode == 'volume'
+            if previous_mode == 'volume':
                 if self.selected_track is None:
                     mode = 'gain'
                 else:
