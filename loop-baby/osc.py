@@ -17,7 +17,7 @@ MONO, STEREO = (1, 2)
 
 def slider_ratio_to_gain_ratio(slider_ratio):
     gr = np.power(2.0,(np.sqrt(np.sqrt(np.sqrt(slider_ratio)))*198.0-198.0)/6.0)
-    return float(gr)
+    return 0.0 if np.isclose(gr, 0.0) else float(gr)
 
 def gain_ratio_to_slider_ratio(gain_ratio):
     sr = np.power((6.0*np.log(gain_ratio)/np.log(2.0)+198.0)/198.0, 8.0)

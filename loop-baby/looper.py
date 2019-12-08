@@ -368,6 +368,10 @@ class Looper:
         elif mode == 'volume':
             self.selected_track = None
 
+    def set_level(self, name, slider_ratio):
+        gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
+        self.sl_client.set(name, gain_ratio)
+
     def process_track_change(self, track, button_number, event_id):
         """
         actions depend on what mode we're in
@@ -481,16 +485,12 @@ class Looper:
                 self.selected_track.set_volume(slider_ratio)
 
         elif self.mode == 'gain':
-            slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
-            self.gain_slider = slider_ratio
-            gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
-            self.sl_client.set('input_gain', gain_ratio)
+            self.gain_slider = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+            self.set_level('input_gain', self.gain_slider)
 
         elif self.mode == 'monitor':
-            slider_ratio = (track-1)*1.0/(MAX_LOOP_COUNT-1)
-            self.monitor_slider = slider_ratio
-            gain_ratio = slider_ratio_to_gain_ratio(slider_ratio)
-            self.sl_client.set('dry', gain_ratio)
+            self.monitor_slider = (track-1)*1.0/(MAX_LOOP_COUNT-1)
+            self.set_level('dry', self.monitor_slider)
 
     def recall_session(self, session):
         """
@@ -508,19 +508,28 @@ class Looper:
             loop.has_had_something_recorded = has_audio[i]
 
     def initialize_settings(self):
+        """
+        set default settings with SL
+        """
+        self.gain_slider = 1.0
+        self.set_level('input_gain', self.gain_slider)
+        self.monitor_slider = 1.0
+        self.set_level('dry', self.monitor_slider)
         for button in self.settings:
             button.init(self.loops)
 
     def init_looper(self):
-        # load empty session
+        # load empty session and set up loops
         self.init_loops()
         self.mode = None
         self.is_playing = True
-        self.gain_slider = 1.0
-        self.monitor_slider = 1.0
+
+        # set input/monitor gain level, and other defaults
+        self.initialize_settings()
+
+        # handle button colors
         self.buttons_pressed = set()
         self.interface.set_color_all_buttons('off')
-        self.initialize_settings()
         self.set_mode_colors_given_mode()
         self.time_last_pressed = time.time()
         if self.verbose:
