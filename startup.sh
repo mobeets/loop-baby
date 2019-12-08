@@ -33,8 +33,8 @@ echo $midi_in
 echo $midi_out
 if [ -z "$midi_in" ]
 then
+      echo "No Midi found"
+else
       echo "Connecting USB Midi to Sooperlooper"
       aconnect $midi_in:0 $midi_out:0
-else
-      echo "No Midi found"
 fi
