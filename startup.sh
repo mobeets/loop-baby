@@ -8,7 +8,8 @@ killall jackd || echo "jackd was not running."
 killall sooperlooper || echo "sooperlooper was not running."
 
 # start jack server
-/usr/bin/jackd -dalsa -r44100 -p1024 -n3 -dhw:1 > jackd_errors.log 2>&1 &
+# this line should also be in ~/.jackdrc, because if the below line fails, sooperlooper will start its own jackd using the config in ~/.jackdrc
+/usr/bin/jackd -dalsa -r44100 -p512 -n3 -dhw:1 > jackd_errors.log 2>&1 &
 
 # wait for jack to start
 sleep 5 # seconds
