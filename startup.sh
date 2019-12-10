@@ -8,7 +8,7 @@ killall jackd || echo "jackd was not running."
 killall sooperlooper || echo "sooperlooper was not running."
 
 # start jack server
-/usr/bin/jackd -dalsa -r44100 -p1024 -n2 -dhw:1 -s &
+/usr/bin/jackd -dalsa -r44100 -p1024 -n3 -dhw:1 -s &
 
 # wait for jack to start
 sleep 5 # seconds

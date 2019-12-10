@@ -2,6 +2,7 @@
 Recent notes
 --------------
 
+http://linux-audio.com/jack/
 
 --------------
 Parts
