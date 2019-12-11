@@ -56,7 +56,7 @@ COLOR_MAP = {
     'gain': 'orange',
     'monitor': 'yellow',
     'shutdown': 'red',
-    'soft_restart': 'orange',
+    'hard_restart': 'orange',
     'soft_restart': 'yellow',
 }
 
