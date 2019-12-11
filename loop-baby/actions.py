@@ -16,7 +16,12 @@ def make_actions(sl_client, interface, button_map, settings_map):
     # make settings
     actions['settings'] = []
     for button_number, setting in settings_map.items():
-        actions['settings'].append(SettingsButton(setting['param'], button_number, setting['options'], interface, sl_client))        
+        if 'param' in setting:
+            actions['settings'].append(SettingsButton(setting['param'], button_number, setting['options'], interface, sl_client))
+        elif 'action' in setting:
+            actions['settings'].append(Button(setting['action'], button_number, interface))
+        else:
+            print('Invalid setting: {}'.format(setting))
 
     actions['button_map'] = button_map
     return actions
@@ -27,11 +32,16 @@ class Button:
         self.button_number = button_number
         self.interface = interface
 
-    def set_color(self, color):
+    def init(self, *args):
+        pass
+
+    def set_color(self, color=None):
         """
         color is str
         and can be either the color name, or a key to color_map
         """
+        if color is None:
+            color = self.name
         self.interface.set_color(self.button_number, color)
 
 class SessionButton(Button):
@@ -55,6 +65,15 @@ class SettingsButton(Button):
         self.is_set[self.current_index] = True
         self.option = self.options[self.current_index]
         self.set_option(loops)
+
+    def set_color(self, color=None):
+        """
+        color is str
+        and can be either the color name, or a key to color_map
+        """
+        if color is None:
+            color = self.param + '_' + self.option[0]
+        self.interface.set_color(self.button_number, color)
 
     def press(self, loops):
         """

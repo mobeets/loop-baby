@@ -14,7 +14,10 @@ SETTINGS_MAP = {
 		'options': [('none', 0), ('track_1', 1), ('track_2', 2), ('midi', -2)]},
 	8: {'param': 'quantize',
 		'options': [('off', 0), ('8th', 2), ('cycle_4', 1), ('cycle_8', 1),
-			('cycle_16', 1), ('loop', 3)]}
+			('cycle_16', 1), ('loop', 3)]},
+	9: {'action': 'soft_restart'},
+	5: {'action': 'hard_restart'},
+	1: {'action': 'shutdown'},
 }
 
 COLOR_MAP = {
@@ -52,6 +55,9 @@ COLOR_MAP = {
     'volume': 'red',
     'gain': 'orange',
     'monitor': 'yellow',
+    'shutdown': 'red',
+    'soft_restart': 'orange',
+    'soft_restart': 'yellow',
 }
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))

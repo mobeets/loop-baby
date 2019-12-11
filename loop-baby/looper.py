@@ -229,7 +229,7 @@ class Looper:
             button_numbers_set = []
             # set color of the settings buttons
             for button in self.settings:
-                button.set_color(button.param + '_' + button.option[0])
+                button.set_color()
                 button_numbers_set.append(button.button_number)
             # now turn all other track buttons off
             for loop in self.loops:
@@ -478,7 +478,14 @@ class Looper:
                 print('   Saved session does not exist at track {}'.format(track))
 
         elif self.mode == 'settings':
-            setting.press(self.loops)
+            if setting.name == 'shutdown':
+                self.shutdown_pi()
+            elif setting.name == 'hard_restart':
+                self.restart_pi()
+            elif setting.name == 'soft_restart':
+                self.restart_jack_and_sl()
+            else:
+                setting.press(self.loops)
 
         elif self.mode == 'volume':
             if self.selected_track is None:
@@ -537,14 +544,17 @@ class Looper:
             self.terminate()
 
     def shutdown_pi(self):
+        print('Shutting down!')
         self.terminate()
         subprocess.Popen(['sudo', 'halt'])
 
     def restart_pi(self):
+        print('Rebooting!')
         self.terminate()
         subprocess.Popen(['sudo', 'reboot'])
 
     def restart_jack_and_sl(self, nseconds_restart_delay=7):
+        print('Restarting jack and SL!')
         subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
         for j in range(nseconds_restart_delay):
             if j % 2 == 0:
