@@ -12,7 +12,7 @@ from actions import make_actions
 from osc import OscSooperLooper, slider_ratio_to_gain_ratio
 from keyboard import Keyboard
 from save_and_recall import SLSessionManager
-from button_settings import COLOR_MAP, BUTTON_MAP, META_COMMANDS, SETTINGS_MAP, SCREENSAVER_TIME_SECS
+from button_settings import COLOR_MAP, BUTTON_MAP, SETTINGS_MAP, SCREENSAVER_TIME_SECS
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
@@ -21,7 +21,7 @@ BUTTON_RELEASED = 2
 
 class Looper:
     def __init__(self, sl_client, interface, button_map=BUTTON_MAP,
-        meta_commands=META_COMMANDS, settings_map=SETTINGS_MAP,
+        settings_map=SETTINGS_MAP,
         screensaver_time_secs=SCREENSAVER_TIME_SECS, 
         session_dir=None, startup_color='random', verbose=False, nloops=4):
 
@@ -31,11 +31,10 @@ class Looper:
         self.interface = interface
         self.interface.set_callback(self.button_handler)
 
-        actions = make_actions(self.sl_client, self.interface, button_map, meta_commands, settings_map)
+        actions = make_actions(self.sl_client, self.interface, button_map, settings_map)
         self.button_map = button_map
         self.loops = actions['loops']
         self.mode_buttons = actions['modes']
-        self.multipress = actions['multipress']
         self.settings = actions['settings']
         self.session_manager = SLSessionManager(actions['sessions'],
             session_dir, self.sl_client)
@@ -95,11 +94,6 @@ class Looper:
                 return
         if self.verbose:
             print('Button {}: ({}, {})'.format(event_type, event.number, button_name))
-        # check if the set of buttons currently pressed are a command
-        self.buttons_pressed, found_match = self.multipress.check_for_matches(self.buttons_pressed, self)
-        if found_match:
-            return
-        # process individual button press
         self.process_button(button_name, event.number, event_type, self.event_id)
 
     def process_button(self, button_name, button_number, press_type, event_id):
@@ -531,6 +525,38 @@ class Looper:
         for button in self.settings:
             button.init(self.loops)
 
+    def lightshow(self):
+        if self.verbose:
+            print('Entering lightshow...')
+        try:
+            self.mode = 'lightshow'
+            self.interface.lightshow()
+            self.init_looper()
+        except KeyboardInterrupt:
+            # Properly close the system.
+            self.terminate()
+
+    def shutdown_pi(self):
+        self.terminate()
+        subprocess.Popen(['sudo', 'halt'])
+
+    def restart_pi(self):
+        self.terminate()
+        subprocess.Popen(['sudo', 'reboot'])
+
+    def restart_jack_and_sl(self, nseconds_restart_delay=7):
+        subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+        for j in range(nseconds_restart_delay):
+            if j % 2 == 0:
+                color = 'red'
+            else:
+                color = 'off'
+            self.interface.set_color_all_buttons(color)
+            time.sleep(1)
+        # wait a generous amount of time for startup.sh to finish
+        # clear loops and start from scratch
+        self.init_looper()
+        
     def init_looper(self):
         # load empty session and set up loops
         self.init_loops()
@@ -548,17 +574,6 @@ class Looper:
         if self.verbose:
             print('Looper on!')
 
-    def lightshow(self):
-        if self.verbose:
-            print('Entering lightshow...')
-        try:
-            self.mode = 'lightshow'
-            self.interface.lightshow()
-            self.init_looper()
-        except KeyboardInterrupt:
-            # Properly close the system.
-            self.terminate()
-        
     def start(self):
         self.init_looper()
         try:

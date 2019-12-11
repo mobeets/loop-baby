@@ -1,7 +1,7 @@
 import time
 from osc import slider_ratio_to_gain_ratio
 
-def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
+def make_actions(sl_client, interface, button_map, settings_map):
 
     # make modes, loops, and sessions (the latter are indexed by track number)
     ntracks = len([x for x in button_map.values() if type(x) is int])
@@ -19,8 +19,6 @@ def make_actions(sl_client, interface, button_map, meta_commands, settings_map):
         actions['settings'].append(SettingsButton(setting['param'], button_number, setting['options'], interface, sl_client))        
 
     actions['button_map'] = button_map
-    actions['multipress'] = MultiPress(meta_commands)
-
     return actions
 
 class Button:
@@ -283,47 +281,3 @@ class Loop(Button):
             self.stopped_overdub_id = event_id
             did_something = True
         return did_something
-
-class MultiPress:
-    """
-    looks for multiple-button commands, and when finds a match,
-    it calls the corresponding callback
-    """
-    def __init__(self, commands=None):
-        """
-        example:
-            commands = {'name':
-                {'command': [1, 2, 3],
-                'callback': lambda: print('Hi')}
-        """
-        self.commands = commands
-        self.nseconds_restart_delay = 7 # delay after restart
-
-    def check_for_matches(self, buttons_pressed, looper):
-        found_match = False
-        for name, item in self.commands.items():
-            if buttons_pressed.issuperset(item['command']):
-                found_match = True
-                print('MULTIPRESS COMMAND FOUND: {}'.format(name))
-                looper.pause()
-                # call the callback for this command
-                looper.interface.set_color_all_buttons('off')
-                looper.interface.sync()
-                item['callback'](looper)
-                if item['restart_looper']:
-                    # todo: color all keys red
-                    for j in range(self.nseconds_restart_delay):
-                        if j % 2 == 0:
-                            color = 'red'
-                        else:
-                            color = 'off'
-                        looper.interface.set_color_all_buttons(color)
-                        time.sleep(1)
-                    # wait a generous amount of time for startup.sh to finish
-                    # clear loops and start from scratch
-                    looper.interface.set_color_all_buttons('off')
-                    looper.init_looper()
-                # remove those keys from our buttons_pressed queue
-                # so we can't execute this multiple times
-                buttons_pressed.difference_update(item['command'])
-        return buttons_pressed, found_match

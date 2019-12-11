@@ -65,7 +65,7 @@ META_COMMANDS = {
 	'hard_restart': { # restart the pi,
         'command': [13, 9, 5, 1],
         'restart_looper': False,
-        'callback': lambda looper: subprocess.Popen(['sudo', 'reboot'])        
+        'callback': lambda looper: subprocess.Popen(['sudo', 'reboot'])
     },
 	'soft_restart': { # calls ./startup.sh
         'command': [14, 10, 6, 2],
