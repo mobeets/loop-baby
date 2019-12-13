@@ -4,15 +4,16 @@
 export DISPLAY=:0
 
 # end previous processes
-killall jackd || echo "jackd was not running."
-killall sooperlooper || echo "sooperlooper was not running."
+killall -9 jackd || echo "jackd was not running."
+killall -9 sooperlooper || echo "sooperlooper was not running."
+sleep 1 # seconds
 
 # start jack server
 # this line should also be in ~/.jackdrc, because if the below line fails, sooperlooper will start its own jackd using the config in ~/.jackdrc
-/usr/bin/jackd -dalsa -r44100 -p512 -n3 -dhw:1 > jackd_errors.log 2>&1 &
+/usr/bin/jackd -dalsa -r44100 -p512 -n3 -dhw:1 -s > jackd_errors.log 2>&1 &
 
 # wait for jack to start
-sleep 5 # seconds
+sleep 5
 
 # start sooperlooper
 sooperlooper -p 9951 -l 1 -c 2 -t 40 &
