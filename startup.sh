@@ -10,7 +10,7 @@ sleep 1 # seconds
 
 # start jack server
 # this line should also be in ~/.jackdrc, because if the below line fails, sooperlooper will start its own jackd using the config in ~/.jackdrc
-/usr/bin/jackd --no-mlock --no-realtime -dalsa -r44100 -p512 -n3 -dhw:1 -s > jackd_errors.log 2>&1 &
+/usr/bin/jackd --no-realtime -dalsa -r44100 -p512 -n3 -dhw:1 -s > jackd_errors.log 2>&1 &
 
 # wait for jack to start
 sleep 5
