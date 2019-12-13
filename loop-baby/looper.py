@@ -592,6 +592,7 @@ class Looper:
                 time.sleep(.02)
                 if int(time.time() - self.time_last_pressed) > self.screensaver_time_secs:
                     # turn on screensaver lightshow
+                    print((time.time(), self.time_last_pressed, time.time()-self.time_last_pressed, self.screensaver_time_secs))
                     self.lightshow()
         except KeyboardInterrupt:
             # Properly close the system.
