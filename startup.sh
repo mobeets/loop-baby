@@ -9,7 +9,7 @@ killall -9 sooperlooper || echo "sooperlooper was not running."
 sleep 1 # seconds
 
 # trick to boot without dbus maybe?
-export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+# export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 # start jack server
 # this line should also be in ~/.jackdrc, because if the below line fails, sooperlooper will start its own jackd using the config in ~/.jackdrc
