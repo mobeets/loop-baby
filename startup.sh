@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# wait for booting to complete
+sleep 15
+
 # necessary to start jack
 export DISPLAY=:0
 
