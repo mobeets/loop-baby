@@ -128,3 +128,4 @@ class Trellis:
     def terminate(self):
         for i in range(self.nbuttons):
             self.trellis.pixels[i] = self.colors['off']
+        self.sync()
