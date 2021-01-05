@@ -92,6 +92,9 @@ class Looper:
             else:
                 # false event (happens sometimes for some reason)
                 return
+        else:
+            print('Error (unknown event.edge): {}'.format(event.edge))
+            return
         if self.verbose:
             print('Button {}: ({}, {})'.format(event_type, event.number, button_name))
         self.process_button(button_name, event.number, event_type, self.event_id)
