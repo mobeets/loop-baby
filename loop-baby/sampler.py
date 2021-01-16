@@ -18,7 +18,7 @@ pygame.mixer.init(22050, -16, 2, 512)
 print('Initiated pygame')
 
 # load samples
-sample_dir = 'samples'
+sample_dir = 'static/samples'
 try:
     sample_name = sys.argv[1]
 except:
