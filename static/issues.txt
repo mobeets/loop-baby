@@ -1,0 +1,18 @@
+
+"Seesaw hardware ID returned (0xff) is not correct! Expected 0x55. Please check your wiring." [0x0, 0xff]
+
+- sometimes only one track will record audio
+- audio crackling: need realtime kernel, or else security.conf @audio set correctly
+- sometimes jack (or sooperlooper? not sure) crashes randomly
+- when starting looper manually, I can hear audio thru immediately; not so when started from scratch?
+- when pressing gain button, white lights show, and when pressing button, red lights (correct) show
+    - and you must hit one of first four buttons, then turns red and you can control the volume; but doesn't always actually control the volume
+    - actually this is correct! it's per track volume
+- sometimes looper apparently hangs? process still running, lights on, but no buttons appear to be being pressed according to the sysout. might be a neotrellis issue
+    - and then it restarts itself? what the hell?
+
+
+- using scarlett 8i6
+	- this worked basically no problem
+	- the only thing i had to do was open alsamixer and press up (or down?) to change from S/PDIF to Internal?
+	- the only weird thing was that the input audio was automatically passed through to the speakers. so when sooperlooper also let it pass through, it was doubled with some latency. not sure why...

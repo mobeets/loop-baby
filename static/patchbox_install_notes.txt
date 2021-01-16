@@ -1,0 +1,15 @@
+ssh patch@patchbox.local
+pw: blokaslabs
+
+>> patchbox [then choose wizard option]
+- connect to Patchbox wifi, then ssh patch@patchbox.local
+- follow set up, making sure to set up wifi (can also later doing it through the patchbox menu; will disable the hotspot)
+- next, update patchbox os
+
+>> sudo apt-get update
+>> sudo apt-get upgrade
+>> sudo apt-get install sooperlooper
+>> sudo apt-get install python3-pip
+>> pip3 install pygame
+
+- Enable I2C and SPI, and install CircuitPython libraries in Python3 here: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
