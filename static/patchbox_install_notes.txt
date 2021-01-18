@@ -3,13 +3,58 @@ pw: blokaslabs
 
 >> patchbox [then choose wizard option]
 - connect to Patchbox wifi, then ssh patch@patchbox.local
-- follow set up, making sure to set up wifi (can also later doing it through the patchbox menu; will disable the hotspot)
+- follow set up, making sure to set up wifi (can also later doing it through the patchbox menu; this will disable the hotspot but that's okay)
 - next, update patchbox os
 
->> sudo apt-get update
->> sudo apt-get upgrade
->> sudo apt-get install sooperlooper
->> sudo apt-get install python3-pip
->> pip3 install pygame
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get install sooperlooper
+$ sudo apt-get install python3-pip
+$ pip3 install pygame
+$ pip3 install osc4py3
+$ pip3 install numpy
+$ sudo apt-get install libatlas-base-dev # to get numpy working
+$ sudo apt-get install git curl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0 # to get pygame working
+$ sudo apt-get purge pulseaudio
 
 - Enable I2C and SPI, and install CircuitPython libraries in Python3 here: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+- run "blinkatest.py" to confirm it's working
+
+$ sudo pip3 install adafruit-circuitpython-neotrellis
+
+- configure jack (via patchbox) to use -r44100 -p512 -n3
+
+view logs:
+$ tail -f /var/log/syslog
+
+-----
+
+## Patchbox direct monitoring
+
+According to [this](https://community.blokas.io/t/creating-a-jamulus-patchbox-module/2232) thread, by default patchbox sets up direct monitoring where input audio is routed straight to playback. Which explains my monitoring issue. I have no idea how to turn this off though. I believe I've disabled/removed pulseaudio (no process mentions "pulse", and also "pactl" fails).
+
+-----
+
+##  Must be done every reboot:
+
+sudo systemctl disable pisound-ctl.service
+sudo systemctl disable pisound-btn
+sudo systemctl stop bluealsa
+sudo systemctl disable bluealsa
+sudo systemctl stop bluetooth
+sudo systemctl disable bluetooth
+sooperlooper -p 9951 -l 1 -c 2 -t 20 &
+jack_connect system:capture_1 sooperlooper:common_in_1 || echo "error connecting audio (1)"
+jack_connect sooperlooper:common_out_1 system:playback_1 || echo "error connecting audio (2)"
+jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecting audio (3)"
+
+python3 loop-baby/looper.py -v
+
+# 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes??
+
+---------------
+ISSUES:
+---------------
+
+- SL audio only coming through L speaker (audio-thru coming in both)
+

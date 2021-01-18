@@ -528,9 +528,10 @@ class Looper:
         """
         set default settings with SL
         """
+        # note: these defaults should match what is in the empty_session_file
         self.gain_slider = 1.0
         self.set_level('input_gain', self.gain_slider)
-        self.monitor_slider = 1.0
+        self.monitor_slider = 0.0
         self.set_level('dry', self.monitor_slider)
         for button in self.settings:
             button.init(self.loops)
