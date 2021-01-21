@@ -3,12 +3,12 @@ Description=My service
 After=audio.target network.target
 
 [Service]
-ExecStart=/usr/bin/python3 -u /home/patchbox/loop-baby/loop-baby/looper.py -v -s --startup_script /home/patch/loop-baby/startup_patchbox.sh
+ExecStart=/usr/bin/python3 -u /home/patch/loop-baby/loop-baby/looper.py -v -s --startup_script /home/patch/loop-baby/startup_patchbox.sh
 LimitMEMLOCK=infinity
 StandardOutput=file:/home/patch/loop-baby/looper_service_output.log
 StandardError=file:/home/patch/loop-baby/looper_service_errors.log
 Restart=always
-User=patchbox
+User=patch
 
 [Install]
 WantedBy=multi-user.target

@@ -28,17 +28,18 @@ $ sudo apt-get purge pulseaudio
 
 $ sudo pip3 install adafruit-circuitpython-neotrellis
 
-sudo systemctl stop pisound-ctl.service
-sudo systemctl stop pisound-btn
-sudo systemctl stop bluealsa
-sudo systemctl stop bluetooth
-# note: 'mask' is a patchbox-specific option that acts like 'disable'
-sudo systemctl mask pisound-ctl.service
-sudo systemctl mask pisound-btn
-sudo systemctl mask bluealsa
-sudo systemctl mask bluetooth
+$ sudo systemctl stop pisound-ctl.service
+$ sudo systemctl stop pisound-btn
+$ sudo systemctl stop bluealsa
+$ sudo systemctl stop bluetooth
+$ sudo systemctl mask pisound-ctl.service # nb 'mask' is patchbox-specific; acts like 'disable'
+$ sudo systemctl mask pisound-btn
+$ sudo systemctl mask bluealsa
+$ sudo systemctl mask bluetooth
+$ sudo cp static/looper_patchbox.service /etc/systemd/system/looper.service
+$ sudo systemctl enable looper.service
 
-## To run on boot
+## To start looper manually:
 
 sooperlooper -p 9951 -l 1 -c 2 -t 20 &
 jack_connect system:capture_1 sooperlooper:common_in_1 || echo "error connecting audio (1)"
