@@ -5,9 +5,9 @@
     "author": "Jay H",
     "launch_mode": "auto",
     "depends_on": [
-        "jack.service",
+        "jack.service"
     ],
     "scripts": {
-        "launch": "launch.sh",
+        "launch": "launch.sh"
     }
 }
