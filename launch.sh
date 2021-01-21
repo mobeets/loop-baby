@@ -27,3 +27,5 @@ else
       echo "Connecting USB Midi to Sooperlooper"
       aconnect $midi_in:0 $midi_out:0
 fi
+
+python3 $HOME/loop-baby/loop-baby/looper.py -v
