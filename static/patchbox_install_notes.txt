@@ -48,6 +48,11 @@ jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecti
 
 python3 loop-baby/looper.py -v
 
+## To do next
+
+- move loop-baby package to /usr/local/patchbox-modules/imported
+- this
+
 ## Usage notes
 
 - 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes?

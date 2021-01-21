@@ -1,0 +1,13 @@
+{
+    "name": "loopbaby",
+    "version": "1.0.0",
+    "description": "loop-baby module",
+    "author": "Jay H",
+    "launch_mode": "auto",
+    "depends_on": [
+        "jack.service",
+    ],
+    "scripts": {
+        "launch": "launch.sh",
+    }
+}
