@@ -48,10 +48,11 @@ jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecti
 
 python3 loop-baby/looper.py -v
 
-## To do next
+## To install module
 
-- move loop-baby package to /usr/local/patchbox-modules/imported
-- this
+$ patchbox module install https://github.com/mobeets/loop-baby
+$ patchbox module activate loop-baby
+$ patchbox module launch loop-baby
 
 ## Usage notes
 

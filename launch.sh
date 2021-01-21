@@ -28,4 +28,4 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
-python3 $HOME/loop-baby/loop-baby/looper.py -v
+python3 /home/patch/loop-baby/loop-baby/looper.py -v
