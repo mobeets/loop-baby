@@ -313,7 +313,7 @@ To start jackd at boot, I had to do two things:
 
 (It might have been only the first item that was necessary, but I did the second one as well.)
 
-To start looper.py you must use systemd. Basic procedure:s
+To start looper.py you must use systemd. Basic procedure:
 
 - sudo cp static/looper.service /etc/systemd/system/looper.service
 - sudo systemctl start looper.service

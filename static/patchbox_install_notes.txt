@@ -1,9 +1,15 @@
-ssh patch@patchbox.local
-pw: blokaslabs
 
->> patchbox [then choose wizard option]
+$ ssh patch@patchbox.local # pw: blokaslabs
+
+$ tail -f /var/log/syslog # view logs
+
+## Setup instructions
+
+$ patchbox [then choose wizard option]
+
 - connect to Patchbox wifi, then ssh patch@patchbox.local
 - follow set up, making sure to set up wifi (can also later doing it through the patchbox menu; this will disable the hotspot but that's okay)
+- configure jack (via patchbox) to use -r44100 -p512 -n3
 - next, update patchbox os
 
 $ sudo apt-get update
@@ -22,27 +28,18 @@ $ sudo apt-get purge pulseaudio
 
 $ sudo pip3 install adafruit-circuitpython-neotrellis
 
-- configure jack (via patchbox) to use -r44100 -p512 -n3
-
-view logs:
-$ tail -f /var/log/syslog
-
------
-
-## Patchbox direct monitoring
-
-According to [this](https://community.blokas.io/t/creating-a-jamulus-patchbox-module/2232) thread, by default patchbox sets up direct monitoring where input audio is routed straight to playback. Which explains my monitoring issue. I have no idea how to turn this off though. I believe I've disabled/removed pulseaudio (no process mentions "pulse", and also "pactl" fails).
-
------
-
-##  Must be done every reboot:
-
-sudo systemctl disable pisound-ctl.service
-sudo systemctl disable pisound-btn
+sudo systemctl stop pisound-ctl.service
+sudo systemctl stop pisound-btn
 sudo systemctl stop bluealsa
-sudo systemctl disable bluealsa
 sudo systemctl stop bluetooth
-sudo systemctl disable bluetooth
+# note: 'mask' is a patchbox-specific option that acts like 'disable'
+sudo systemctl mask pisound-ctl.service
+sudo systemctl mask pisound-btn
+sudo systemctl mask bluealsa
+sudo systemctl mask bluetooth
+
+## To run on boot
+
 sooperlooper -p 9951 -l 1 -c 2 -t 20 &
 jack_connect system:capture_1 sooperlooper:common_in_1 || echo "error connecting audio (1)"
 jack_connect sooperlooper:common_out_1 system:playback_1 || echo "error connecting audio (2)"
@@ -50,11 +47,8 @@ jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecti
 
 python3 loop-baby/looper.py -v
 
-# 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes??
+## Usage notes
 
----------------
-ISSUES:
----------------
-
-- SL audio only coming through L speaker (audio-thru coming in both)
-
+- 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes?
+- 2021-01-19: finally got audio monitoring turned off, using alsamixer, by muting the "Mic" playback meter (not the capture one) for my usb interface; still no crispy sound issues, though maybe a pop or two
+- 2021-01-21: permanently disabled unneeded systemctl processes using 'systemctl mask'

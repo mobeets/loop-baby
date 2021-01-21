@@ -616,7 +616,7 @@ class Looper:
 def main(args):
     # start jackd and sooperlooper, and wait until finished
     if args.startup:
-        startup = subprocess.Popen(['bash', os.path.join(BASE_PATH, 'startup.sh')])
+        startup = subprocess.Popen(['bash', args.startup_script])
         startup.communicate()
 
     # connect to SooperLooper via OSC
@@ -651,6 +651,9 @@ if __name__ == '__main__':
         dest='verbose', action='store_true')
     parser.add_argument('-s', '--startup',
         dest='startup', action='store_true')
+    parser.add_argument('--startup_script',
+        dest='startup_script',
+        default=os.path.join(BASE_PATH, 'startup.sh'))
     parser.add_argument('-i', '--interface',
         choices=['keyboard', 'trellis'],
         default='trellis')
