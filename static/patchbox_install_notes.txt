@@ -50,9 +50,18 @@ python3 loop-baby/looper.py -v
 
 ## To install module
 
-$ patchbox module install https://github.com/mobeets/loop-baby
+$ patchbox module install https://github.com/mobeets/loop-baby # downloads to /usr/local/patchbox-modules/imported/
 $ patchbox module activate loop-baby
 $ patchbox module launch loop-baby
+
+## To do
+
+- make patchbox module run loop-baby only within module folder (not ~/loop-baby)
+	- this will involve fixing path to looper.py in launch
+	- to update code, go to /usr/local/patchbox-modules/imported/ and run 'sudo git pull'
+- also, make looper.py write to log files, for better debugging
+- another issue is it says no numpy? (as if python2 and not python3 is being called?)
+	- it might be running as root user
 
 ## Usage notes
 

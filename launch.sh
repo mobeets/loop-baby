@@ -2,7 +2,7 @@
 
 # start sooperlooper (SL)
 killall -9 sooperlooper || echo "sooperlooper was not running."
-sooperlooper -p 9951 -l 1 -c 2 -t 20 &
+sooperlooper -p 9951 -l 1 -c 2 -t 20 > sl.log 2>&1 &
 
 # wait for SL to start
 sleep 1
@@ -28,4 +28,4 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
-python3 /home/patch/loop-baby/loop-baby/looper.py -v
+python3 loop-baby/looper.py -v > looper.log 2>&1 &
