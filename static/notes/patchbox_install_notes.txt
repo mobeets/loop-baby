@@ -48,8 +48,10 @@ $ patchbox module launch loop-baby
 - 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes?
 - 2021-01-19: finally got audio monitoring turned off, using alsamixer, by muting the "Mic" playback meter (not the capture one) for my usb interface; still no crispy sound issues, though maybe a pop or two
 - 2021-01-21: permanently disabled unneeded systemctl processes using 'systemctl mask'
+- 2021-01-22: now starts as a patchbox module automatically on boot; but the squealing and single speaker issue is back! :(
 
 ## Issues
 
-- "terminate()" does not turn off trellis lights before quitting
+- "terminate()" does not turn off trellis lights before quitting on restart (but it does on ctrl+c when started manually)
+- stop.sh should kill looper.py (but not all python3 scripts...)
 - SL sometimes has a little squeal, and is only in L speaker?

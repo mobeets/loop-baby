@@ -13,7 +13,8 @@ sleep 1
 jack_lsp -c
 
 # connect input/output to route through SL
-jack_connect system:capture_1 sooperlooper:common_in_1 || echo "error connecting audio (1)"
+jack_connect system:capture_1 sooperlooper:common_in_1 || echo "error connecting audio (1a)"
+jack_connect system:capture_1 sooperlooper:common_in_2 || echo "error connecting audio (1b)"
 jack_connect sooperlooper:common_out_1 system:playback_1 || echo "error connecting audio (2)"
 jack_connect sooperlooper:common_out_2 system:playback_2 || echo "error connecting audio (3)"
 
