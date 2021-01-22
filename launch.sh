@@ -32,4 +32,10 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
+echo "Env..."
+env
+echo "Info..."
+whoami
+pwd
 python3 $LOOP_BABY_HOME/loop-baby/looper.py -v > $LOOP_BABY_HOME/looper.log 2>&1 &
+echo "Started loop-baby."
