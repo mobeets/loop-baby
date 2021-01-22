@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOOP_BABY_HOME="/usr/local/patchbox-modules/imported/loop-baby/"
+LOOP_BABY_HOME="/usr/local/patchbox-modules/imported/loop-baby"
 
 # run 'sudo journalctl -u patchbox-init' to check logs
 
