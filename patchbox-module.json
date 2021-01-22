@@ -8,6 +8,7 @@
         "jack.service"
     ],
     "scripts": {
+        "install": "install.sh",
         "launch": "launch.sh"
     }
 }
