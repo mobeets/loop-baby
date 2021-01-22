@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # start sooperlooper (SL)
-killall -9 sooperlooper || echo "sooperlooper was not running."
+killall -9 sooperlooper
 sooperlooper -p 9951 -l 1 -c 2 -t 20 > sl.log 2>&1 &
 
 # wait for SL to start
@@ -28,4 +28,5 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
+pwd
 python3 loop-baby/looper.py -v > looper.log 2>&1 &

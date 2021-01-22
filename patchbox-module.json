@@ -1,7 +1,7 @@
 {
     "name": "loopbaby",
     "version": "1.0.0",
-    "description": "loop-baby module",
+    "description": "loop-baby: neotrellis controls for sooperlooper",
     "author": "Jay H",
     "launch_mode": "auto",
     "depends_on": [
@@ -9,6 +9,7 @@
     ],
     "scripts": {
         "install": "install.sh",
-        "launch": "launch.sh"
+        "launch": "launch.sh",
+        "stop": "stop.sh"
     }
 }

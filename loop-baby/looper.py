@@ -3,14 +3,16 @@ import sys
 import time
 import argparse
 import subprocess
+
+# interface options: trellis, keyboard
 try:
     from trellis import Trellis
 except:
-    print('WARNING: Could not import Trellis')
+    print("WARNING: Could not import Trellis. Try running 'sudo pip3 install adafruit-circuitpython-neotrellis'")
+from keyboard import Keyboard
 
 from actions import make_actions
 from osc import OscSooperLooper, slider_ratio_to_gain_ratio
-from keyboard import Keyboard
 from save_and_recall import SLSessionManager
 from button_settings import COLOR_MAP, BUTTON_MAP, SETTINGS_MAP, SCREENSAVER_TIME_SECS
 
@@ -241,7 +243,7 @@ class Looper:
         elif self.mode == 'volume':
             if self.selected_track is None:
                 # show tracks you can select to then set volume
-                for loop in self.loops:                
+                for loop in self.loops:
                     if not loop.is_enabled:
                         color = 'off'
                     elif loop.has_had_something_recorded:
@@ -254,7 +256,7 @@ class Looper:
                 # all tracks up to that proportion
                 # e.g., if slider_ratio is 0.5, color the first 4 tracks
                 track_count = int((len(self.loops)-1)*self.selected_track.volume_ratio)
-                for loop in self.loops:                
+                for loop in self.loops:
                     if loop.track <= track_count:
                         color = 'volume'
                     else:
@@ -265,7 +267,7 @@ class Looper:
             # all tracks up to that proportion
             # e.g., if slider_ratio is 0.5, color the first 4 tracks
             track_count = int((len(self.loops)-1)*self.gain_slider)
-            for loop in self.loops:                
+            for loop in self.loops:
                 if loop.track <= track_count:
                     color = 'gain'
                 else:
@@ -276,7 +278,7 @@ class Looper:
             # all tracks up to that proportion
             # e.g., if slider_ratio is 0.5, color the first 4 tracks
             track_count = int((len(self.loops)-1)*self.monitor_slider)
-            for loop in self.loops:                
+            for loop in self.loops:
                 if loop.track <= track_count:
                     color = 'monitor'
                 else:

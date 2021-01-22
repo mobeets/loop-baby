@@ -28,17 +28,6 @@ $ sudo apt-get purge pulseaudio
 
 $ sudo pip3 install adafruit-circuitpython-neotrellis
 
-$ sudo systemctl stop pisound-ctl.service
-$ sudo systemctl stop pisound-btn
-$ sudo systemctl stop bluealsa
-$ sudo systemctl stop bluetooth
-$ sudo systemctl mask pisound-ctl.service # nb 'mask' is patchbox-specific; acts like 'disable'
-$ sudo systemctl mask pisound-btn
-$ sudo systemctl mask bluealsa
-$ sudo systemctl mask bluetooth
-$ sudo cp static/looper_patchbox.service /etc/systemd/system/looper.service
-$ sudo systemctl enable looper.service
-
 ## To start looper manually:
 
 sooperlooper -p 9951 -l 1 -c 2 -t 20 &
@@ -53,15 +42,6 @@ python3 loop-baby/looper.py -v
 $ patchbox module install https://github.com/mobeets/loop-baby # downloads to /usr/local/patchbox-modules/imported/
 $ patchbox module activate loop-baby
 $ patchbox module launch loop-baby
-
-## To do
-
-- make patchbox module run loop-baby only within module folder (not ~/loop-baby)
-	- this will involve fixing path to looper.py in launch
-	- to update code, go to /usr/local/patchbox-modules/imported/ and run 'sudo git pull'
-- also, make looper.py write to log files, for better debugging
-- another issue is it says no numpy? (as if python2 and not python3 is being called?)
-	- it might be running as root user
 
 ## Usage notes
 
