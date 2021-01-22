@@ -1,12 +1,10 @@
 #!/bin/bash
 
-LOOP_BABY_HOME="/usr/local/patchbox-modules/imported/loop-baby"
-
 # run 'sudo journalctl -u patchbox-init' to check logs
 
 # start sooperlooper (SL)
 killall -9 sooperlooper
-sooperlooper -p 9951 -l 1 -c 2 -t 20 > $LOOP_BABY_HOME/sl.log 2>&1 &
+sooperlooper -p 9951 -l 1 -c 2 -t 20 > $PATCHBOX_MODULE_ACTIVE/sl.log 2>&1 &
 
 # wait for SL to start
 sleep 1
@@ -32,10 +30,11 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
-echo "Env..."
+echo "env..."
 env
-echo "Info..."
-whoami
+echo "pwd..."
 pwd
-python3 $LOOP_BABY_HOME/loop-baby/looper.py -v > $LOOP_BABY_HOME/looper.log 2>&1 &
+python3 $PATCHBOX_MODULE_ACTIVE/loop-baby/looper.py -v > $PATCHBOX_MODULE_ACTIVE/looper.log 2>&1 &
 echo "Started loop-baby."
+ps aux | grep loop
+echo "Done."
