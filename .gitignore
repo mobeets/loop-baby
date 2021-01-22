@@ -2,7 +2,7 @@
 .DS_Store
 __pycache__/
 _old/
-jackd_errors.log
+*.log
 static/samples/
 static/saved_sessions/*
 !static/saved_sessions/empty_session.slsess

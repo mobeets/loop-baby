@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# run 'sudo journalctl -u patchbox-init' to check logs
+
 # start sooperlooper (SL)
 killall -9 sooperlooper
 sooperlooper -p 9951 -l 1 -c 2 -t 20 > sl.log 2>&1 &
@@ -28,5 +30,5 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
-pwd
-python3 loop-baby/looper.py -v > looper.log 2>&1 &
+LOOP_BABY_HOME="/usr/local/patchbox-modules/imported/loop-baby/"
+python3 $LOOP_BABY_HOME/loop-baby/looper.py -v > $LOOP_BABY_HOME/looper.log 2>&1 &
