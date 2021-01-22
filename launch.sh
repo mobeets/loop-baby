@@ -4,7 +4,7 @@
 
 # start sooperlooper (SL)
 killall -9 sooperlooper
-sooperlooper -p 9951 -l 1 -c 2 -t 20 > sl.log 2>&1 &
+sooperlooper -p 9951 -l 1 -c 2 -t 20 > $LOOP_BABY_HOME/sl.log 2>&1 &
 
 # wait for SL to start
 sleep 1
