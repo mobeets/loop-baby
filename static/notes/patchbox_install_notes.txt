@@ -48,3 +48,8 @@ $ patchbox module launch loop-baby
 - 2021-01-18: no crispy sound issues! maybe it was the disabling of the other systemctl processes?
 - 2021-01-19: finally got audio monitoring turned off, using alsamixer, by muting the "Mic" playback meter (not the capture one) for my usb interface; still no crispy sound issues, though maybe a pop or two
 - 2021-01-21: permanently disabled unneeded systemctl processes using 'systemctl mask'
+
+## Issues
+
+- "terminate()" does not turn off trellis lights before quitting
+- SL sometimes has a little squeal, and is only in L speaker?

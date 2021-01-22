@@ -4,7 +4,7 @@
 
 # start sooperlooper (SL)
 killall -9 sooperlooper
-su patch -c 'sudo sooperlooper -p 9951 -l 1 -c 2 -t 20 > $PATCHBOX_MODULE_ACTIVE/sl.log 2>&1 &'
+su patch -c 'sooperlooper -p 9951 -l 1 -c 2 -t 20 > $HOME/sl.log 2>&1 &'
 
 # wait for SL to start
 sleep 1
@@ -30,13 +30,5 @@ else
       aconnect $midi_in:0 $midi_out:0
 fi
 
-echo "env..."
-env
-echo "pwd..."
-pwd
-su patch -c 'env'
-echo "Okay."
-su patch -c 'sudo python3 $PATCHBOX_MODULE_ACTIVE/loop-baby/looper.py -v > $PATCHBOX_MODULE_ACTIVE/looper.log 2>&1 &'
+su patch -c 'python3 $PATCHBOX_MODULE_ACTIVE/loop-baby/looper.py -v > $HOME/looper.log 2>&1 &'
 echo "Started loop-baby."
-ps aux | grep loop
-echo "Done."
