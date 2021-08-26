@@ -7,7 +7,7 @@ hardware:
 
 - raspberry pi (3B) with USB audio interface
 - [neotrellis pcb](https://www.adafruit.com/product/3954) and [silicone buttons](https://www.adafruit.com/product/1611) for controlling the looper
-- laser-cut enclosure (`static/design.ai`)
+- laser-cut enclosure (`static/photos/design.ai`)
 - full [parts list](https://github.com/mobeets/loop-baby/wiki/Parts-list) with costs
 
 software:
