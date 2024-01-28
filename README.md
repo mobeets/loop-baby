@@ -1,7 +1,7 @@
 # loop-baby
 portable audio looper using raspberry pi, sooperlooper, and a [neotrellis](https://www.adafruit.com/product/3954) pcb
 
-<img alt="alt_text" width="40%" src="static/photos/box.jpg" /><img alt="alt_text" width="40%" src="static/photos/guts.JPG" />
+<img alt="alt_text" width="40%" src="static/photos/box.jpg" /><img alt="alt_text" width="31%" src="static/photos/guts.jpeg" /> <img alt="alt_text" width="28%" src="static/photos/design.png" />
 
 the goal was to build an affordable audio looper that has time quantization (via a midi clock signal)
 
