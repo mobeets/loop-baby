@@ -31,7 +31,3 @@ software:
 `python3 looper.py -v -s`
 
 the loops will be time quantized if you provide a clock signal via a midi-usb cable
-
-## issues
-
-for mysterious reasons I could never quite understand, jackd or sooperlooper often silently crash. see `static/notes/issues.txt` for other odd bugs I could never fully resolve.
