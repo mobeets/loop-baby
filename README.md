@@ -1,15 +1,18 @@
 # loop-baby
-portable audio looper using raspberry pi, sooperlooper, and a [neotrellis](https://www.adafruit.com/product/3954) pcb
 
-<img alt="alt_text" width="40%" src="static/photos/box.jpg" /><img alt="alt_text" width="31%" src="static/photos/guts.jpeg" /> <img alt="alt_text" width="28%" src="static/photos/design.png" />
+a portable and affordable audio looper with quantization
 
-goal: an affordable audio looper with quantization
+<img alt="alt_text" width="25%" src="static/photos/design.png" /><img alt="alt_text" width="40%" src="static/photos/box2.jpg" /><img alt="alt_text" width="25%" src="static/photos/guts.jpeg" />
 
 how it works:
 - audio input/output via a usb audio adapter
 - midi clock signal via a midi-usb cable
 - raspberry pi (with Raspbian) routes audio through [sooperlooper](http://essej.net/sooperlooper/)
 - buttons interface with sooperlooper (via `looper.py`) to control recording/playback/saving/loading/etc.
+
+## demo
+
+https://github.com/mobeets/loop-baby/assets/1677179/cba4f8eb-7a24-425d-93a7-ca97e52e5eff
 
 ## requirements
 
