@@ -3,7 +3,13 @@ portable audio looper using raspberry pi, sooperlooper, and a [neotrellis](https
 
 <img alt="alt_text" width="40%" src="static/photos/box.jpg" /><img alt="alt_text" width="31%" src="static/photos/guts.jpeg" /> <img alt="alt_text" width="28%" src="static/photos/design.png" />
 
-the goal was to build an affordable audio looper that has time quantization (via a midi clock signal)
+goal: an affordable audio looper with quantization
+
+how it works:
+- audio input/output via a usb audio adapter
+- midi clock signal via a midi-usb cable
+- raspberry pi (with Raspbian) routes audio through [sooperlooper](http://essej.net/sooperlooper/)
+- buttons interface with sooperlooper (via `looper.py`) to control recording/playback/saving/loading/etc.
 
 ## requirements
 
@@ -25,3 +31,7 @@ software:
 `python3 looper.py -v -s`
 
 the loops will be time quantized if you provide a clock signal via a midi-usb cable
+
+## issues
+
+for mysterious reasons I could never quite understand, jackd or sooperlooper often silently crash. see `static/notes/issues.txt` for other odd bugs I could never fully resolve.
