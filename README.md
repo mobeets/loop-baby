@@ -1,6 +1,10 @@
 # loop-baby
 portable audio looper using raspberry pi, sooperlooper, and a [neotrellis](https://www.adafruit.com/product/3954) pcb
 
+<img alt="alt_text" width="40%" src="static/photos/box.jpg" /><img alt="alt_text" width="40%" src="static/photos/guts.JPG" />
+
+the goal was to build an affordable audio looper that has time quantization (via a midi clock signal)
+
 ## requirements
 
 hardware:
@@ -19,3 +23,5 @@ software:
 ## running
 
 `python3 looper.py -v -s`
+
+the loops will be time quantized if you provide a clock signal via a midi-usb cable
