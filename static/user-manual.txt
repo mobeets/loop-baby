@@ -1,0 +1,19 @@
+## Overview
+
+In general, pressing one the bottom two rows of buttons sets the "mode" of the looper, while pressing any of the top two rows of buttons takes an action corresponding to the looper's current mode. With the exception of the PLAY button, pressing a mode button on its own does not change anything within Sooperlooper. Nothing really happens until you press one of the track buttons. For example, pressing the MUTE/DEL button doesn't mute or delete anything. But if you press the MUTE/DEL button once and _then_ press the track 1 button, this will mute track 1.
+
+## How to do most things
+
+- to record a new track: first make sure the PLAY button is green, then press the REC/ADD button once to enter "record" mode. to begin recording, press one of the track buttons (1-4) (the button will then turn red); to stop recording, press the track button again.
+
+- to adjust the playback volume of a recorded track: press GAIN button once to enter "volume" mode (button should be red), then select desired track whose volume you want to modify, then press track 1-8 to set the desired input gain level
+
+- to adjust input gain, or recording level: press GAIN button two times to enter "input gain" mode (colors should be red then orange), then press track 1-8 to set the desired input gain level
+
+- to turn off monitoring of input audio ("pass-thru audio"): press GAIN button three times to enter "monitor" mode (colors should be red then orange then yellow), then press track 1 to set to the lowest possible level
+
+- to restart or shut down the looper: press the SETTINGS button, then press the red button to shut down, the orange button to do a hard restart, or the yellow button to do a soft restart
+
+- to mute a track: press MUTE/DEL button once (it should be light blue), then press the track number you want to mute. (to unmute, press the track button again to toggle it back on.)
+
+- to clear a track (i.e., delete the recorded audio on a track), press the MUTE/DEL button twice (colors should be light blue, then blue), and then press the track number you want to clear two times.
