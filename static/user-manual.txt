@@ -17,3 +17,19 @@ In general, pressing one the bottom two rows of buttons sets the "mode" of the l
 - to mute a track: press MUTE/DEL button once (it should be light blue), then press the track number you want to mute. (to unmute, press the track button again to toggle it back on.)
 
 - to clear a track (i.e., delete the recorded audio on a track), press the MUTE/DEL button twice (colors should be light blue, then blue), and then press the track number you want to clear two times.
+
+## Developer mode
+
+To connect to the Loop Baby, run `ssh ssh pi@raspberrypi.local` with password: `trademarks`.
+
+The file `static/looper.service` is copied to `/etc/systemd/system`, which is why the looper starts when you boot up the Pi. This calls `looper.py -s`, which in turns calls `./startup.sh`, which starts `jackd`, `sooperlooper`. You can monitor the logs of `looper.service` with:
+
+`journalctl -u looper --no-pager -f`
+
+To run the process manually, you first need to stop `looper.service`, with: `sudo systemctl stop looper`. Then you can run `/usr/bin/python3 -u /home/pi/loop-baby/loop-baby/looper.py -v -s`.
+
+No audio? Try running `speaker-test -c2 -t wav`. In another tab (with the same ssh connection), run `alsamixer`.
+
+In `alsamixer`, when things are working you will see three things in the [All] View: Speaker [Playback] (the output), Mic [Playback] (the input signal; e.g., your phone playing music when plugged into the usb interface), and Mic [CAPTURE]. All the crackling I've seen exist is on the Mic [CAPTURE] line. I think you actually just want to set that level to 0. Because the Mic [Playback] will get routed to sooperlooper anyway.
+
+For the record, I don't currently know how to get the Focusrite showing up in alsamixer. I know I did in 2021, but in Jan 2024, I cannot. But the little black usb one is working just fine currently.
